@@ -1,0 +1,10 @@
+{
+  "files": [
+    { "path": ".claude-plugin/marketplace.json", "field": "plugins.0.version" },
+    { "path": ".claude-plugin/plugin.json", "field": "version" },
+    { "path": ".codex-plugin/plugin.json", "field": "version" }
+  ],
+  "audit": {
+    "exclude": ["node_modules", "_workspaces", "*.log", ".DS_Store"]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "my-poor-ai",
+  "version": "4.0.0",
+  "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent pipelines, and doc sync.",
+  "author": {
+    "name": "hicucu"
+  },
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "brainstorming",
+    "planning",
+    "code-review",
+    "subagent",
+    "worktree"
+  ]
+}

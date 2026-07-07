@@ -1,0 +1,5 @@
+# 마크다운은 포매팅 제외.
+# 에이전트/스킬 지시문의 중첩 코드펜스(4-backtick 템플릿 안의 3-backtick 블록)를
+# 포매터가 재배열하면서 템플릿이 조기 닫히고 본문 헤더가 코드블록에 갇힌 사례가
+# 있다 (planning-agent, project-context-agent, anthropic-best-practices 복구 이력).
+*.md

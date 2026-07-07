@@ -1,0 +1,1 @@
+배포 후부터 API가 간헐적으로 503을 반환해. 로그에는 "connection pool exhausted"가 찍혀있어.
