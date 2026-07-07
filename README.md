@@ -7,6 +7,15 @@
 
 **my-poor-ai** makes Claude Code follow real engineering process — test-driven development, root-cause debugging, design review, and verified completion — instead of vibe-coding. It routes every request through an orchestrator that picks the right pipeline, dispatches specialized subagents, and refuses to report "done" without proof.
 
+## Honestly, I'm Not Even Sure How
+
+Other than this paragraph, I didn't write any of this. It's all AI-made.
+It started with an instructions.md file and one line: "end sentences with noun forms." Then I added "put commas in big numbers," and kept tacking on lines until the file got big and I split it up. Then I split those pieces further, said "turn this file into a skill" to get skills, "make a command" to get slash commands, and "do this, do that" to get subagents — and around then the first plugin I'd ever installed was `superpowers`, and seeing it made me go "ooh, I want a plugin too~" and ask for one, and that snowballed into this.
+Up through roughly v2 I had it polish stuff I'd written myself — "do this, do that, polish this one like this and that one like that." At some point I stopped doing anything except saying "just do the thing~."
+And it (my-poor-ai, or whatever came before it) just handled everything on its own, start to finish.
+Even this version started the same way — with the previous one, I began with "let's level this up," and eventually it became just "I want the thing~," and that's how we got here.
+It told me there was some whole checklist for open-sourcing this, so I said sure, go for it, and writing this paragraph at the end is the only thing I actually did. (Only the Korean text is mine — the English is whatever the AI translated on its own.)
+
 ## Why My Poor AI
 
 AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **19 skills** (process rules the agent must follow), **24 subagents** (single-responsibility workers), and **13 slash commands**, wired together by an orchestrator that classifies each request and enforces the matching pipeline.
