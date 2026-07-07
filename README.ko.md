@@ -110,7 +110,12 @@ my-poor-ai/
 
 my-poor-ai는 순수 지침이라 외부 연동을 내장하지 않음. [docs/recommended-mcp.md](docs/recommended-mcp.md)가 파이프라인 단계별로 능력을 보강하는 MCP 서버를 정리함 (설계 시 문서 조회, 검증 시 브라우저 자동화, 리뷰 흐름의 GitHub 연동). 전부 없어도 동작함.
 
-약속이 아니라 증거를 원한다면 [examples/go-fractals/](examples/go-fractals/) 참조 — 이 파이프라인이 **완전 무인으로** 만든 실동작 Go CLI(Sierpinski + Mandelbrot ASCII 렌더러)임. 플랜 태스크 10개에 태스크당 TDD 커밋 1개, 자체 테스트·리뷰 단계가 잡아낸 수정 커밋까지 포함. 전체 커밋 이력과 검증 결과는 [PROVENANCE.md](examples/go-fractals/PROVENANCE.md)에 있음. 직접 재현: `bash tests/subagent-driven-dev/run-test.sh go-fractals` (`claude` CLI 호출, 실제 토큰과 10–30분 소요).
+약속이 아니라 증거를 원한다면 — 이 파이프라인이 **완전 무인으로** 만든 예제 2종이 있으며, 각각의 `PROVENANCE.md`에 전체 커밋 이력과 검증 결과가 있음:
+
+- [examples/go-fractals/](examples/go-fractals/) — 주어진 플랜에서 만든 실동작 Go CLI(Sierpinski + Mandelbrot ASCII 렌더러): 태스크 10개, 태스크당 TDD 커밋 1개, 자체 테스트·리뷰가 잡아낸 수정 커밋 포함
+- [examples/svelte-todo/](examples/svelte-todo/) — **요구사항 7줄 외엔 아무것도 없이** 만든 Svelte 5 투두 앱: design.md 자체를 brainstorming 단계가 작성하고, 계획·구현(테스트 30/30)·리뷰 수정까지 완료. 파이프라인이 스스로 만든 설계/스펙/리뷰 아티팩트를 `pipeline-artifacts/`에 원본 보존
+
+직접 재현: `bash tests/subagent-driven-dev/run-test.sh go-fractals` (`claude` CLI 호출, 실제 토큰과 10–30분+ 소요).
 
 ## 기원
 

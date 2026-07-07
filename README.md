@@ -110,7 +110,12 @@ my-poor-ai/
 
 my-poor-ai is pure instruction — no bundled integrations. [docs/recommended-mcp.md](docs/recommended-mcp.md) lists MCP servers that strengthen specific pipeline phases (docs lookup for design, browser automation for verification, GitHub for review flow). Everything works without them.
 
-Want proof instead of promises? [examples/go-fractals/](examples/go-fractals/) is a working Go CLI (Sierpinski + Mandelbrot ASCII renderers) built **entirely unattended** by this pipeline — 10 plan tasks, one TDD commit each, plus fix commits its own tests and review phase caught along the way. [PROVENANCE.md](examples/go-fractals/PROVENANCE.md) has the full commit trail and verification. To reproduce it yourself: `bash tests/subagent-driven-dev/run-test.sh go-fractals` (invokes the `claude` CLI; real tokens, 10–30 minutes).
+Want proof instead of promises? Two examples were built **entirely unattended** by this pipeline, each with a full commit trail and verification in its `PROVENANCE.md`:
+
+- [examples/go-fractals/](examples/go-fractals/) — a working Go CLI (Sierpinski + Mandelbrot ASCII renderers) built from a given plan: 10 tasks, one TDD commit each, plus fix commits its own tests and review phase caught
+- [examples/svelte-todo/](examples/svelte-todo/) — a Svelte 5 todo app built from **seven requirement bullets and nothing else**: the design document itself was authored by the brainstorming phase, then planned, implemented (30/30 tests), and review-fixed; the pipeline's own design/specs/review artifacts are preserved in `pipeline-artifacts/`
+
+To reproduce: `bash tests/subagent-driven-dev/run-test.sh go-fractals` (invokes the `claude` CLI; real tokens, 10–30+ minutes).
 
 ## Origin
 

@@ -1,0 +1,25 @@
+{
+  "_reviewNote": "오케스트레이터 승인 (무인 CI, 2026-07-07): 8개 스펙 전수 확인 — 플레이스홀더 없음, 테스트/구현 코드 완전 작성됨, 의존 순서 타당. 승인하고 구현 단계로 진행.",
+  "workspaceDir": "_workspaces/svelte-todo",
+  "specs": [
+    "spec-a.md",
+    "spec-b.md",
+    "spec-c.md",
+    "spec-d.md",
+    "spec-e.md",
+    "spec-f.md",
+    "spec-g.md",
+    "spec-h.md"
+  ],
+  "businessLogicFiles": [
+    "src/lib/types.ts",
+    "src/lib/todos.svelte.ts"
+  ],
+  "developmentOrder": [
+    { "group": 1, "specs": ["spec-a.md"] },
+    { "group": 2, "specs": ["spec-b.md"] },
+    { "group": 3, "specs": ["spec-c.md", "spec-d.md", "spec-f.md", "spec-g.md"] },
+    { "group": 4, "specs": ["spec-e.md"] },
+    { "group": 5, "specs": ["spec-h.md"] }
+  ]
+}
