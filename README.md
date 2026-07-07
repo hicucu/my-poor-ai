@@ -28,6 +28,18 @@ AI coding agents are fast but undisciplined: they fix symptoms instead of root c
 
 ### 3. Register the SessionStart hook
 
+Once registered, the `using-my-poor-ai` skill context is injected automatically at every session start (`/clear`, `/compact`, new session). Choose either automatic or manual registration.
+
+#### Automatic registration
+
+```
+/my-poor-ai:setup
+```
+
+The `my-poor-ai:setup` skill reads and updates `~/.claude/settings.json` directly.
+
+#### Manual registration
+
 Add the following to the `hooks` section of `~/.claude/settings.json`:
 
 ```json
@@ -43,8 +55,6 @@ Add the following to the `hooks` section of `~/.claude/settings.json`:
   }
 ]
 ```
-
-Once registered, the `using-my-poor-ai` skill context is injected automatically at every session start (`/clear`, `/compact`, new session).
 
 ## How It Works
 
