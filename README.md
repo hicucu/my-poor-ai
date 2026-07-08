@@ -18,7 +18,7 @@ It told me there was some whole checklist for open-sourcing this, so I said sure
 
 ## Why My Poor AI
 
-AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **19 skills** (process rules the agent must follow), **24 subagents** (single-responsibility workers), and **13 slash commands**, wired together by an orchestrator that classifies each request and enforces the matching pipeline.
+AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **19 skills** (process rules the agent must follow), **24 subagents** (single-responsibility workers), and **12 slash commands**, wired together by an orchestrator that classifies each request and enforces the matching pipeline.
 
 ## Quick Start
 
@@ -81,7 +81,7 @@ The FULL path runs a 5-phase multi-agent pipeline: a brainstorming agent produce
 
 - **19 skills** — TDD, systematic debugging, brainstorming, plan writing, code review (giving and receiving), multi-agent pipelines, doc sync, worktree isolation, skill authoring, and more
 - **24 subagents** — project-context capture, a 10-agent docs suite, a 9-agent feature pipeline, and a 4-agent subagent-driven flow; each with a single responsibility and an explicit I/O contract (see `AGENTS.md`)
-- **13 slash commands** — `/my-poor-ai:code-review`, `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, session management, stack detection, and setup utilities
+- **12 slash commands** — `/my-poor-ai:code-review`, `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, session management, stack detection, and setup utilities
 - **Session handoff** — `HANDOFF.md` records narrative context at spec/phase completion so a fresh session can pick up mid-pipeline; `GOAL.md` tracks goal and success criteria as a completion gate
 - **Multi-platform** — Claude Code first; agent definitions auto-generated for Codex (`.codex/agents/`), tool mappings for Copilot CLI, Gemini CLI, and an OpenCode test suite
 
@@ -112,7 +112,7 @@ my-poor-ai/
 ├── .claude-plugin/        # marketplace + plugin manifests
 ├── .codex/agents/         # auto-generated Codex agent definitions (do not edit)
 ├── agents/                # 24 subagent definitions (single source of truth)
-├── commands/              # 13 slash commands
+├── commands/              # 12 slash commands
 ├── hooks/                 # SessionStart hooks (Claude Code + Cursor)
 ├── skills/                # 19 skill directories
 ├── scripts/               # CI validators + Codex mirror generator

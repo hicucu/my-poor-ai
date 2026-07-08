@@ -9,7 +9,7 @@
 
 | 그룹             | 에이전트 수 | 소속 스킬                                             | 호출 방식                                                  |
 | ---------------- | ----------- | ----------------------------------------------------- | ---------------------------------------------------------- |
-| 공통 인프라      | 1개         | `using-my-poor-ai`                                    | setup-all, using-my-poor-ai 복잡 경로 Phase 0, 신규 요구사항 수신 시 호출 |
+| 공통 인프라      | 1개         | `using-my-poor-ai`                                    | using-my-poor-ai 복잡 경로 Phase 0, 신규 요구사항 수신 시 호출 |
 | docs-suite       | 10개        | `generate-claude-instructions`, `sync-docs-from-diff` | 스킬 오케스트레이터 → 병렬 fan-out                         |
 | feature-pipeline | 9개         | `feature-pipeline`                                    | Phase 1→5 순차 (Phase 내 일부 병렬)                        |
 | subagent-driven 플로우 | 4개   | `using-my-poor-ai` (복잡 경로 FULL)                        | main agent가 `subagent_type`으로 직접 스폰                 |
@@ -28,7 +28,7 @@
 
 모든 기능개발 시작 전 프로젝트 상태 캡처.
 
-**호출 시점**: setup-all 실행, using-my-poor-ai 복잡 경로 Phase 0, 신규 요구사항 수신
+**호출 시점**: using-my-poor-ai 복잡 경로 Phase 0, 신규 요구사항 수신
 **입력**: `CWD`, `mode` (full | stack-only), `output` 경로
 **출력**: `_workspaces/project-context.md`
 
