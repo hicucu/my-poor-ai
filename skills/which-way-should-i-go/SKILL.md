@@ -11,6 +11,25 @@ description: Use when starting a project with no existing codebase and only a go
 
 ## 사용 시점
 
+brainstorming과의 선택 기준은 단 하나 — 방향이 정해져 있는가:
+
+```dot
+digraph direction_gate {
+    "방향(무엇을·어떤 방식으로)이 정해져 있는가?" [shape=diamond];
+    "which-way-should-i-go" [shape=box];
+    "my-poor-ai:brainstorming" [shape=box];
+    "사용자에게 확인: '방향은 정해진 상태인가요?'" [shape=box];
+
+    "방향(무엇을·어떤 방식으로)이 정해져 있는가?" -> "which-way-should-i-go" [label="아니오"];
+    "방향(무엇을·어떤 방식으로)이 정해져 있는가?" -> "my-poor-ai:brainstorming" [label="예"];
+    "방향(무엇을·어떤 방식으로)이 정해져 있는가?" -> "사용자에게 확인: '방향은 정해진 상태인가요?'" [label="애매함"];
+}
+```
+
+**애매하면 추측하지 않고 사용자에게 직접 물음.** 사용자가 특정 기술·방식을 언급했더라도 그것이 확정인지 검토 중인 후보인지 불분명하면 애매함으로 취급함.
+
+방향 미정의 전형적 상황:
+
 - 코드베이스 없이 목표만 있음 (0에서 시작)
 - 목표는 있으나 기술스택·전체 접근법이 미정
 - 기존 코드베이스와 결이 다른 도메인의 기능 추가 (커머스 앱에 소셜 기능, 소셜 앱에 게임, 게임에 실물 거래 등)
