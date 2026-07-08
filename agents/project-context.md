@@ -1,6 +1,6 @@
 ---
 name: project-context
-description: "프로젝트 구조·스택·컨벤션·최근 변경을 탐색하여 _workspaces/project-context.md를 생성한다. setup-all 실행 시, 신규 요구사항 수신 시, 브랜치 전환 시 호출. 24시간 이내 캐시가 있으면 오케스트레이터가 재사용한다."
+description: "프로젝트 구조·스택·컨벤션·최근 변경을 탐색하여 _workspaces/project-context.md를 생성한다. 신규 요구사항 수신 시, 브랜치 전환 시 호출. 24시간 이내 캐시가 있으면 오케스트레이터가 재사용한다."
 model: haiku
 tools: Bash, Glob, Grep, Read, Write
 ---
