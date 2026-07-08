@@ -117,7 +117,7 @@ my-poor-ai/
 ├── skills/                # 19 skill directories
 ├── scripts/               # CI validators + Codex mirror generator
 ├── tests/                 # deterministic + LLM-behavioral + pressure-scenario suites
-├── docs/                  # recommended MCP pairings, listing drafts
+├── docs/                  # recommended MCP pairings
 ├── AGENTS.md              # agent I/O contracts and invariants
 ├── CLAUDE.md              # working agreement for AI agents in this repo
 ├── CHANGELOG.md
