@@ -117,7 +117,7 @@ my-poor-ai/
 ├── skills/                # 스킬 디렉토리 19개
 ├── scripts/               # CI 검증기 + Codex 미러 생성기
 ├── tests/                 # 결정론적 + LLM 행동 + 압박 시나리오 스위트
-├── docs/                  # 권장 MCP 조합, 등재 초안
+├── docs/                  # 권장 MCP 조합
 ├── AGENTS.md              # 에이전트 입출력 계약·불변식
 ├── CLAUDE.md              # 이 저장소에서 AI 에이전트의 작업 협약
 ├── CHANGELOG.md
