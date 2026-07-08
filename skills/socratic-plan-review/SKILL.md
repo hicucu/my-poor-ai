@@ -1,6 +1,6 @@
 ---
 name: socratic-plan-review
-description: Use to validate a complex plan before execution — when it involves architectural changes, modifying 5+ files, irreversible operations, or introducing new external dependencies. Uses Socratic maieutics to surface hidden assumptions, unexamined edge cases, and missing rollback scenarios through structured questions.
+description: Use to validate a complex plan before execution — when it involves architectural changes, modifying 3+ files, irreversible operations, or introducing new external dependencies.
 ---
 
 # Socratic Plan Review — 소크라테스 산파술 플랜 검증
@@ -10,6 +10,8 @@ description: Use to validate a complex plan before execution — when it involve
 플랜은 이미 존재하지만 "미완성 태아" 상태임. 산파술(maieutics)은 플랜을 직접 수정하는 것이 아니라, **7개 카테고리의 구조화된 질문**으로 숨겨진 가정·미검토 엣지 케이스·누락된 롤백 시나리오를 표면화하여 플랜이 완전한 형태로 "탄생"하도록 도움.
 
 > **산파술 원칙**: 답을 대신 써주는 것이 아님. 질문이 플랜을 완성시킴.
+
+**질문 수신 규칙**: 7개 카테고리는 먼저 자기 점검으로 수행함 — 각 질문의 답을 플랜과 코드베이스에서 근거로 찾음. 플랜·코드에서 답을 찾을 수 없는 질문(운영 정책, 비즈니스 판단, 배포 창구 등)만 사용자에게 선별하여 전달함. 전부 사용자에게 떠넘기지 않고, 근거 없이 전부 스스로 답하지도 않음.
 
 ## 발동 조건
 
@@ -83,6 +85,11 @@ description: Use to validate a complex plan before execution — when it involve
 ```
 
 5번 "왜" 후에도 근거가 견고하면 진행. 모호해지면 플랜을 보강하거나 사용자에게 확인.
+
+## 기록
+
+- 점검 결과(카테고리별 발견 사항·미해결 질문)는 `_workspaces/{branch-slug}/socratic-review.md`에 기록함
+- 점검으로 드러난 보강 사항(롤백 경로, 성공 기준 등)은 플랜 문서 자체에 반영함 — 리뷰 파일에만 남기고 플랜을 방치하지 않음
 
 ## 완료 기준
 

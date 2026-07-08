@@ -31,3 +31,5 @@ claude < {scenario}.md
 | `verification-pressure.md`  | `my-poor-ai:verification-before-completion` |
 | `brainstorming-pressure.md` | `my-poor-ai:brainstorming`                  |
 | `pipeline-dispatch.md`      | `using-my-poor-ai` 복잡도 분류              |
+| `which-way-should-i-go-pressure.md` | `my-poor-ai:which-way-should-i-go`  |
+| `socratic-plan-review-pressure.md`  | `my-poor-ai:socratic-plan-review`   |
