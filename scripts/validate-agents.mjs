@@ -31,7 +31,7 @@ const err = (file, msg) => errors.push(`${file}: ${msg}`);
 // ---------- 1. agents/*.md frontmatter ----------
 const agentDir = join(ROOT, 'agents');
 const agentNames = new Set();
-for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md')).sort()) {
+for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.startsWith('README')).sort()) {
   const path = `agents/${f}`;
   const text = readFileSync(join(agentDir, f), 'utf8');
   const m = text.match(/^---\n([\s\S]*?)\n---\n/);
@@ -122,7 +122,7 @@ for (const rel of allMd) {
     + readFileSync(join(ROOT, 'README.md'), 'utf8');
   for (const f of readdirSync(join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).sort()) {
     const stem = f.replace(/\.md$/, '');
-    if (stem === 'commands') continue;
+    if (stem === 'commands' || f.startsWith('README')) continue;
     if (!catalog.includes(stem)) {
       err(`commands/${f}`, '카탈로그(commands.md)·CLAUDE.md·README.md 어디에도 소개되지 않는 커맨드');
     }
