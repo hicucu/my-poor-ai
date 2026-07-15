@@ -39,7 +39,7 @@ const tomlEscape = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
 // ---------- agents/*.md → toml 내용 생성 ----------
 const generated = new Map(); // toml 파일명 → 내용
-for (const f of readdirSync(AGENT_DIR).filter((f) => f.endsWith('.md')).sort()) {
+for (const f of readdirSync(AGENT_DIR).filter((f) => f.endsWith('.md') && !f.startsWith('README')).sort()) {
   const src = `agents/${f}`;
   const text = readFileSync(join(AGENT_DIR, f), 'utf8');
   const m = text.match(/^---\n([\s\S]*?)\n---\n/);
