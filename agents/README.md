@@ -62,3 +62,7 @@ Spawned directly by the main agent via `subagent_type` on the `using-my-poor-ai`
 | [`planning-agent.md`](planning-agent.md) | Breaks an approved `design.md` down into TDD task specs (`specs/*.md`, `file-manifest.json`). |
 | [`developer-agent.md`](developer-agent.md) | Implements a single spec via TDD (RED-GREEN-REFACTOR) and commits. |
 | [`review-agent.md`](review-agent.md) | Review orchestrator — spawns the 4 reviewers, the aggregator, and the issue-fixer as its own flow. |
+
+---
+
+> **`_shared/`** is not an agent. `_shared/implementation-conventions.md` holds the coding discipline + stack-convention matrix shared by the two implementation workers (`developer-agent`, `file-developer`), pulled in via an `@include` directive. See invariant 9 in [`AGENTS.md`](../AGENTS.md).

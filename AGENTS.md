@@ -262,3 +262,4 @@ Phase 4~5의 리뷰·수정은 feature-pipeline 세트와 동일한 에이전트
 6. **항상 exit 0**: 에이전트 오류가 파이프라인 전체를 차단하지 않도록 1회 재시도 후 실패 보고
 7. **산출물 명사형 종결**: 에이전트가 생성하는 한글 문서 문장은 명사형으로 종결 (CLAUDE.md 문서 작성 규칙 참조)
 8. **Codex 미러 자동 생성**: `.codex/agents/*.toml`은 `agents/*.md`에서 자동 생성되는 파생물 — 수동 편집 금지. `agents/*.md` 수정 후 `node scripts/generate-codex-agents.mjs` 재실행 필수 (CI가 `--check`로 동기화 검증)
+9. **공유 지침 모듈**: 구현 워커(developer-agent·file-developer)가 공통으로 쓰는 코딩 규율·스택 컨벤션 매트릭스는 `agents/_shared/implementation-conventions.md`에 단일 소스로 두고, 각 워커가 `@include: _shared/implementation-conventions.md`(agents/ 기준 상대 경로)로 참조함. Claude 런타임은 `{팀_위치}/agents/_shared/…`를 Read로 읽고, Codex 미러는 생성기가 `@include` 줄을 대상 파일 내용으로 인라인 확장함 — 따라서 `_shared/` 수정 후 codex 재생성 필수. validate가 `@include` 해소를, `--check`가 미러 동기화를 검사함. `_shared/`는 실행 에이전트가 아니므로 frontmatter·toml 미러 대상이 아님
