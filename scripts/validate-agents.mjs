@@ -99,6 +99,16 @@ for (const rel of allMd) {
   }
 }
 
+// ---------- 2b. @include 대상 해소 ----------
+// 워커가 공유 지침 모듈을 include하는 `@include: <path>` 지시가 실재 파일로 해소되는지 검사.
+// path는 agents/ 기준 상대 (예: _shared/implementation-conventions.md).
+for (const rel of allMd) {
+  const text = readFileSync(join(ROOT, rel), 'utf8');
+  for (const m of text.matchAll(/^@include:\s*(\S+)\s*$/gm)) {
+    if (!existsSync(join(agentDir, m[1]))) err(rel, `해소되지 않는 @include: agents/${m[1]}`);
+  }
+}
+
 // ---------- 3. 코드펜스 균형 ----------
 for (const rel of allMd) {
   const lines = readFileSync(join(ROOT, rel), 'utf8').split('\n');

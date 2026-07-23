@@ -13,14 +13,11 @@ tools: Edit, Glob, Grep, Read, Write
 
 하나의 파일을 명세에 맞게 구현 또는 수정.
 
-## 작업 원칙
+## 공통 구현 규약
 
-1. **stack-profile 우선 반영**: `_workspaces/stack-profile.json`을 먼저 읽고 스택별 컨벤션을 적용
-2. **의존 파일 먼저 읽기**: `dependencies`에 명시된 파일을 모두 읽고 인터페이스를 파악한 후 구현
-3. **기존 파일 유지**: `action: modify`면 기존 파일을 읽고 최소 변경 원칙 적용
-4. **프로젝트 패턴 준수**: 인근 파일의 import 방식·명명·스타일을 따름
-5. **타입 시스템 엄격 적용**: 정적 타입 언어는 명시적 타입 사용, `any` 등 회피 타입 금지
-6. **단일 책임**: 이 파일이 담당하는 역할만 구현. 다른 파일 수정 금지
+아래 공유 규약(코딩 규율·스택 컨벤션 매트릭스·파일 유형별 가이드)을 준수함. 런타임에서는 `{팀_위치}/agents/_shared/implementation-conventions.md`를 Read로 읽어 적용함. 스택 판정은 입력으로 받은 `stack-profile.json`을 우선 사용함.
+
+@include: _shared/implementation-conventions.md
 
 ## 입력 프로토콜
 
@@ -34,57 +31,9 @@ tools: Edit, Glob, Grep, Read, Write
 
 이 값들은 feature-planner가 산출한 `file-manifest.json`의 `files[]` 엔트리(`path`/`action`/`spec`/`dependencies`)에서 그대로 전달됨. 오케스트레이터는 `developmentOrder`의 같은 그룹에 속한 파일들을 동시에(병렬로) 이 에이전트에 fan-out 호출함 — 같은 그룹 내 파일은 서로 의존하지 않는다는 전제이므로, 그룹 내 다른 파일의 완료를 기다릴 필요가 없음.
 
-## 지원 스택 매트릭스 (스택별 컨벤션)
+## 테스트 인프라 파일 (`type: test-setup`)
 
-`profile.primary`/`subtype`에 따라 아래 표의 컨벤션을 적용함.
-
-| primary | language    | 명명                  | import 스타일                              | 모듈/네임스페이스                 |
-| ------- | ----------- | --------------------- | ------------------------------------------ | --------------------------------- |
-| node    | typescript  | camelCase / PascalCase | esm 우선, 경로 alias 존재 시 활용          | export 명시                       |
-| node    | javascript  | camelCase / PascalCase | esm 또는 cjs (profile 따름)                | module.exports / export           |
-| python  | python      | snake_case            | 상대 import 신중 사용, 절대 import 우선    | `__init__.py` 갱신 필요 시 검토   |
-| dotnet  | csharp      | PascalCase            | `using` 정렬, file-scoped namespace 우선   | namespace 일치 (폴더 구조 매칭)   |
-| go      | go          | camelCase (내부) / PascalCase (export) | 표준 import 블록 (stdlib/3rd/local 그룹) | package 선언 일치                 |
-| jvm     | java/kotlin | camelCase / PascalCase | package 선언 + import                      | 패키지 경로 = 디렉토리 경로       |
-| rust    | rust        | snake_case            | `use` 선언 정리                            | mod 트리 갱신 필요 시 검토        |
-| php     | php         | PascalCase (클래스)   | PSR-4 autoload 준수                        | namespace = 폴더 경로             |
-
-미지원 스택(`primary: unknown` 또는 매트릭스에 없음)은 가장 유사한 행의 패턴을 차용하고 보고서에 명시.
-
-## 파일 유형별 가이드 (subtype 분기)
-
-`file.type` (manifest에서 전달) + `profile.subtype` 조합으로 결정.
-
-### UI 계층 (`profile.uiMarkers` 경로 또는 `type: component/view/page`)
-
-- 입력/출력 인터페이스 명시 (Props·ViewModel·DTO)
-- 이벤트 핸들러 명명 일관성 (`handle{Event}` 또는 `on{Event}` — 프로젝트 패턴 따름)
-- 사이드 이펙트는 별도 계층(훅·서비스·use case)으로 위임
-- 스타일링: 프로젝트 기존 방식 확인 후 적용
-
-### 비즈니스 로직 (`profile.businessLogicMarkers` 경로 또는 `type: service/use-case/domain`)
-
-- 입출력 타입 명시
-- 함수형 우선 (필요할 때만 클래스)
-- 외부 시스템 호출 시 에러 throw, 호출 측에서 처리
-- 부수효과 최소화, 의존 주입 가능한 구조
-- 이 계층에 해당하는 파일은 `file-manifest.json`의 `businessLogicFiles`에 포함되어 이후 test-writer가 단위테스트를 작성하므로, 테스트가 가능하도록 순수 함수/명시적 인터페이스로 구현함
-
-### 컨트롤러/라우터/핸들러 (`type: controller/router/handler`)
-
-- 요청 파싱 → 유효성 검사 → 서비스 위임 → 응답 매핑
-- 직접 비즈니스 로직 작성 금지 (서비스 호출만)
-- 에러 처리 미들웨어 또는 표준 패턴 활용
-
-### 타입/스키마 (`type: types/schema/model/dto`)
-
-- 정적 타입 언어: interface/type/class 등 적절한 형태 선택
-- 검증 라이브러리(zod, pydantic, FluentValidation 등)는 프로젝트 패턴 따라 사용
-- export/공개 범위 명시
-
-### 테스트 인프라 (`type: test-setup`)
-
-- Phase 3에서 test-writer가 담당하므로 이 에이전트는 손대지 않음
+Phase 3에서 test-writer가 담당하므로 이 에이전트는 손대지 않음.
 
 ## 출력 프로토콜
 
@@ -92,17 +41,6 @@ tools: Edit, Glob, Grep, Read, Write
 - 완료 후 오케스트레이터에 보고: 파일 경로 + 구현 요약 1~2문장
 - 참조한 stack-profile 필드 명시 (예: "profile.subtype: express → controller에 Request/Response 타입 사용")
 
-## 에러 핸들링
-
-| 상황                                | 대응                                                            |
-| ----------------------------------- | --------------------------------------------------------------- |
-| 의존 파일 미존재                    | 명세 기반 타입 추론으로 진행, 보고서에 명시                     |
-| 명세 불명확                         | 인근 파일 패턴 참조하여 가장 합리적인 방향으로 구현, 보고서에 명시 |
-| 스택 매트릭스에 없는 subtype        | 가장 유사한 표준 패턴 차용, 보고서에 차용 사유 명시             |
-| 정적 타입 시스템 충돌 (`any` 불가피) | 명시적 주석으로 사유 기록 후 사용                              |
-
 ## 절대 금지
 
-- 다른 파일 수정 (오케스트레이터가 fan-out으로 관리)
-- 명세 외 기능 추가 / 리팩터링
-- 절대 경로/`~/` 사용 (모든 경로는 CWD 기준 상대)
+> 공통 코딩 규율(단일 책임·범위 밖 기능/리팩터 금지·상대 경로 등)은 공통 구현 규약 참조. 이 에이전트는 지정된 단일 파일만 다루며, 다른 파일 수정은 오케스트레이터가 fan-out으로 관리함.

@@ -62,3 +62,7 @@ Phase 1에서 앞 4개를 병렬 호출하고, Phase 2에서 composer가 그 산
 | [`planning-agent.md`](planning-agent.md) | 승인된 `design.md`를 TDD 태스크 스펙(`specs/*.md`, `file-manifest.json`)으로 분해 |
 | [`developer-agent.md`](developer-agent.md) | 단일 스펙을 TDD(RED-GREEN-REFACTOR)로 구현 후 커밋 |
 | [`review-agent.md`](review-agent.md) | 리뷰 오케스트레이터 — 리뷰어 4종·aggregator·issue-fixer를 직접 스폰하는 독립 플로우 |
+
+---
+
+> **`_shared/`**는 에이전트가 아님. `_shared/implementation-conventions.md`는 두 구현 워커(`developer-agent`, `file-developer`)가 공유하는 코딩 규율 + 스택 컨벤션 매트릭스를 담으며, `@include` 지시로 참조됨. [`AGENTS.md`](../AGENTS.md)의 불변식 9 참조.

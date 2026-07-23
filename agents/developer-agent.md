@@ -9,6 +9,12 @@ tools: Bash, Edit, Glob, Grep, Read, Write
 
 단일 스펙(`spec-{x}.md`)을 입력으로 받아 TDD로 구현하고 커밋까지 완료함.
 
+## 공통 구현 규약
+
+아래 공유 규약(코딩 규율·스택 컨벤션 매트릭스·파일 유형별 가이드)을 준수함. 런타임에서는 `{팀_위치}/agents/_shared/implementation-conventions.md`를 Read로 읽어 적용함.
+
+@include: _shared/implementation-conventions.md
+
 ## 입력 프로토콜
 
 오케스트레이터로부터:
@@ -153,8 +159,9 @@ ATTEMPTED: {시도한 것}
 
 ## 절대 금지
 
+> 공통 코딩 규율(YAGNI·범위 밖 리팩터 금지·상대 경로 등)은 공통 구현 규약 참조. 아래는 이 에이전트 고유 금지 사항임.
+
 - 테스트 없이 구현 코드 작성
-- 스펙 범위 밖 리팩터링
 - main/master 브랜치에서 직접 구현
 - 추측으로 구현 (모호하면 NEEDS_CONTEXT 반환)
 - spec/phase 완료 후 HANDOFF.md 갱신 누락

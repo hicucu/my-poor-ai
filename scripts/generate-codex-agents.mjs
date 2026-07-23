@@ -37,6 +37,22 @@ function unquote(v) {
 /** TOML basic string 이스케이프 */
 const tomlEscape = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
+/**
+ * `@include: <path>` 지시를 대상 파일 내용으로 치환한다 (path는 agents/ 기준 상대).
+ * Codex 미러가 공유 모듈 내용을 자기완결로 포함하도록 인라인함.
+ * Claude 런타임에서는 워커가 이 경로를 Read로 직접 읽으므로 미러에만 필요한 처리.
+ */
+function expandIncludes(body, src) {
+  return body.replace(/^@include:\s*(\S+)\s*$/gm, (line, incPath) => {
+    const abs = join(AGENT_DIR, incPath);
+    if (!existsSync(abs)) {
+      errors.push(`${src}: @include 대상 없음: agents/${incPath}`);
+      return line;
+    }
+    return readFileSync(abs, 'utf8').replace(/\n+$/, '');
+  });
+}
+
 // ---------- agents/*.md → toml 내용 생성 ----------
 const generated = new Map(); // toml 파일명 → 내용
 for (const f of readdirSync(AGENT_DIR).filter((f) => f.endsWith('.md') && !f.startsWith('README')).sort()) {
@@ -53,7 +69,7 @@ for (const f of readdirSync(AGENT_DIR).filter((f) => f.endsWith('.md') && !f.sta
   const description = unquote(fields.description ?? '');
   if (!name || !description) { errors.push(`${src}: name/description 누락`); continue; }
 
-  let body = text.slice(m[0].length).replace(/^\n+/, '');
+  let body = expandIncludes(text.slice(m[0].length).replace(/^\n+/, ''), src);
   if (body.includes("'''")) {
     errors.push(`${src}: 본문에 ''' 포함 — TOML 리터럴 블록과 충돌, 본문 수정 필요`);
     continue;
