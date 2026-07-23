@@ -35,11 +35,15 @@ AI coding agents are fast but undisciplined: they fix symptoms instead of root c
 /reload-plugins
 ```
 
-### 3. Register the SessionStart hook
+### 3. Register the session-start workflow
 
-Once registered, the `using-my-poor-ai` skill context is injected automatically at every session start (`/clear`, `/compact`, new session). Choose either automatic or manual registration.
+Register my-poor-ai so its workflow applies automatically at the start of each session. Choose the setup for your CLI.
 
-#### Automatic registration
+#### Claude Code CLI
+
+Once registered, the `using-my-poor-ai` skill context is injected automatically at every session start (`/clear`, `/compact`, new session) via a SessionStart hook. Choose either automatic or manual registration.
+
+**Automatic registration**
 
 ```
 /my-poor-ai:setup
@@ -47,7 +51,7 @@ Once registered, the `using-my-poor-ai` skill context is injected automatically 
 
 The `my-poor-ai:setup` skill reads and updates `~/.claude/settings.json` directly.
 
-#### Manual registration
+**Manual registration**
 
 Add the following to the `hooks` section of `~/.claude/settings.json`:
 
@@ -63,6 +67,33 @@ Add the following to the `hooks` section of `~/.claude/settings.json`:
     ]
   }
 ]
+```
+
+#### Codex
+
+Codex has no SessionStart hook, so add the workflow block below to your global instructions file `~/.codex/AGENTS.md`. (For agent / multi-agent registration, see `/my-poor-ai:codex-setup`; this block defines the skill-dispatch workflow to follow each session.)
+
+```markdown
+# my-poor-ai default workflow
+
+On every user request, before acting, answering, or asking clarifying questions, first identify and follow any applicable installed skill. If a `my-poor-ai:*` skill might apply, consult that skill's guidance first.
+
+## Request classification
+
+- Bugs, test failures, unexpected behavior: use `my-poor-ai:systematic-debugging`, then `my-poor-ai:verification-before-completion`.
+- Small, well-defined code changes: use `my-poor-ai:test-driven-development`, then `my-poor-ai:verification-before-completion`.
+- New features, multi-file changes, design decisions, external dependencies, or ambiguous requirements: follow `my-poor-ai:brainstorming` → `my-poor-ai:writing-plans` → `my-poor-ai:subagent-driven-development` → `my-poor-ai:requesting-code-review` → `my-poor-ai:finishing-a-development-branch`.
+- New project with no decided tech stack or approach: use `my-poor-ai:which-way-should-i-go` first.
+
+## Working rules
+
+- Before feature work, use `my-poor-ai:brainstorming`; do not implement before the design is approved.
+- Before implementing or fixing a bug, use `my-poor-ai:test-driven-development`.
+- Before claiming something is done, fixed, or passing, always confirm the real result with `my-poor-ai:verification-before-completion`.
+- When there are two or more independent tasks, consider `my-poor-ai:dispatching-parallel-agents`.
+- When work is finished or ready to merge, use `my-poor-ai:finishing-a-development-branch`.
+- When receiving code review feedback, do not accept it blindly — verify it technically with `my-poor-ai:receiving-code-review`.
+- When writing, editing, or reviewing GitHub Actions workflows, use `my-poor-ai:preventing-github-actions-loops`.
 ```
 
 ## How It Works
