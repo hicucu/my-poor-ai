@@ -8,7 +8,7 @@
       "name": "my-poor-ai",
       "source": "./",
       "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent pipelines, and doc sync.",
-      "version": "4.1.0",
+      "version": "4.2.0",
       "license": "MIT",
       "keywords": [
         "skills",
