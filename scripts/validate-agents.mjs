@@ -4,7 +4,7 @@
  *
  * 검사 항목:
  *  1. agents/*.md frontmatter — name=파일명, model 유효값, tools 화이트리스트,
- *     tools 알파벳순, 필드 순서 (name → description → model → tools)
+ *     tools 알파벳순, 필드 순서·미지원 필드
  *  2. 참조 해소 — {팀_위치}/agents/X.md 경로 참조와 subagent_type="..." 참조가
  *     실재 에이전트 정의로 해소되는지
  *  3. 코드펜스 균형 — 중첩 펜스 조기 닫힘/미닫힘 (포매터 손상 회귀 방지)
@@ -16,14 +16,38 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const VALID_MODELS = new Set(['haiku', 'sonnet', 'opus', 'inherit']);
-// Claude Code 도구 레지스트리 실명만 허용. 소문자 추상 이름(read/write/search)과
-// 구식 별칭(Task)은 거부한다 — 3.1.4에서 고친 0-tool 바인딩 버그의 재발 방지.
+
+// 모델 별칭 + 풀 모델 ID(claude-opus-5 등). 별칭만 허용하면 특정 버전 고정이 불가능하다.
+const MODEL_ALIASES = new Set(['haiku', 'sonnet', 'opus', 'fable', 'inherit']);
+const MODEL_ID = /^claude-[a-z0-9][a-z0-9.-]*$/;
+
+// 백그라운드 서브에이전트가 실제로 보유하는 빌트인 도구 집합.
+// 플러그인 에이전트는 기본이 백그라운드 실행이므로 이 집합이 유효 상한이다.
+// `Agent`는 포그라운드/깊이 제한 조건부라 별도 허용 (review-agent 오케스트레이터용).
 const VALID_TOOLS = new Set([
-  'Agent', 'Bash', 'Edit', 'Glob', 'Grep', 'NotebookEdit',
-  'Read', 'WebFetch', 'WebSearch', 'Write',
+  'Agent', 'Artifact', 'Bash', 'Edit', 'EnterWorktree', 'ExitWorktree',
+  'Glob', 'Grep', 'Monitor', 'NotebookEdit', 'PowerShell', 'Read',
+  'SendMessage', 'Skill', 'TaskStop', 'TodoWrite', 'ToolSearch',
+  'WebFetch', 'WebSearch', 'Write',
 ]);
-const FIELD_ORDER = ['name', 'description', 'model', 'tools'];
+
+// 서브에이전트에서 항상 제거되는 도구 — tools에 적어도 바인딩되지 않는다.
+// 전량 제거되면 0-tool 스폰 실패로 이어지므로 이름 단계에서 잡는다.
+const NEVER_IN_SUBAGENT = new Set([
+  'AskUserQuestion', 'EndConversation', 'EnterPlanMode', 'ExitPlanMode',
+  'ScheduleWakeup', 'TaskOutput', 'WaitForMcpServers', 'Workflow',
+]);
+
+// 지원 frontmatter 필드의 정본 순서. 존재하는 키가 이 순서의 부분수열이어야 한다.
+// (고정 4개 목록이던 시절엔 isolation·effort 등 신규 필드 채택이 CI에서 막혔다.)
+const FIELD_ORDER = [
+  'name', 'description', 'model', 'tools', 'disallowedTools',
+  'skills', 'effort', 'isolation', 'background', 'maxTurns', 'memory', 'color',
+];
+const REQUIRED_FIELDS = ['name', 'description', 'model', 'tools'];
+
+// 플러그인으로 배포되는 에이전트에서는 무시되는 필드 — 조용히 안 먹느니 반려한다.
+const PLUGIN_IGNORED_FIELDS = new Set(['hooks', 'mcpServers', 'permissionMode']);
 
 const errors = [];
 const err = (file, msg) => errors.push(`${file}: ${msg}`);
@@ -47,18 +71,24 @@ for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.star
   const slug = f.replace(/\.md$/, '');
   const name = (fields.name ?? '').replace(/^"|"$/g, '');
   if (name !== slug) err(path, `name(${name})이 파일명 slug(${slug})와 다름`);
-  if (!fields.description) err(path, 'description 없음');
-  if (!fields.model) err(path, 'model 없음');
-  else if (!VALID_MODELS.has(fields.model)) err(path, `유효하지 않은 model: ${fields.model}`);
 
-  if (!fields.tools) err(path, 'tools 없음');
-  else {
+  for (const k of REQUIRED_FIELDS) {
+    if (!fields[k]) err(path, `${k} 없음`);
+  }
+
+  const model = (fields.model ?? '').replace(/^"|"$/g, '');
+  if (model && !MODEL_ALIASES.has(model) && !MODEL_ID.test(model)) {
+    err(path, `유효하지 않은 model: ${model} (별칭 ${[...MODEL_ALIASES].join('/')} 또는 claude-* 풀 ID)`);
+  }
+
+  if (fields.tools) {
     const tools = fields.tools.split(',').map((t) => t.trim());
     for (const t of tools) {
-      if (!VALID_TOOLS.has(t)) {
-        const hint = t === 'Task' ? ' (v2.1.63부터 Agent 사용)' : ' (레지스트리 실명만 허용)';
-        err(path, `유효하지 않은 도구명: ${t}${hint}`);
-      }
+      if (VALID_TOOLS.has(t)) continue;
+      let hint = ' (레지스트리 실명만 허용)';
+      if (t === 'Task') hint = ' (v2.1.63부터 Agent 사용)';
+      else if (NEVER_IN_SUBAGENT.has(t)) hint = ' (서브에이전트에서 항상 제거되는 도구 — 바인딩되지 않음)';
+      err(path, `유효하지 않은 도구명: ${t}${hint}`);
     }
     const sorted = [...tools].sort();
     if (tools.join() !== sorted.join()) {
@@ -66,9 +96,18 @@ for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.star
     }
   }
 
-  const expected = FIELD_ORDER.filter((k) => keys.includes(k));
-  if (keys.join() !== expected.join()) {
-    err(path, `필드 순서 위반: ${keys.join(', ')} (기대: ${expected.join(', ')})`);
+  for (const k of keys) {
+    if (PLUGIN_IGNORED_FIELDS.has(k)) {
+      err(path, `플러그인 에이전트에서 무시되는 필드: ${k} (settings.json 또는 .claude/agents/로 이전 필요)`);
+    } else if (!FIELD_ORDER.includes(k)) {
+      err(path, `지원되지 않는 frontmatter 필드: ${k}`);
+    }
+  }
+
+  const known = keys.filter((k) => FIELD_ORDER.includes(k));
+  const expected = FIELD_ORDER.filter((k) => known.includes(k));
+  if (known.join() !== expected.join()) {
+    err(path, `필드 순서 위반: ${known.join(', ')} (기대: ${expected.join(', ')})`);
   }
   agentNames.add(slug);
 }

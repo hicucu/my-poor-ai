@@ -1,5 +1,6 @@
 ---
 description: my-poor-ai 에이전트와 multi-agent 기능을 ~/.codex/config.toml에 등록
+disable-model-invocation: true
 allowed-tools: [Read, Edit, Write, Bash]
 ---
 

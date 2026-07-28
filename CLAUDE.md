@@ -107,7 +107,7 @@ my-poor-ai/
 │   ├── socratic-plan-review/           # 흡수
 │   └── sync-docs-from-diff/            # 흡수
 ├── agents/               # 서브에이전트 (24개: project-context + docs-suite 10 + feature-pipeline 9 + subagent-driven 플로우 4) — AGENTS.md 참조
-├── commands/             # 슬래시 커맨드 (my-poor-ai·setup·codex-setup·commands 카탈로그 + 세부 커맨드 9개)
+├── commands/             # 슬래시 커맨드 (my-poor-ai·setup·codex-setup·commands 카탈로그 + 세부 커맨드 8개)
 ├── hooks/                # Claude Code hooks
 ├── README.md
 ├── AGENTS.md             # 에이전트 명세
