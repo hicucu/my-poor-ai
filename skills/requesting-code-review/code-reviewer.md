@@ -5,7 +5,7 @@
 **목적:** 완료된 작업을 요구사항과 코드 품질 기준에 비추어 검토하여, 문제가 더 많은 작업으로 연쇄되기 전에 잡아냄.
 
 ````
-Task 도구 (general-purpose):
+Agent 도구 (general-purpose):
   description: "코드 변경 리뷰"
   prompt: |
     당신은 소프트웨어 아키텍처, 디자인 패턴, 모범 사례에 전문성을 갖춘

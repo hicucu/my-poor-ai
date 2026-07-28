@@ -128,6 +128,20 @@ Not sure which skill to start with? `/my-poor-ai:roles` maps common roles to ski
 | **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + native `/code-review` |
 | **Docs**      | sync-docs-from-diff / generate-claude-instructions                   |
 
+## `/my-poor-ai:code-review` vs the bundled `/code-review`
+
+Both exist, and they do different jobs. Claude Code's bundled `/code-review` is not replaced or wrapped by this plugin — run both.
+
+| | `/my-poor-ai:code-review` | bundled `/code-review` |
+| --- | --- | --- |
+| Axes | Architecture, performance, plus native `/security-review` folded in | Correctness bugs, regressions, edge cases, plus reuse / simplification / efficiency |
+| Output | `review-report.md` under `_workspaces/`, aggregated across axes | Findings in the conversation; `--fix` applies them, `--comment` posts them on a PR |
+| Who can start it | You or Claude | **You only** — it is `disable-model-invocation`, so no skill or command can run it for you |
+
+The plugin deliberately does not reimplement the correctness axis. When `/my-poor-ai:code-review` finishes it says so and tells you to run `/code-review` yourself. The names are namespaced, so there is no collision: `/my-poor-ai:code-review` and `/code-review` stay distinct commands.
+
+If your repository uses GitHub Code Review, put your review rules in a root `REVIEW.md` — it is injected into every review agent as the highest-priority instruction block. `/my-poor-ai:code-review --init-review-md` scaffolds one.
+
 ## Verified, Not Vibes
 
 my-poor-ai applies its own discipline to itself:

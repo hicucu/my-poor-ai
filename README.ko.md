@@ -125,8 +125,22 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 | **Architect** | brainstorming → writing-plans → socratic-plan-review                  |
 | **Builder**   | test-driven-development → subagent-driven-development → finishing     |
 | **Debugger**  | systematic-debugging → verification-before-completion                 |
-| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` |
+| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + 네이티브 `/code-review` |
 | **Docs**      | sync-docs-from-diff / generate-claude-instructions                    |
+
+## `/my-poor-ai:code-review`와 번들 `/code-review`의 차이
+
+둘 다 존재하며 담당이 다름. 이 플러그인은 번들 `/code-review`를 대체하거나 감싸지 않음 — 둘 다 실행하는 것이 정상임.
+
+| | `/my-poor-ai:code-review` | 번들 `/code-review` |
+| --- | --- | --- |
+| 검토 축 | 아키텍처·성능 + 네이티브 `/security-review` 통합 | 정확성 버그·회귀·엣지케이스 + 재사용·단순화·효율 정리 |
+| 산출 | `_workspaces/` 하위 `review-report.md` (축 통합 리포트) | 대화 내 결과, `--fix`로 적용·`--comment`로 PR 코멘트 |
+| 실행 주체 | 사용자 또는 Claude | **사용자만** — `disable-model-invocation`이라 어떤 스킬·커맨드도 대신 실행 불가 |
+
+플러그인은 정확성 축을 의도적으로 재구현하지 않음. `/my-poor-ai:code-review`가 끝나면 그 사실을 명시하고 `/code-review` 직접 실행을 안내함. 네임스페이스가 분리되어 있어 이름 충돌은 없으며 두 커맨드는 별개로 유지됨.
+
+GitHub Code Review를 쓰는 저장소라면 리뷰 규칙을 루트 `REVIEW.md`에 둘 것 — 리뷰 파이프라인 전 에이전트의 시스템 프롬프트에 최우선 블록으로 주입됨. `/my-poor-ai:code-review --init-review-md`가 초안을 생성함.
 
 ## 바이브가 아니라 검증
 

@@ -34,7 +34,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. 코드 리뷰어 subagent 파견:**
 
-`general-purpose` 타입의 Task 도구 사용, `code-reviewer.md`의 템플릿 작성
+`general-purpose` 타입의 Agent 도구 사용, `code-reviewer.md`의 템플릿 작성
 
 **플레이스홀더:**
 

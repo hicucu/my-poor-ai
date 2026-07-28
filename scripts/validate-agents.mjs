@@ -138,6 +138,24 @@ for (const rel of allMd) {
   }
 }
 
+// ---------- 2a. 구식 도구명(Task) 산문 잔존 ----------
+// frontmatter의 tools는 1번에서 잡지만 본문 산문은 그동안 무검사였고, 실제로
+// 4개 파일 10곳에 `Task 도구`/`Task tool`이 남아 있었다 (v2.1.63부터 Agent).
+// "Task 1"(플랜 번호)·"async Task"(C# 예제)와 구분하려고 도구 어휘가 붙은
+// 경우와 백틱으로 감싼 경우만 잡는다. tests/·examples/는 플랜 번호가 많아 제외.
+// 주의: `\b`는 [A-Za-z0-9_] 기준이라 한글 뒤에서는 경계가 성립하지 않는다.
+// `도구` 뒤에 `\b`를 붙이면 한글 분기가 영원히 매칭되지 않는다 (최초 작성 시 실제로 그랬음).
+const LEGACY_TASK = /`?\bTask`?\s+(?:도구|tool\b)/;
+for (const rel of allMd) {
+  if (rel.startsWith('tests/')) continue;
+  const lines = readFileSync(join(ROOT, rel), 'utf8').split('\n');
+  lines.forEach((line, i) => {
+    if (LEGACY_TASK.test(line)) {
+      err(rel, `구식 도구명 잔존 (${i + 1}행): Task → Agent (v2.1.63)`);
+    }
+  });
+}
+
 // ---------- 2b. @include 대상 해소 ----------
 // 워커가 공유 지침 모듈을 include하는 `@include: <path>` 지시가 실재 파일로 해소되는지 검사.
 // path는 agents/ 기준 상대 (예: _shared/implementation-conventions.md).

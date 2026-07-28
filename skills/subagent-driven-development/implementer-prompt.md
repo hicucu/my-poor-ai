@@ -3,7 +3,7 @@
 구현자 서브에이전트를 배포할 때 이 템플릿을 사용함.
 
 ```
-Task tool (general-purpose):
+Agent 도구 (general-purpose):
   description: "작업 N 구현: [작업 이름]"
   prompt: |
     당신은 작업 N을 구현함: [작업 이름]

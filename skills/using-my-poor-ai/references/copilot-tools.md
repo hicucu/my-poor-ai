@@ -12,9 +12,9 @@
 | `Glob` (이름으로 파일 검색)      | `glob`                                                           |
 | `Skill` 도구 (스킬 호출)         | `skill`                                                          |
 | `WebFetch`                       | `web_fetch`                                                      |
-| `Task` 도구 (서브에이전트 파견)  | `agent_type: "general-purpose"` 또는 `"explore"`를 지정한 `task` |
-| 여러 `Task` 호출 (병렬)          | 여러 `task` 호출                                                 |
-| Task 상태/출력                   | `read_agent`, `list_agents`                                      |
+| `Agent` 도구 (서브에이전트 파견) | `agent_type: "general-purpose"` 또는 `"explore"`를 지정한 `task` |
+| 여러 `Agent` 호출 (병렬)         | 여러 `task` 호출                                                 |
+| Agent 상태/출력                  | `read_agent`, `list_agents`                                      |
 | `TodoWrite` (작업 추적)          | 내장 `todos` 테이블을 사용하는 `sql`                             |
 | `WebSearch`                      | 대응 도구 없음 — 검색 엔진 URL로 `web_fetch` 사용                |
 | `EnterPlanMode` / `ExitPlanMode` | 대응 도구 없음 — 메인 세션에 머무름                              |

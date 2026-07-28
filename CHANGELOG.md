@@ -32,6 +32,10 @@ Pipeline audit against current Claude Code capabilities; the four lowest-risk fi
   - `/my-poor-ai:code-review` deliberately does *not* follow this contract (two axes, security delegated to native). Recorded in the shared module and in `AGENTS.md` as an intended divergence rather than drift
   - Gap found while verifying and closed: an issue like a missing migration belongs to no changed file, so per-file dispatch silently dropped it. The aggregator now emits a `## 파일 미귀속 이슈` section, and the contract requires either assigning such an issue to the file that should be created or reporting it to the user explicitly
 
+- Legacy `Task` tool references replaced with `Agent` across seven skill files (11 occurrences), including the Codex / Copilot / Gemini tool-mapping tables whose left column names the Claude Code tool. `Task` became `Agent` in v2.1.63; the validator checked only agent frontmatter, so prose kept the old name
+- `scripts/validate-agents.mjs` now flags legacy `Task` references in prose across `agents/`, `commands/`, and `skills/`. Scoped to `Task` followed by 도구/tool (or backtick-wrapped) so plan numbering like "Task 1" and C# `async Task` examples do not trip it; `tests/` is excluded because plan fixtures there are full of task numbering
+- README (both languages) gained a section contrasting `/my-poor-ai:code-review` with the bundled `/code-review` — which axes each covers, what each produces, and that only the user can start the bundled one. The two are namespaced and both should be run; the plugin does not wrap or replace the bundled command
+
 ### Removed
 
 - `/my-poor-ai:generate-claudeignore` — Claude Code does not read `.claudeignore`; the command produced a file nothing consumes. File access is excluded through `permissions.deny` rules in `settings.json` (`Read(./.env)`, `Read(./secrets/**)`), and `CLAUDE.md` memory files through `claudeMdExcludes`
