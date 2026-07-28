@@ -39,7 +39,7 @@ See `tests/README.md` for the full suite catalog (deterministic, LLM-behavioral,
 | --------- | ----- |
 | New skill | `skills/writing-skills/SKILL.md` — includes testing methodology |
 | New agent | `AGENTS.md` "공통 에이전트 작성 규칙" — 8 invariants (single responsibility, relative paths, no hardcoding, validator pass, Codex mirror regeneration, …) |
-| New command | Add to `commands/` and register it in the `commands/commands.md` catalog |
+| New command | Add `skills/<name>/SKILL.md` (frontmatter `name` must match the directory) and register it in `skills/README.md` and the `skills/commands/` catalog |
 
 ## Code of Conduct
 

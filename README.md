@@ -18,7 +18,7 @@ It told me there was some whole checklist for open-sourcing this, so I said sure
 
 ## Why My Poor AI
 
-AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **19 skills** (process rules the agent must follow), **24 subagents** (single-responsibility workers), and **11 slash commands**, wired together by an orchestrator that classifies each request and enforces the matching pipeline.
+AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **31 skills** — 20 process rules the agent must follow plus 11 task commands you invoke — and **24 subagents** (single-responsibility workers), wired together by an orchestrator that classifies each request and enforces the matching pipeline.
 
 ## Quick Start
 
@@ -110,9 +110,8 @@ The FULL path runs a 5-phase multi-agent pipeline: a brainstorming agent produce
 
 ## Core Components
 
-- **19 skills** — TDD, systematic debugging, brainstorming, plan writing, code review (giving and receiving), multi-agent pipelines, doc sync, worktree isolation, skill authoring, and more
+- **31 skills, all invocable as `/my-poor-ai:{name}`** — 20 process skills (TDD, systematic debugging, brainstorming, plan writing, code review, multi-agent pipelines, doc sync, worktree isolation, skill authoring) and 11 task commands (`code-review`, `detect-stack`, `roles`, session management, setup utilities). Claude loads process skills automatically when the request matches; the three setup commands that write outside the project set `disable-model-invocation` so only you can start them
 - **24 subagents** — project-context capture, a 10-agent docs suite, a 9-agent feature pipeline, and a 4-agent subagent-driven flow; each with a single responsibility and an explicit I/O contract (see `AGENTS.md`)
-- **11 slash commands** — `/my-poor-ai:code-review` (architecture + performance axes, folding in native `/security-review`), `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, session management, and setup utilities
 - **Session handoff** — `HANDOFF.md` records narrative context at spec/phase completion so a fresh session can pick up mid-pipeline; `GOAL.md` tracks goal and success criteria as a completion gate
 - **Multi-platform** — Claude Code first; agent definitions auto-generated for Codex (`.codex/agents/`), tool mappings for Copilot CLI, Gemini CLI, and an OpenCode test suite
 
@@ -157,9 +156,8 @@ my-poor-ai/
 ├── .claude-plugin/        # marketplace + plugin manifests
 ├── .codex/agents/         # auto-generated Codex agent definitions (do not edit)
 ├── agents/                # 24 subagent definitions (single source of truth)
-├── commands/              # 11 slash commands
 ├── hooks/                 # SessionStart hooks (Claude Code + Cursor)
-├── skills/                # 19 skill directories
+├── skills/                # 31 skill directories (20 process + 11 commands)
 ├── scripts/               # CI validators + Codex mirror generator
 ├── tests/                 # deterministic + LLM-behavioral + pressure-scenario suites
 ├── docs/                  # recommended MCP pairings

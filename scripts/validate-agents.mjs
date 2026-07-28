@@ -122,7 +122,7 @@ function* mdFiles(dir) {
   }
 }
 const allMd = ['AGENTS.md', 'CLAUDE.md', 'README.md'];
-for (const d of ['agents', 'commands', 'skills', 'tests']) allMd.push(...mdFiles(d));
+for (const d of ['agents', 'skills', 'tests']) allMd.push(...mdFiles(d));
 
 // ---------- 2. 참조 해소 ----------
 for (const rel of allMd) {
@@ -180,18 +180,38 @@ for (const rel of allMd) {
   if (open !== 0) err(rel, `EOF에서 닫히지 않은 코드펜스 (${open}-backtick)`);
 }
 
-// ---------- 4. 커맨드 카탈로그 등록 ----------
-// 모든 commands/*.md는 카탈로그(commands.md) 또는 루트 문서에서 소개되어야 함 —
-// 이번 세션류의 "존재하지만 어디서도 안내되지 않는 커맨드" 재발 방지.
+// ---------- 4. 스킬 구조·명명·카탈로그 등록 ----------
+// 커맨드가 skills/로 통합되면서 카탈로그 검사 대상도 스킬 전체로 확장됨.
+// name은 특히 중요하다 — 플러그인 스킬에서 frontmatter name이 커맨드의 마지막
+// 세그먼트를 정하므로, 디렉토리명과 어긋나면 호출명이 조용히 바뀐다.
 {
-  const catalog = readFileSync(join(ROOT, 'commands/commands.md'), 'utf8')
+  const catalog = readFileSync(join(ROOT, 'skills/README.md'), 'utf8')
+    + readFileSync(join(ROOT, 'skills/commands/SKILL.md'), 'utf8')
     + readFileSync(join(ROOT, 'CLAUDE.md'), 'utf8')
     + readFileSync(join(ROOT, 'README.md'), 'utf8');
-  for (const f of readdirSync(join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).sort()) {
-    const stem = f.replace(/\.md$/, '');
-    if (stem === 'commands' || f.startsWith('README')) continue;
-    if (!catalog.includes(stem)) {
-      err(`commands/${f}`, '카탈로그(commands.md)·CLAUDE.md·README.md 어디에도 소개되지 않는 커맨드');
+
+  for (const d of readdirSync(join(ROOT, 'skills')).sort()) {
+    const dir = join(ROOT, 'skills', d);
+    if (!statSync(dir).isDirectory()) continue;
+
+    const skillPath = `skills/${d}/SKILL.md`;
+    if (!existsSync(join(ROOT, skillPath))) {
+      err(`skills/${d}/`, 'SKILL.md 없음 — 스킬로 등록되지 않음');
+      continue;
+    }
+
+    const fm = readFileSync(join(ROOT, skillPath), 'utf8').match(/^---\n([\s\S]*?)\n---\n/);
+    if (!fm) { err(skillPath, 'frontmatter 없음'); continue; }
+
+    const nameLine = fm[1].match(/^name:\s*(.+)$/m);
+    const name = nameLine ? nameLine[1].trim().replace(/^["']|["']$/g, '') : null;
+    if (!name) err(skillPath, 'name 없음 — 플러그인 스킬은 name이 호출명의 마지막 세그먼트를 정함');
+    else if (name !== d) err(skillPath, `name(${name})이 디렉토리명(${d})과 다름 — 호출명이 /my-poor-ai:${name}으로 바뀜`);
+
+    if (!/^description:/m.test(fm[1])) err(skillPath, 'description 없음');
+
+    if (d !== 'commands' && !catalog.includes(d)) {
+      err(skillPath, 'skills/README.md·commands 카탈로그·CLAUDE.md·README.md 어디에도 소개되지 않는 스킬');
     }
   }
 }

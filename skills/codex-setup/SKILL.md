@@ -1,4 +1,5 @@
 ---
+name: codex-setup
 description: my-poor-ai 에이전트와 multi-agent 기능을 ~/.codex/config.toml에 등록
 disable-model-invocation: true
 allowed-tools: [Read, Edit, Write, Bash]
@@ -12,7 +13,7 @@ my-poor-ai 플러그인의 에이전트와 multi-agent 기능을 `~/.codex/confi
 
 **1단계 — my-poor-ai 설치 경로 탐지**
 
-이 파일(`commands/codex-setup.md`)이 위치한 디렉토리의 부모 디렉토리가 my-poor-ai 루트임.
+이 파일(`skills/codex-setup/SKILL.md`)이 위치한 디렉토리의 조부모 디렉토리가 my-poor-ai 루트임.
 플러그인 캐시 경로를 확인함:
 
 Windows (PowerShell):

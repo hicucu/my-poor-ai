@@ -85,7 +85,9 @@ skills는 단순한 문서가 아니라 에이전트 동작을 형성하는 코�
 
 ```
 my-poor-ai/
-├── skills/               # 개별 skill 디렉토리 (20개)
+├── skills/               # 개별 skill 디렉토리 (31개 = 프로세스 20 + 커맨드 11)
+│   │
+│   │ ── 프로세스 스킬 (요청 내용에 따라 Claude가 자동 로드) ──
 │   ├── brainstorming/
 │   ├── which-way-should-i-go/
 │   ├── writing-plans/
@@ -105,9 +107,21 @@ my-poor-ai/
 │   ├── feature-pipeline/               # 흡수
 │   ├── generate-claude-instructions/   # 흡수
 │   ├── socratic-plan-review/           # 흡수
-│   └── sync-docs-from-diff/            # 흡수
+│   ├── sync-docs-from-diff/            # 흡수
+│   │
+│   │ ── 커맨드 (사용자가 /my-poor-ai:{이름}으로 호출) ──
+│   ├── my-poor-ai/          # 진입점 — 요청을 파이프라인으로 라우팅
+│   ├── commands/            # 카탈로그
+│   ├── roles/               # 역할 프리셋
+│   ├── code-review/         # 아키텍처·성능 축 + 네이티브 /security-review
+│   ├── detect-stack/        # stack-profile.json 생성
+│   ├── git-resume/          # 과거 커밋 기반 맥락 복원
+│   ├── session-manager/     # 로컬 세션 조회·이름 변경·삭제
+│   ├── weekly-commits/      # 이번 주 커밋 요약
+│   ├── setup/               # SessionStart 훅 등록 (자동 발동 차단)
+│   ├── codex-setup/         # Codex 에이전트 등록 (자동 발동 차단)
+│   └── graphify-setup/      # 코드 그래프 도구 설치 (자동 발동 차단)
 ├── agents/               # 서브에이전트 (24개: project-context + docs-suite 10 + feature-pipeline 9 + subagent-driven 플로우 4) — AGENTS.md 참조
-├── commands/             # 슬래시 커맨드 (my-poor-ai·setup·codex-setup·commands 카탈로그 + 세부 커맨드 8개)
 ├── hooks/                # Claude Code hooks
 ├── README.md
 ├── AGENTS.md             # 에이전트 명세

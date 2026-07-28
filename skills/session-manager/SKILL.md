@@ -1,4 +1,5 @@
 ---
+name: session-manager
 description: 로컬 Claude Code 세션 전체를 최대 10개 서브에이전트로 병렬 분석하여 목록 조회·이름 변경·삭제를 수행하는 세션 관리 커맨드
 model: haiku
 ---

@@ -1,4 +1,5 @@
 ---
+name: code-review
 description: 변경 브랜치를 아키텍처·성능 관점으로 검토하고 네이티브 /security-review 결과와 통합하는 커맨드. 네이티브 /code-review가 덮지 않는 축만 담당함. "코드 리뷰", "변경 검토", "리뷰해줘", "아키텍처 봐줘", "성능 검토", "PR 리뷰" 같은 요청에 사용.
 model: opus
 ---

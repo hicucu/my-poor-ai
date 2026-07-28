@@ -1,4 +1,5 @@
 ---
+name: weekly-commits
 description: >
   현재 세션의 git 저장소에서 지정한 GitHub ID 또는 이름으로 이번 주(월~오늘) commit 내역을
   날짜순으로 markdown 테이블로 출력한다. 모노레포인 경우 프로젝트별로 분리하여 표시.
