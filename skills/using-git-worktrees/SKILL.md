@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from the current workspace, or before executing an implementation plan - ensures an isolated workspace via native tooling or a git worktree fallback
+description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, or when a team convention or instruction file specifies a worktree directory layout - ensures an isolated workspace via native tooling, with a git worktree fallback only when no native tool exists
 ---
 
 # Git Worktree 사용
@@ -9,7 +9,7 @@ description: Use when starting feature work that needs isolation from the curren
 
 작업이 격리된 작업 공간에서 진행되도록 보장. 플랫폼의 네이티브 worktree 도구를 우선 사용. 네이티브 도구가 없는 경우에만 수동 git worktree로 대체.
 
-**핵심 원칙:** 먼저 기존 격리 환경 감지. 그 다음 네이티브 도구 사용. 그 다음 git으로 대체. 하네스와 충돌 금지.
+**핵심 원칙:** 기존 격리 감지 → 네이티브 도구 → (없을 때만) git 대체. 하네스와 충돌 금지.
 
 **시작 시 공지:** "using-git-worktrees 스킬을 사용하여 격리된 작업 공간을 설정함."
 
@@ -20,203 +20,127 @@ description: Use when starting feature work that needs isolation from the curren
 ```bash
 GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
 GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
-BRANCH=$(git branch --show-current)
+git rev-parse --show-superproject-working-tree 2>/dev/null   # 값이 있으면 서브모듈
 ```
 
-**서브모듈 가드:** `GIT_DIR != GIT_COMMON` 조건은 git 서브모듈 내부에서도 참. "이미 worktree에 있다"고 결론 내리기 전에 서브모듈 내부가 아닌지 확인:
+**서브모듈 가드:** `GIT_DIR != GIT_COMMON`은 서브모듈 내부에서도 참임. 위 세 번째 명령이 경로를 반환하면 worktree가 아니라 서브모듈이므로 일반 저장소로 처리.
 
-```bash
-# 경로가 반환되면 worktree가 아닌 서브모듈 내부 — 일반 저장소로 처리
-git rev-parse --show-superproject-working-tree 2>/dev/null
-```
+| 판정 | 조치 |
+| --- | --- |
+| `GIT_DIR != GIT_COMMON` (서브모듈 아님) | 이미 격리됨 — **생성하지 않고** 3단계로 |
+| `GIT_DIR == GIT_COMMON` 또는 서브모듈 | 일반 체크아웃 — 1단계로 |
 
-**`GIT_DIR != GIT_COMMON` (서브모듈이 아닌 경우):** 이미 연결된 worktree에 있음. 3단계(프로젝트 설정)로 건너뛸 것. 다른 worktree를 생성하지 말 것.
+이미 격리된 경우 브랜치 상태와 함께 보고함. Detached HEAD면 "완료 시점에 브랜치 생성 필요"를 함께 알림.
 
-브랜치 상태와 함께 보고:
-
-- 브랜치에 있는 경우: "이미 `<path>`의 격리된 작업 공간에서 `<name>` 브랜치로 작업 중."
-- Detached HEAD: "이미 `<path>`의 격리된 작업 공간에 있음 (detached HEAD, 외부 관리). 완료 시점에 브랜치 생성 필요."
-
-**`GIT_DIR == GIT_COMMON` (또는 서브모듈 내부):** 일반 저장소 체크아웃 상태.
-
-지시사항에서 이미 worktree 선호도를 밝혔는가? 아니라면 worktree 생성 전 동의 요청:
+일반 체크아웃이고 지시사항에 worktree 선호가 선언되어 있지 않다면, 생성 전 동의를 구함:
 
 > "격리된 worktree를 설정할까요? 현재 브랜치를 변경으로부터 보호함."
 
-기존에 선언된 선호도가 있으면 묻지 않고 따를 것. 사용자가 동의를 거부하면 현재 위치에서 작업하고 3단계로 건너뜀.
+거부 시 현재 위치에서 작업하고 3단계로.
 
-## 1단계: 격리된 작업 공간 생성
+## 1단계: 네이티브 도구 우선
 
-**두 가지 방법이 있음. 이 순서대로 시도.**
+**사용 가능한 도구 목록을 실제로 확인.** `EnterWorktree`, `WorktreeCreate`, `/worktree`, `--worktree` 플래그 같은 이름의 도구가 있으면 **그것을 사용하고 2단계로 건너뜀.**
 
-### 1a. 네이티브 Worktree 도구 (권장)
+네이티브 도구는 디렉토리 배치·브랜치 생성·정리·잠금을 하네스가 추적하는 방식으로 처리함. 네이티브 도구가 있는데 `git worktree add`를 쓰면 하네스가 보지 못하는 유령 상태가 생기고, 자동 정리·세션 재개·트랜스크립트 이동이 전부 깨짐.
 
-사용자가 격리된 작업 공간을 요청했음 (0단계 동의). worktree를 생성하는 방법이 이미 있는가? `EnterWorktree`, `WorktreeCreate`, `/worktree` 명령어, 또는 `--worktree` 플래그 같은 이름의 도구일 수 있음. 있다면 그것을 사용하고 3단계로 건너뜀.
+### 디렉토리 배치 관례는 우회 근거가 아님
 
-네이티브 도구는 디렉토리 배치, 브랜치 생성, 정리를 자동으로 처리. 네이티브 도구가 있는데 `git worktree add`를 사용하면 하네스가 볼 수 없거나 관리할 수 없는 유령 상태가 생성됨.
+**팀 문서·온보딩 가이드·리드의 지시가 다른 디렉토리 배치(예: "저장소 바깥 형제 디렉토리")를 명시하더라도, 네이티브 도구를 우회하지 않음.**
 
-네이티브 worktree 도구가 없는 경우에만 1b단계로 진행.
+배치 관례와 도구 선택은 별개의 문제임. 배치는 네이티브 도구의 설정(`worktree` 설정, `WorktreeCreate` 훅)으로 표현하는 것이지, 도구를 버리는 근거가 아님. 관례가 네이티브 배치와 충돌하면 **사용자에게 그 충돌을 보고**하고 판단을 받음 — 조용히 git으로 내려가지 않음.
 
-### 1b. Git Worktree 대체
+### 함정 1: 베이스 브랜치 기본값
 
-**1a단계가 해당되지 않는 경우에만 사용** — 네이티브 worktree 도구가 없을 때. git을 사용하여 수동으로 worktree 생성.
+네이티브 worktree는 보통 **현재 HEAD가 아니라 저장소 기본 브랜치**에서 분기함(`worktree.baseRef` 기본값 `fresh`). 수동 `git worktree add`의 기본값(HEAD 분기)과 반대임.
 
-#### 디렉토리 선택
-
-다음 우선순위를 따를 것. 명시적인 사용자 선호도는 항상 파일시스템 상태보다 우선.
-
-1. **지시사항에서 선언된 worktree 디렉토리 선호도 확인.** 사용자가 이미 지정했다면 묻지 않고 사용.
-
-2. **기존 프로젝트 로컬 worktree 디렉토리 확인:**
-
-   ```bash
-   ls -d .worktrees 2>/dev/null     # 권장 (숨김)
-   ls -d worktrees 2>/dev/null      # 대안
-   ```
-
-   발견되면 사용. 둘 다 있으면 `.worktrees`가 우선.
-
-3. **기존 전역 디렉토리 확인:**
-
-   ```bash
-   project=$(basename "$(git rev-parse --show-toplevel)")
-   ls -d ~/.config/my-poor-ai/worktrees/$project 2>/dev/null
-   ```
-
-   발견되면 사용 (레거시 전역 경로와의 하위 호환성).
-
-4. **다른 지침이 없다면** 프로젝트 루트의 `.worktrees/`를 기본값으로 사용.
-
-#### 안전 확인 (프로젝트 로컬 디렉토리만)
-
-**worktree 생성 전 디렉토리가 무시되는지 반드시 확인:**
+진행 중인 미푸시 작업 위에서 격리하면, 그 작업이 **없는** 상태로 시작하게 됨. 착수 전 확인:
 
 ```bash
-git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/dev/null
+git log --oneline -1        # 새 작업 공간이 어디서 분기했는가
+git status -sb
 ```
 
-**무시되지 않는 경우:** .gitignore에 추가하고, 변경 사항을 커밋한 뒤 진행.
+기대와 다르면 베이스를 명시하거나(`worktree.baseRef: "head"`) 사용자에게 확인함. 잘못된 베이스는 조용히 진행되다 병합 시점에 드러남.
 
-**중요한 이유:** worktree 내용이 실수로 저장소에 커밋되는 것을 방지.
+### 함정 2: gitignore된 설정 파일
 
-전역 디렉토리(`~/.config/my-poor-ai/worktrees/`)는 확인 불필요.
+worktree는 새 체크아웃이라 `.env`, `.env.local` 같은 **비추적 파일이 없음**. 설정 누락을 엉뚱한 원인으로 진단하게 되는 흔한 함정임.
 
-#### Worktree 생성
+프로젝트 루트에 `.worktreeinclude`(gitignore 문법)를 두면 매칭되면서 gitignore된 파일이 새 worktree로 자동 복사됨. 없으면 필요한 파일을 확인하고 사용자에게 복사 여부를 물음 — 시크릿을 임의로 복사하지 않음.
+
+## 1b단계: Git 대체 (네이티브 도구가 없을 때만)
 
 ```bash
-project=$(basename "$(git rev-parse --show-toplevel)")
-
-# 선택한 위치에 따라 경로 결정
-# 프로젝트 로컬: path="$LOCATION/$BRANCH_NAME"
-# 전역: path="~/.config/my-poor-ai/worktrees/$project/$BRANCH_NAME"
-
-git worktree add "$path" -b "$BRANCH_NAME"
-cd "$path"
+git worktree add "<경로>/<브랜치명>" -b "<브랜치명>"
+cd "<경로>/<브랜치명>"
 ```
 
-**샌드박스 대체:** `git worktree add`가 권한 오류(샌드박스 거부)로 실패하면, 샌드박스가 worktree 생성을 차단했으며 현재 디렉토리에서 작업할 것임을 사용자에게 알릴 것. 그런 다음 현재 위치에서 설정 및 기준 테스트를 실행.
-
-## 3단계: 프로젝트 설정
-
-적절한 설정을 자동 감지하여 실행:
+경로는 지시사항에 선언된 관례를 따르고, 없으면 프로젝트 루트의 `.worktrees/`를 사용함. 프로젝트 내부에 만들 때는 해당 디렉토리가 무시되는지 먼저 확인:
 
 ```bash
-# Node.js
-if [ -f package.json ]; then npm install; fi
-
-# Rust
-if [ -f Cargo.toml ]; then cargo build; fi
-
-# Python
-if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-if [ -f pyproject.toml ]; then poetry install; fi
-
-# Go
-if [ -f go.mod ]; then go mod download; fi
+git check-ignore -q .worktrees || echo "먼저 .gitignore에 추가하고 커밋할 것"
 ```
 
-## 4단계: 깨끗한 기준 확인
+**샌드박스 대체:** 권한 오류로 실패하면 샌드박스가 생성을 차단한 것임. 사용자에게 알리고 현재 디렉토리에서 작업함.
 
-작업 공간이 깨끗한 상태로 시작하는지 확인하기 위해 테스트 실행:
+## 2단계: 환경 준비
 
-```bash
-# 프로젝트에 적합한 명령어 사용
-npm test / cargo test / pytest / go test ./...
-```
+새 체크아웃이므로 의존성이 없음. 프로젝트에 맞는 설치를 실행함 (`npm install` / `cargo build` / `pip install -r requirements.txt` / `go mod download` 등). 함정 2의 설정 파일도 이 시점에 확인함.
 
-**테스트 실패 시:** 실패 보고, 계속 진행할지 또는 조사할지 질문.
+## 3단계: 깨끗한 기준 확인
 
-**테스트 통과 시:** 준비 완료 보고.
+작업 공간이 깨끗한 상태에서 시작하는지 테스트로 확인함.
+
+**테스트 실패 시:** 실패를 보고하고 계속할지 조사할지 질문. 기준을 확인하지 않으면 새 버그와 기존 실패를 구별할 수 없음.
 
 ### 보고
 
 ```
-Worktree 준비 완료: <전체-경로>
-테스트 통과 (<N>개 테스트, 실패 0건)
-<기능명> 구현 준비 완료
+작업 공간 준비 완료: <전체-경로>  (생성 수단: <네이티브 도구명 | git 대체>)
+분기 기준: <브랜치> @ <short-sha>
+테스트 통과 (<N>개, 실패 0건)
 ```
 
 ## 빠른 참조
 
-| 상황                         | 조치                                             |
-| ---------------------------- | ------------------------------------------------ |
-| 이미 연결된 worktree에 있음  | 생성 건너뜀 (0단계)                              |
-| 서브모듈 내부                | 일반 저장소로 처리 (0단계 guard)                 |
-| 네이티브 worktree 도구 있음  | 사용 (1a단계)                                    |
-| 네이티브 도구 없음           | Git worktree 대체 (1b단계)                       |
-| `.worktrees/` 존재           | 사용 (무시 여부 확인)                            |
-| `worktrees/` 존재            | 사용 (무시 여부 확인)                            |
-| 둘 다 존재                   | `.worktrees/` 사용                               |
-| 둘 다 없음                   | 지시사항 파일 확인, 그 다음 기본값 `.worktrees/` |
-| 전역 경로 존재               | 사용 (하위 호환성)                               |
-| 디렉토리가 무시되지 않음     | .gitignore에 추가 + 커밋                         |
-| 생성 시 권한 오류            | 샌드박스 대체, 현재 위치에서 작업                |
-| 기준 테스트 실패             | 실패 보고 + 질문                                 |
-| package.json/Cargo.toml 없음 | 의존성 설치 건너뜀                               |
+| 상황 | 조치 |
+| --- | --- |
+| 이미 연결된 worktree에 있음 | 생성 건너뜀 (0단계) |
+| 서브모듈 내부 | 일반 저장소로 처리 (0단계 guard) |
+| 네이티브 worktree 도구 있음 | 사용 (1단계) |
+| 팀 문서가 다른 배치를 명시 | 네이티브 사용 + 충돌을 사용자에게 보고 |
+| 네이티브 도구 없음 | git 대체 (1b단계) |
+| 프로젝트 내부에 생성 | `git check-ignore`로 무시 확인 |
+| 분기 기준이 기대와 다름 | 베이스 명시 또는 사용자 확인 |
+| `.env` 등 설정 누락 | `.worktreeinclude` 확인, 없으면 복사 여부 질문 |
+| 기준 테스트 실패 | 실패 보고 + 질문 |
 
-## 흔한 실수
+## 합리화 표
 
-### 하네스와 충돌
-
-- **문제:** 플랫폼이 이미 격리를 제공하는데 `git worktree add` 사용
-- **해결:** 0단계에서 기존 격리 감지. 1a단계에서 네이티브 도구에 위임.
-
-### 감지 건너뛰기
-
-- **문제:** 기존 worktree 내부에 중첩된 worktree 생성
-- **해결:** 아무것도 생성하기 전에 항상 0단계 실행
-
-### 무시 확인 건너뛰기
-
-- **문제:** worktree 내용이 추적되어 git status 오염
-- **해결:** 프로젝트 로컬 worktree 생성 전 항상 `git check-ignore` 사용
-
-### 디렉토리 위치 추정
-
-- **문제:** 불일치 발생, 프로젝트 관례 위반
-- **해결:** 우선순위 따르기: 기존 > 전역 레거시 > 지시사항 파일 > 기본값
-
-### 실패하는 테스트로 진행
-
-- **문제:** 새로운 버그와 기존 문제를 구별할 수 없음
-- **해결:** 실패 보고, 진행 허가 명시적으로 요청
+| 변명 | 현실 |
+| --- | --- |
+| "팀 문서에 `git worktree add` 절차가 명시돼 있다" | 문서가 정하는 건 **배치**지 도구가 아님. 배치는 네이티브 도구 설정으로 표현함 |
+| "네이티브 도구는 `.claude/worktrees/`에 만들어서 우리 관례와 어긋난다" | 어긋남을 발견했으면 보고할 것. 조용히 git으로 내려가는 건 하네스에 유령 상태를 만드는 선택임 |
+| "리드가 형제 디렉토리라고 못박았다" | 권위는 배치에 대한 것임. 도구 우회 승인이 아님 |
+| "예전에도 `git worktree add`로 했다" | 이력은 근거가 아님. 도구 목록을 지금 확인할 것 |
+| "40분밖에 없어서 빠른 쪽으로" | 네이티브 도구가 더 빠름. 정리·재개까지 하네스가 처리함 |
+| "worktree 만들었으니 바로 작업 시작" | 분기 기준과 설정 파일을 확인하지 않으면 잘못된 베이스에서 작업하게 됨 |
 
 ## 위험 신호
 
 **절대 금지:**
 
-- 0단계에서 기존 격리가 감지되면 worktree 생성
-- 네이티브 worktree 도구(예: `EnterWorktree`)가 있는데 `git worktree add` 사용. 이것이 가장 흔한 실수 — 있으면 사용할 것.
-- 1a단계를 건너뛰고 바로 1b단계의 git 명령어 실행
-- 무시 여부 확인 없이 worktree 생성 (프로젝트 로컬)
-- 기준 테스트 검증 건너뛰기
-- 질문 없이 실패하는 테스트로 진행
+- 0단계에서 기존 격리가 감지됐는데 worktree 생성
+- 네이티브 도구가 있는데 `git worktree add` 실행 — **가장 흔한 실패**
+- 팀 문서·관례·권위를 근거로 네이티브 도구를 조용히 기각
+- 도구 목록을 확인하지 않고 git 명령부터 실행
+- 분기 기준(`git log -1`) 미확인으로 착수
+- 기준 테스트 없이 진행
 
 **항상 준수:**
 
-- 먼저 0단계 감지 실행
-- git 대체보다 네이티브 도구 우선
-- 디렉토리 우선순위 따르기: 기존 > 전역 레거시 > 지시사항 파일 > 기본값
-- 프로젝트 로컬의 경우 디렉토리가 무시되는지 확인
-- 프로젝트 설정 자동 감지 및 실행
-- 깨끗한 테스트 기준 확인
+- 0단계 감지 먼저
+- 사용 가능한 도구 목록을 실제로 확인한 뒤 선택
+- 네이티브와 관례가 충돌하면 사용자에게 보고
+- 분기 기준과 설정 파일을 착수 전 확인

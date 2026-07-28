@@ -17,9 +17,16 @@ Pipeline audit against current Claude Code capabilities; the four lowest-risk fi
 - `scripts/validate-agents.mjs` gains two checks in exchange: tools that are always stripped from subagents (`AskUserQuestion`, `EnterPlanMode`, `TaskOutput`, …) and fields ignored for plugin-distributed agents (`hooks`, `mcpServers`, `permissionMode`) are now reported instead of silently failing at runtime, along with unknown frontmatter keys
 - `/my-poor-ai:setup`, `/my-poor-ai:codex-setup`, and `/my-poor-ai:graphify-setup` set `disable-model-invocation: true`. All three write outside the project (global `settings.json`, `~/.codex/config.toml`, package installs plus a git hook) and should run only when the user asks for them by name
 
+- `using-git-worktrees` rewritten around native worktree tooling (222 → 146 lines). The directory-selection priority list, the `git check-ignore` safety step, the legacy `~/.config/my-poor-ai/worktrees/` global path, and the per-stack setup script are gone — native tooling standardizes all of them. Measured baseline showed the removed directory-priority clause was not merely obsolete: it *licensed* bypassing the native tool whenever a team document specified a different layout. Two traps that do cause real failures were added in their place: the native base-branch default (branches from the default branch, not `HEAD`) and gitignored config files missing from a fresh checkout (`.worktreeinclude`)
+
 ### Removed
 
 - `/my-poor-ai:generate-claudeignore` — Claude Code does not read `.claudeignore`; the command produced a file nothing consumes. File access is excluded through `permissions.deny` rules in `settings.json` (`Read(./.env)`, `Read(./secrets/**)`), and `CLAUDE.md` memory files through `claudeMdExcludes`
+
+### Tests
+
+- `tests/pressure-scenarios/worktree-native-preference-pressure.md` — measured baseline (2026-07-28) where the agent recognized `EnterWorktree` and explicitly rejected it, citing the team's onboarding document; doubles as the regression test for the removed directory-priority clause
+- `tests/pressure-scenarios/verification-pressure.md` scenario C — a negative-result regression test. `verification-before-completion` was left unchanged: across two measured baselines under five combined pressures, the agent ran the app, caught a crash behind three green CI checks, and refused to ship. With no reproducible failure there is no evidence to justify editing a tuned skill, so the scenario is recorded to catch the day that changes
 
 ## 4.2.0
 
