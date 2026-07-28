@@ -41,7 +41,7 @@ AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 �
 
 #### Claude Code CLI
 
-등록하면 매 세션 시작(`/clear`, `/compact`, 신규 세션)마다 `using-my-poor-ai` 스킬 컨텍스트가 SessionStart 훅으로 자동 주입됨. 자동 등록 또는 수동 등록 중 하나를 선택함.
+등록하면 매 세션 시작(`/clear`, `/compact`, `/resume`, `/fork`, 신규 세션)마다 압축 라우팅 블록이 SessionStart 훅으로 자동 주입됨. 요청 분류에 필요한 것만 담기며, `using-my-poor-ai` 스킬 전문은 Skill 도구로 필요할 때 로드됨. 자동 등록 또는 수동 등록 중 하나를 선택함.
 
 **자동 등록**
 

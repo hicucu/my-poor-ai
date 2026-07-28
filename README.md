@@ -41,7 +41,7 @@ Register my-poor-ai so its workflow applies automatically at the start of each s
 
 #### Claude Code CLI
 
-Once registered, the `using-my-poor-ai` skill context is injected automatically at every session start (`/clear`, `/compact`, new session) via a SessionStart hook. Choose either automatic or manual registration.
+Once registered, a compact routing block is injected automatically at every session start (`/clear`, `/compact`, `/resume`, `/fork`, new session) via a SessionStart hook. The block carries only what request classification needs; the full `using-my-poor-ai` skill loads on demand through the Skill tool. Choose either automatic or manual registration.
 
 **Automatic registration**
 
