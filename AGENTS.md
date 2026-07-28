@@ -184,7 +184,7 @@ Phase 5 (파일별 병렬, run_in_background: true)
 | developer-agent     | 단일 스펙을 TDD(RED-GREEN-REFACTOR)로 구현 + 커밋 + HANDOFF 갱신                               | `spec-{x}.md`           | 코드 + 커밋 + STATUS               |
 | review-agent        | 리뷰 오케스트레이터 — reviewer 4종·review-aggregator·issue-fixer를 `subagent_type`으로 스폰    | branch-slug, base       | `review-report.md` + STATUS        |
 
-Phase 4~5의 리뷰·수정은 feature-pipeline 세트와 동일한 에이전트(architecture/security/performance/style-reviewer, review-aggregator, issue-fixer)를 재사용함.
+Phase 4~5의 리뷰·수정은 feature-pipeline 세트와 동일한 에이전트(architecture/security/performance/style-reviewer, review-aggregator, issue-fixer)를 재사용하며, 부리는 계약은 `_shared/review-orchestration.md`가 정본임 (불변식 10).
 
 ### 산출물 경로 정책
 
@@ -263,3 +263,17 @@ Phase 4~5의 리뷰·수정은 feature-pipeline 세트와 동일한 에이전트
 7. **산출물 명사형 종결**: 에이전트가 생성하는 한글 문서 문장은 명사형으로 종결 (CLAUDE.md 문서 작성 규칙 참조)
 8. **Codex 미러 자동 생성**: `.codex/agents/*.toml`은 `agents/*.md`에서 자동 생성되는 파생물 — 수동 편집 금지. `agents/*.md` 수정 후 `node scripts/generate-codex-agents.mjs` 재실행 필수 (CI가 `--check`로 동기화 검증)
 9. **공유 지침 모듈**: 구현 워커(developer-agent·file-developer)가 공통으로 쓰는 코딩 규율·스택 컨벤션 매트릭스는 `agents/_shared/implementation-conventions.md`에 단일 소스로 두고, 각 워커가 `@include: _shared/implementation-conventions.md`(agents/ 기준 상대 경로)로 참조함. Claude 런타임은 `{팀_위치}/agents/_shared/…`를 Read로 읽고, Codex 미러는 생성기가 `@include` 줄을 대상 파일 내용으로 인라인 확장함 — 따라서 `_shared/` 수정 후 codex 재생성 필수. validate가 `@include` 해소를, `--check`가 미러 동기화를 검사함. `_shared/`는 실행 에이전트가 아니므로 frontmatter·toml 미러 대상이 아님
+
+10. **리뷰 오케스트레이션 단일 소스**: 리뷰어 4종·`review-aggregator`·`issue-fixer`를 부리는 계약(축 목록, 병렬 디스패치 규칙, 리뷰어 공통 입력, aggregator 입출력, 심각도별 후속 조치, 파일 단위 수정 규칙, 절대 금지)은 `agents/_shared/review-orchestration.md`가 정본임. `agents/review-agent.md`는 `@include`로, `skills/feature-pipeline/SKILL.md`는 Read 지시로 참조함(스킬은 codex 미러 대상이 아니라 `@include` 확장이 일어나지 않으므로).
+
+    두 파이프라인은 **용도가 달라 각각 유지**하며, 아래 항목만 호출자가 정함 — 그 외를 호출자 문서에 다시 기술하지 않음:
+
+    | 호출자 책임 | review-agent | feature-pipeline |
+    | --- | --- | --- |
+    | `{workspaceDir}` | `_workspaces/review-{branch-slug}/` | `_workspaces/{workspaceName}/` |
+    | 리뷰 대상 | 브랜치 diff `{base}...HEAD` | Phase 2~3 변경 파일 목록 |
+    | 호출 방식 | `subagent_type` 스폰 | 에이전트 정의 주입 |
+    | 사용자 게이트 | 없음 (자동 진행) | 있음 (Phase 4 직후) |
+    | issue-fixer 커밋 | `commit: true` | 커밋 안 함 |
+
+    단독 커맨드 `/my-poor-ai:code-review`는 이 계약을 따르지 않음 — 보안 축을 네이티브 `/security-review`에 위임하고 스타일 축을 제거한 2축 구성임. 대화형 단독 실행은 네이티브 리뷰와의 중복 회피가 우선이고, 파이프라인 2종은 무인 실행이라 4축 자체 수행을 유지함. **드리프트가 아니라 문서화된 의도적 분기임**
