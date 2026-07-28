@@ -19,7 +19,7 @@ description: my-poor-ai 커맨드 목록 표시 및 진입점. /my-poor-ai:{커�
 
 | 커맨드                            | 역할                                                                    |
 | --------------------------------- | ----------------------------------------------------------------------- |
-| `/my-poor-ai:code-review`           | 4-전문 병렬 코드 리뷰 (Architecture/Security/Performance/Style)         |
+| `/my-poor-ai:code-review`           | 아키텍처·성능 리뷰 + 네이티브 `/security-review` 통합, `REVIEW.md` 생성  |
 | `/my-poor-ai:detect-stack`          | 프로젝트 스택 감지 → `_workspaces/stack-profile.json`                    |
 | `/my-poor-ai:git-resume`            | 과거 commit 기반 작업 맥락 복원                                         |
 | `/my-poor-ai:graphify-setup`        | 코드 그래프 도구 설치 (graphifyy 또는 codegraph)                        |

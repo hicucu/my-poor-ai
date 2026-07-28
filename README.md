@@ -112,7 +112,7 @@ The FULL path runs a 5-phase multi-agent pipeline: a brainstorming agent produce
 
 - **19 skills** — TDD, systematic debugging, brainstorming, plan writing, code review (giving and receiving), multi-agent pipelines, doc sync, worktree isolation, skill authoring, and more
 - **24 subagents** — project-context capture, a 10-agent docs suite, a 9-agent feature pipeline, and a 4-agent subagent-driven flow; each with a single responsibility and an explicit I/O contract (see `AGENTS.md`)
-- **11 slash commands** — `/my-poor-ai:code-review`, `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, session management, stack detection, and setup utilities
+- **11 slash commands** — `/my-poor-ai:code-review` (architecture + performance axes, folding in native `/security-review`), `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, session management, and setup utilities
 - **Session handoff** — `HANDOFF.md` records narrative context at spec/phase completion so a fresh session can pick up mid-pipeline; `GOAL.md` tracks goal and success criteria as a completion gate
 - **Multi-platform** — Claude Code first; agent definitions auto-generated for Codex (`.codex/agents/`), tool mappings for Copilot CLI, Gemini CLI, and an OpenCode test suite
 
@@ -125,7 +125,7 @@ Not sure which skill to start with? `/my-poor-ai:roles` maps common roles to ski
 | **Architect** | brainstorming → writing-plans → socratic-plan-review                 |
 | **Builder**   | test-driven-development → subagent-driven-development → finishing    |
 | **Debugger**  | systematic-debugging → verification-before-completion                |
-| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` |
+| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + native `/code-review` |
 | **Docs**      | sync-docs-from-diff / generate-claude-instructions                   |
 
 ## Verified, Not Vibes

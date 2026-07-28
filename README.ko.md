@@ -112,7 +112,7 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 
 - **스킬 19개** — TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰(요청·수신), 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법 등
 - **서브에이전트 24개** — project-context 캡처, docs-suite 10개, feature-pipeline 9개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
-- **슬래시 커맨드 11개** — `/my-poor-ai:code-review`, `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, 세션 관리·스택 감지·셋업 유틸리티
+- **슬래시 커맨드 11개** — `/my-poor-ai:code-review`(아키텍처·성능 축 + 네이티브 `/security-review` 통합), `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, 세션 관리·스택 감지·셋업 유틸리티
 - **세션 인계** — spec/phase 완료 시 `HANDOFF.md`에 서술형 맥락을 기록해 새 세션이 파이프라인 중간부터 이어받음; `GOAL.md`는 목표·성공 기준을 완료 게이트로 추적
 - **멀티플랫폼** — Claude Code 우선; Codex용 에이전트 정의 자동 생성(`.codex/agents/`), Copilot CLI·Gemini CLI 도구 매핑, OpenCode 테스트 스위트
 

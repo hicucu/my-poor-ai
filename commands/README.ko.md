@@ -11,7 +11,7 @@
 | [`setup.md`](setup.md) | `SessionStart` 훅을 `~/.claude/settings.json`에 자동 등록 |
 | [`codex-setup.md`](codex-setup.md) | my-poor-ai 에이전트와 multi-agent 기능을 `~/.codex/config.toml`에 등록 |
 | [`roles.md`](roles.md) | 역할 프리셋 카탈로그 — 역할명(Architect/Builder/Debugger/Reviewer/Docs)을 스킬 번들로 라우팅 |
-| [`code-review.md`](code-review.md) | 4개 전문 에이전트(Architecture/Security/Performance/Style) 병렬 리뷰 + 통합 리포트를 산출하는 단독 커맨드 |
+| [`code-review.md`](code-review.md) | 네이티브 리뷰가 덮지 않는 아키텍처·성능 축 검토 + 네이티브 `/security-review` 통합, `REVIEW.md` 초안 생성 |
 | [`detect-stack.md`](detect-stack.md) | 마커 파일 스캔으로 기술 스택을 감지, `stack-profile.json` 생성 (feature-pipeline 전체 실행 없이) |
 | [`git-resume.md`](git-resume.md) | 자연어 시간 표현("어제", "지난주") 또는 commit hash로 과거 작업 맥락 복원 |
 | [`graphify-setup.md`](graphify-setup.md) | 코드 그래프 도구(`graphifyy` 또는 `codegraph`) 설치·설정 원스톱 — 패키지 설치, 그래프 생성, Claude Code 통합, git hook 등록 |

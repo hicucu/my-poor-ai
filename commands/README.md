@@ -11,7 +11,7 @@
 | [`setup.md`](setup.md) | Registers the `SessionStart` hook in `~/.claude/settings.json` automatically. |
 | [`codex-setup.md`](codex-setup.md) | Registers my-poor-ai's agents and multi-agent features in `~/.codex/config.toml`. |
 | [`roles.md`](roles.md) | Role-preset catalog — routes a role name (Architect/Builder/Debugger/Reviewer/Docs) to its skill bundle. |
-| [`code-review.md`](code-review.md) | Standalone 4-way parallel code review (architecture/security/performance/style) with an aggregated report. |
+| [`code-review.md`](code-review.md) | Reviews the architecture and performance axes that native review does not emphasize, folds in native `/security-review`, and can scaffold a `REVIEW.md`. |
 | [`detect-stack.md`](detect-stack.md) | Scans marker files to detect the tech stack and generate `stack-profile.json`, without running the full feature pipeline. |
 | [`git-resume.md`](git-resume.md) | Reconstructs prior work context from commit history, given a time expression ("yesterday", "last week") or a commit hash. |
 | [`graphify-setup.md`](graphify-setup.md) | One-stop install/setup for a code-graph tool (`graphifyy` or `codegraph`) — package install, graph generation, Claude Code integration, git hook. |
