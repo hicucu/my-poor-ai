@@ -39,6 +39,7 @@ Every skill change in this release was developed against a measured baseline: a 
 - Legacy `Task` tool references replaced with `Agent` across seven skill files (11 occurrences), including the Codex / Copilot / Gemini tool-mapping tables whose left column names the Claude Code tool. `Task` became `Agent` in v2.1.63
 - Aggregator reports silently dropped issues belonging to no changed file — a missing migration, for instance. The aggregator now emits a `## 파일 미귀속 이슈` section, and the contract requires assigning such an issue to the file that should be created or reporting it explicitly
 - `.codex-plugin/plugin.json` had drifted to 4.0.0 while the other manifests were at 4.2.0; this release resyncs all three
+- `bump-version.sh --audit` was unusable at this version. It greps for the bare version string, so its noise scales with how common that string is — `4.2.0` matched almost nothing, `5.0.0` matched 21 unrelated npm dependency ranges under `examples/`. Those are standalone demo projects with independent versioning that must never be bumped alongside the plugin, so `examples` joins `audit.exclude`. The audit now reports one line, `CHANGELOG.md`, which is the accurate reminder that the changelog heading is written by hand
 
 ### Tests
 
