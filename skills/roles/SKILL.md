@@ -1,4 +1,5 @@
 ---
+name: roles
 description: 역할 프리셋 카탈로그 — 역할명으로 시작하면 해당 스킬 번들의 진입 스킬로 라우팅. /my-poor-ai:roles {역할} 형태로 실행.
 ---
 

@@ -10,7 +10,9 @@ tools: Agent, Bash, Glob, Grep, Read, Write
 4개 전문 reviewer를 병렬로 실행하고 결과를 통합하여 `review-report.md`를 작성함.
 Critical 이슈가 있으면 issue-fixer를 파일별로 호출함.
 
-> 플러그인 에이전트는 `my-poor-ai:<name>`으로 네임스페이스되어 등록됨 (sub-agents 공식 문서 기준). 아래 스폰 예시는 이 형식을 기본으로 씀. `my-poor-ai:` 접두사가 해소되지 않는 환경(플러그인 외 배치)에서만 bare name(`architecture-reviewer` 등)으로 스폰함.
+리뷰 축·병렬 규칙·리뷰어 입력·aggregator·issue-fixer 계약은 아래 공유 지침이 정본임.
+
+@include: _shared/review-orchestration.md
 
 ## 입력 프로토콜
 
@@ -47,40 +49,16 @@ reviews/style.md
 review-report.md
 ```
 
-### Step 3: 4개 전문 reviewer 병렬 실행
+### Step 3~4: 리뷰 팬아웃과 통합
 
-**단일 응답에 4개 Agent 도구를 동시 호출:**
+공유 지침의 계약대로 수행함. 이 에이전트가 정하는 값:
 
-```
-Agent(subagent_type="my-poor-ai:architecture-reviewer"):
-  diff: {git diff 전체}
-  output-path: _workspaces/review-{branch-slug}/reviews/architecture.md
-
-Agent(subagent_type="my-poor-ai:security-reviewer"):
-  diff: {git diff 전체}
-  output-path: _workspaces/review-{branch-slug}/reviews/security.md
-  마이그레이션 주의: diff에 신규 테이블/엔티티 생성 포함 시 명시
-
-Agent(subagent_type="my-poor-ai:performance-reviewer"):
-  diff: {git diff 전체}
-  output-path: _workspaces/review-{branch-slug}/reviews/performance.md
-
-Agent(subagent_type="my-poor-ai:style-reviewer"):
-  diff: {git diff 전체}
-  output-path: _workspaces/review-{branch-slug}/reviews/style.md
-```
-
-### Step 4: aggregator로 통합
-
-4개 산출물이 모두 완료되면:
-
-```
-Agent(subagent_type="my-poor-ai:review-aggregator"):
-  reviews-dir: _workspaces/review-{branch-slug}/reviews/
-  output-path: _workspaces/review-{branch-slug}/review-report.md
-  branch: {branch}
-  base: {base}
-```
+| 호출자 책임 항목 | 이 에이전트의 값 |
+| --- | --- |
+| `{workspaceDir}` | `_workspaces/review-{branch-slug}/` |
+| 리뷰 대상 | Step 1에서 산출한 `git diff {base}...HEAD` 전체 |
+| 호출 방식 | `subagent_type` 직접 스폰 (`my-poor-ai:` 접두사 기본) |
+| 사용자 게이트 | 없음 — 판정 후 자동으로 Step 5 진행 |
 
 ### Step 5: 결과 판정 및 후속 처리
 
@@ -91,18 +69,12 @@ Agent(subagent_type="my-poor-ai:review-aggregator"):
 
 **NEEDS_FIXES (Critical/High 존재):**
 
-- review-report.md의 "파일별 이슈" 섹션에서 파일 목록 추출
-- 파일별로 issue-fixer를 병렬 호출 (서로 다른 파일은 독립 — 4개 reviewer와 동일하게 단일 메시지에서 동시 스폰):
+공유 지침의 issue-fixer 계약대로 파일 단위 병렬 호출함. 이 에이전트가 정하는 값:
 
-```
-# 각 이슈 파일에 대해 병렬 실행 (하나의 메시지에 파일 수만큼 Agent 호출)
-Agent(subagent_type="my-poor-ai:issue-fixer"):
-  target-file: {파일 경로}
-  issues: {해당 파일의 이슈 발췌}
-  branch-slug: review-{branch-slug}
-  프로젝트 경로: {경로}
-  commit: true
-```
+| 호출자 책임 항목 | 이 에이전트의 값 |
+| --- | --- |
+| 커밋 여부 | `commit: true` — 수정 후 커밋까지 수행 |
+| 추가 전달 | `branch-slug: review-{branch-slug}`, `프로젝트 경로` |
 
 이슈 수정 완료 후 main agent에게 반환.
 
@@ -119,6 +91,4 @@ SUMMARY: {핵심 한 줄 요약}
 
 ## 절대 금지
 
-- 4개 reviewer를 순차 실행 (반드시 병렬)
-- 코드 파일 직접 수정 (issue-fixer 위임)
-- `_workspaces/` 루트에 직접 저장
+공유 지침 `_shared/review-orchestration.md`의 "절대 금지"를 그대로 따름. 이 에이전트 고유 추가 사항 없음.

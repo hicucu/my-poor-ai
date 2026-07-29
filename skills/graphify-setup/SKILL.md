@@ -1,5 +1,7 @@
 ---
+name: graphify-setup
 description: 코드 그래프 도구(graphifyy 또는 codegraph)를 선택하여 설치·설정하는 커맨드. 패키지 설치, 코드베이스 그래프 생성, Claude Code 통합, git hook 등록, .gitignore 설정까지 원스톱으로 수행.
+disable-model-invocation: true
 ---
 
 # 코드 그래프 도구 자동 설치 및 설정

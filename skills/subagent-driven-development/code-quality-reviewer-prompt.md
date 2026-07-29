@@ -7,7 +7,7 @@
 **스펙 준수 검토를 통과한 후에만 디스패치함.**
 
 ```
-Task 도구 (general-purpose):
+Agent 도구 (general-purpose):
   requesting-code-review/code-reviewer.md 템플릿 사용
 
   DESCRIPTION: [작업 요약, 구현자 보고서에서 발췌]

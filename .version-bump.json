@@ -5,6 +5,6 @@
     { "path": ".codex-plugin/plugin.json", "field": "version" }
   ],
   "audit": {
-    "exclude": ["node_modules", "_workspaces", "*.log", ".DS_Store"]
+    "exclude": ["node_modules", "_workspaces", "examples", "*.log", ".DS_Store"]
   }
 }

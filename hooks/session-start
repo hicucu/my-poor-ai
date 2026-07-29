@@ -14,8 +14,13 @@ if [ -d "$legacy_skills_dir" ]; then
     warning_message="\n\n<important-reminder>IN YOUR FIRST REPLY AFTER SEEING THIS MESSAGE YOU MUST TELL THE USER:⚠️ **WARNING:** my-poor-ai now uses Claude Code's skills system. Custom skills in ~/.config/my-poor-ai/skills will not be read. Move custom skills to ~/.claude/skills instead. To make this message go away, remove ~/.config/my-poor-ai/skills</important-reminder>"
 fi
 
-# Read using-my-poor-ai content
-using_forge_content=$(cat "${PLUGIN_ROOT}/skills/using-my-poor-ai/SKILL.md" 2>&1 || echo "Error reading using-my-poor-ai skill")
+# Read the routing block.
+# Only the router is injected — the full using-my-poor-ai skill loads on demand via
+# the Skill tool. Injecting the whole skill every session fought the progressive
+# disclosure the skills system is built around, and cost every session ~280 lines
+# of context to answer one question: which of the three paths is this request?
+router_path="${PLUGIN_ROOT}/skills/using-my-poor-ai/router.md"
+using_forge_content=$(cat "${router_path}" 2>&1 || echo "Error reading my-poor-ai router")
 
 # Escape string for JSON embedding using bash parameter substitution.
 # Each ${s//old/new} is a single C-level pass - orders of magnitude
@@ -37,7 +42,7 @@ escape_for_json() {
 
 using_forge_escaped=$(escape_for_json "$using_forge_content")
 warning_escaped=$(escape_for_json "$warning_message")
-session_context="<EXTREMELY_IMPORTANT>\nYou have my-poor-ai.\n\n**Below is the full content of your 'my-poor-ai:using-my-poor-ai' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n${using_forge_escaped}\n\n${warning_escaped}\n</EXTREMELY_IMPORTANT>"
+session_context="<EXTREMELY_IMPORTANT>\nYou have my-poor-ai.\n\n**Below is the my-poor-ai routing block. Use it to classify every request before responding. It is deliberately minimal: call the 'my-poor-ai:using-my-poor-ai' skill for the full pipeline contracts, and the 'Skill' tool for all other skills.**\n\n${using_forge_escaped}\n\n${warning_escaped}\n</EXTREMELY_IMPORTANT>"
 
 # Output context injection as JSON.
 # Cursor hooks expect additional_context (snake_case).

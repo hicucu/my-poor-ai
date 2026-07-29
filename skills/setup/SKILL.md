@@ -1,5 +1,7 @@
 ---
+name: setup
 description: my-poor-ai SessionStart 훅을 ~/.claude/settings.json에 자동 등록
+disable-model-invocation: true
 allowed-tools: [Read, Edit, Bash]
 ---
 

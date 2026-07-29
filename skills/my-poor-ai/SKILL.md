@@ -1,4 +1,5 @@
 ---
+name: my-poor-ai
 description: my-poor-ai 요청 처리 진입점 — setup 없이도 사용 가능
 argument-hint: [요청 내용]
 allowed-tools: [Read, Edit, Write, Bash, Glob, Grep]

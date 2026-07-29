@@ -14,7 +14,7 @@
 | `Skill` 도구 (스킬 호출)        | `activate_skill`                                             |
 | `WebSearch`                     | `google_web_search`                                          |
 | `WebFetch`                      | `web_fetch`                                                  |
-| `Task` 도구 (서브에이전트 파견) | `@agent-name` ([서브에이전트 지원](#서브에이전트-지원) 참조) |
+| `Agent` 도구 (서브에이전트 파견) | `@agent-name` ([서브에이전트 지원](#서브에이전트-지원) 참조) |
 
 ## 서브에이전트 지원
 
@@ -24,11 +24,11 @@ Gemini CLI는 `@` 문법으로 서브에이전트를 네이티브로 지원함. 
 
 | 스킬 지침                                       | Gemini CLI 대응                                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------------------- |
-| `Task tool (my-poor-ai:implementer)`                 | 채워진 `implementer-prompt.md` 템플릿과 함께 `@generalist`                      |
-| `Task tool (my-poor-ai:spec-reviewer)`               | 채워진 `spec-reviewer-prompt.md` 템플릿과 함께 `@generalist`                    |
-| `Task tool (my-poor-ai:code-reviewer)`               | `@code-reviewer` (번들 에이전트) 또는 채워진 리뷰 프롬프트와 함께 `@generalist` |
-| `Task tool (my-poor-ai:code-quality-reviewer)`       | 채워진 `code-quality-reviewer-prompt.md` 템플릿과 함께 `@generalist`            |
-| `Task tool (general-purpose)` (인라인 프롬프트) | 인라인 프롬프트와 함께 `@generalist`                                            |
+| `Agent 도구 (my-poor-ai:implementer)`                 | 채워진 `implementer-prompt.md` 템플릿과 함께 `@generalist`                      |
+| `Agent 도구 (my-poor-ai:spec-reviewer)`               | 채워진 `spec-reviewer-prompt.md` 템플릿과 함께 `@generalist`                    |
+| `Agent 도구 (my-poor-ai:code-reviewer)`               | `@code-reviewer` (번들 에이전트) 또는 채워진 리뷰 프롬프트와 함께 `@generalist` |
+| `Agent 도구 (my-poor-ai:code-quality-reviewer)`       | 채워진 `code-quality-reviewer-prompt.md` 템플릿과 함께 `@generalist`            |
+| `Agent 도구 (general-purpose)` (인라인 프롬프트) | 인라인 프롬프트와 함께 `@generalist`                                            |
 
 ### 프롬프트 채우기
 
