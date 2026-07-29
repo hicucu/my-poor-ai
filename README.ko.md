@@ -18,7 +18,7 @@
 
 ## 왜 My Poor AI인가
 
-AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 19개**(에이전트가 따라야 할 프로세스 규칙), **서브에이전트 24개**(단일 책임 워커), **슬래시 커맨드 12개**를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
+AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 31개**(에이전트가 따라야 할 프로세스 규칙 20개 + 사용자가 호출하는 커맨드 11개)와 **서브에이전트 24개**(단일 책임 워커)를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
 
 ## 빠른 시작
 
@@ -41,7 +41,7 @@ AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 �
 
 #### Claude Code CLI
 
-등록하면 매 세션 시작(`/clear`, `/compact`, 신규 세션)마다 `using-my-poor-ai` 스킬 컨텍스트가 SessionStart 훅으로 자동 주입됨. 자동 등록 또는 수동 등록 중 하나를 선택함.
+등록하면 매 세션 시작(`/clear`, `/compact`, `/resume`, `/fork`, 신규 세션)마다 압축 라우팅 블록이 SessionStart 훅으로 자동 주입됨. 요청 분류에 필요한 것만 담기며, `using-my-poor-ai` 스킬 전문은 Skill 도구로 필요할 때 로드됨. 자동 등록 또는 수동 등록 중 하나를 선택함.
 
 **자동 등록**
 
@@ -110,9 +110,8 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 
 ## 핵심 구성
 
-- **스킬 19개** — TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰(요청·수신), 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법 등
+- **스킬 31개, 전부 `/my-poor-ai:{이름}`으로 호출 가능** — 프로세스 스킬 20개(TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰, 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법)와 커맨드 11개(`code-review`, `detect-stack`, `roles`, 세션 관리, 셋업 유틸리티). 프로세스 스킬은 요청이 맞으면 Claude가 자동 로드하며, 프로젝트 외부에 기록하는 셋업 커맨드 3종은 `disable-model-invocation`으로 사용자만 시작할 수 있음
 - **서브에이전트 24개** — project-context 캡처, docs-suite 10개, feature-pipeline 9개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
-- **슬래시 커맨드 12개** — `/my-poor-ai:code-review`, `/my-poor-ai:detect-stack`, `/my-poor-ai:roles`, 세션 관리·스택 감지·셋업 유틸리티
 - **세션 인계** — spec/phase 완료 시 `HANDOFF.md`에 서술형 맥락을 기록해 새 세션이 파이프라인 중간부터 이어받음; `GOAL.md`는 목표·성공 기준을 완료 게이트로 추적
 - **멀티플랫폼** — Claude Code 우선; Codex용 에이전트 정의 자동 생성(`.codex/agents/`), Copilot CLI·Gemini CLI 도구 매핑, OpenCode 테스트 스위트
 
@@ -125,8 +124,22 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 | **Architect** | brainstorming → writing-plans → socratic-plan-review                  |
 | **Builder**   | test-driven-development → subagent-driven-development → finishing     |
 | **Debugger**  | systematic-debugging → verification-before-completion                 |
-| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` |
+| **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + 네이티브 `/code-review` |
 | **Docs**      | sync-docs-from-diff / generate-claude-instructions                    |
+
+## `/my-poor-ai:code-review`와 번들 `/code-review`의 차이
+
+둘 다 존재하며 담당이 다름. 이 플러그인은 번들 `/code-review`를 대체하거나 감싸지 않음 — 둘 다 실행하는 것이 정상임.
+
+| | `/my-poor-ai:code-review` | 번들 `/code-review` |
+| --- | --- | --- |
+| 검토 축 | 아키텍처·성능 + 네이티브 `/security-review` 통합 | 정확성 버그·회귀·엣지케이스 + 재사용·단순화·효율 정리 |
+| 산출 | `_workspaces/` 하위 `review-report.md` (축 통합 리포트) | 대화 내 결과, `--fix`로 적용·`--comment`로 PR 코멘트 |
+| 실행 주체 | 사용자 또는 Claude | **사용자만** — `disable-model-invocation`이라 어떤 스킬·커맨드도 대신 실행 불가 |
+
+플러그인은 정확성 축을 의도적으로 재구현하지 않음. `/my-poor-ai:code-review`가 끝나면 그 사실을 명시하고 `/code-review` 직접 실행을 안내함. 네임스페이스가 분리되어 있어 이름 충돌은 없으며 두 커맨드는 별개로 유지됨.
+
+GitHub Code Review를 쓰는 저장소라면 리뷰 규칙을 루트 `REVIEW.md`에 둘 것 — 리뷰 파이프라인 전 에이전트의 시스템 프롬프트에 최우선 블록으로 주입됨. `/my-poor-ai:code-review --init-review-md`가 초안을 생성함.
 
 ## 바이브가 아니라 검증
 
@@ -143,9 +156,8 @@ my-poor-ai/
 ├── .claude-plugin/        # 마켓플레이스 + 플러그인 매니페스트
 ├── .codex/agents/         # Codex용 에이전트 정의 자동 생성물 (수동 편집 금지)
 ├── agents/                # 서브에이전트 정의 24개 (단일 소스)
-├── commands/              # 슬래시 커맨드 12개
 ├── hooks/                 # SessionStart 훅 (Claude Code + Cursor)
-├── skills/                # 스킬 디렉토리 19개
+├── skills/                # 스킬 디렉토리 31개 (프로세스 20 + 커맨드 11)
 ├── scripts/               # CI 검증기 + Codex 미러 생성기
 ├── tests/                 # 결정론적 + LLM 행동 + 압박 시나리오 스위트
 ├── docs/                  # 권장 MCP 조합

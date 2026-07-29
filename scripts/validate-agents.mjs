@@ -4,7 +4,7 @@
  *
  * 검사 항목:
  *  1. agents/*.md frontmatter — name=파일명, model 유효값, tools 화이트리스트,
- *     tools 알파벳순, 필드 순서 (name → description → model → tools)
+ *     tools 알파벳순, 필드 순서·미지원 필드
  *  2. 참조 해소 — {팀_위치}/agents/X.md 경로 참조와 subagent_type="..." 참조가
  *     실재 에이전트 정의로 해소되는지
  *  3. 코드펜스 균형 — 중첩 펜스 조기 닫힘/미닫힘 (포매터 손상 회귀 방지)
@@ -16,14 +16,38 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const VALID_MODELS = new Set(['haiku', 'sonnet', 'opus', 'inherit']);
-// Claude Code 도구 레지스트리 실명만 허용. 소문자 추상 이름(read/write/search)과
-// 구식 별칭(Task)은 거부한다 — 3.1.4에서 고친 0-tool 바인딩 버그의 재발 방지.
+
+// 모델 별칭 + 풀 모델 ID(claude-opus-5 등). 별칭만 허용하면 특정 버전 고정이 불가능하다.
+const MODEL_ALIASES = new Set(['haiku', 'sonnet', 'opus', 'fable', 'inherit']);
+const MODEL_ID = /^claude-[a-z0-9][a-z0-9.-]*$/;
+
+// 백그라운드 서브에이전트가 실제로 보유하는 빌트인 도구 집합.
+// 플러그인 에이전트는 기본이 백그라운드 실행이므로 이 집합이 유효 상한이다.
+// `Agent`는 포그라운드/깊이 제한 조건부라 별도 허용 (review-agent 오케스트레이터용).
 const VALID_TOOLS = new Set([
-  'Agent', 'Bash', 'Edit', 'Glob', 'Grep', 'NotebookEdit',
-  'Read', 'WebFetch', 'WebSearch', 'Write',
+  'Agent', 'Artifact', 'Bash', 'Edit', 'EnterWorktree', 'ExitWorktree',
+  'Glob', 'Grep', 'Monitor', 'NotebookEdit', 'PowerShell', 'Read',
+  'SendMessage', 'Skill', 'TaskStop', 'TodoWrite', 'ToolSearch',
+  'WebFetch', 'WebSearch', 'Write',
 ]);
-const FIELD_ORDER = ['name', 'description', 'model', 'tools'];
+
+// 서브에이전트에서 항상 제거되는 도구 — tools에 적어도 바인딩되지 않는다.
+// 전량 제거되면 0-tool 스폰 실패로 이어지므로 이름 단계에서 잡는다.
+const NEVER_IN_SUBAGENT = new Set([
+  'AskUserQuestion', 'EndConversation', 'EnterPlanMode', 'ExitPlanMode',
+  'ScheduleWakeup', 'TaskOutput', 'WaitForMcpServers', 'Workflow',
+]);
+
+// 지원 frontmatter 필드의 정본 순서. 존재하는 키가 이 순서의 부분수열이어야 한다.
+// (고정 4개 목록이던 시절엔 isolation·effort 등 신규 필드 채택이 CI에서 막혔다.)
+const FIELD_ORDER = [
+  'name', 'description', 'model', 'tools', 'disallowedTools',
+  'skills', 'effort', 'isolation', 'background', 'maxTurns', 'memory', 'color',
+];
+const REQUIRED_FIELDS = ['name', 'description', 'model', 'tools'];
+
+// 플러그인으로 배포되는 에이전트에서는 무시되는 필드 — 조용히 안 먹느니 반려한다.
+const PLUGIN_IGNORED_FIELDS = new Set(['hooks', 'mcpServers', 'permissionMode']);
 
 const errors = [];
 const err = (file, msg) => errors.push(`${file}: ${msg}`);
@@ -47,18 +71,24 @@ for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.star
   const slug = f.replace(/\.md$/, '');
   const name = (fields.name ?? '').replace(/^"|"$/g, '');
   if (name !== slug) err(path, `name(${name})이 파일명 slug(${slug})와 다름`);
-  if (!fields.description) err(path, 'description 없음');
-  if (!fields.model) err(path, 'model 없음');
-  else if (!VALID_MODELS.has(fields.model)) err(path, `유효하지 않은 model: ${fields.model}`);
 
-  if (!fields.tools) err(path, 'tools 없음');
-  else {
+  for (const k of REQUIRED_FIELDS) {
+    if (!fields[k]) err(path, `${k} 없음`);
+  }
+
+  const model = (fields.model ?? '').replace(/^"|"$/g, '');
+  if (model && !MODEL_ALIASES.has(model) && !MODEL_ID.test(model)) {
+    err(path, `유효하지 않은 model: ${model} (별칭 ${[...MODEL_ALIASES].join('/')} 또는 claude-* 풀 ID)`);
+  }
+
+  if (fields.tools) {
     const tools = fields.tools.split(',').map((t) => t.trim());
     for (const t of tools) {
-      if (!VALID_TOOLS.has(t)) {
-        const hint = t === 'Task' ? ' (v2.1.63부터 Agent 사용)' : ' (레지스트리 실명만 허용)';
-        err(path, `유효하지 않은 도구명: ${t}${hint}`);
-      }
+      if (VALID_TOOLS.has(t)) continue;
+      let hint = ' (레지스트리 실명만 허용)';
+      if (t === 'Task') hint = ' (v2.1.63부터 Agent 사용)';
+      else if (NEVER_IN_SUBAGENT.has(t)) hint = ' (서브에이전트에서 항상 제거되는 도구 — 바인딩되지 않음)';
+      err(path, `유효하지 않은 도구명: ${t}${hint}`);
     }
     const sorted = [...tools].sort();
     if (tools.join() !== sorted.join()) {
@@ -66,9 +96,18 @@ for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.star
     }
   }
 
-  const expected = FIELD_ORDER.filter((k) => keys.includes(k));
-  if (keys.join() !== expected.join()) {
-    err(path, `필드 순서 위반: ${keys.join(', ')} (기대: ${expected.join(', ')})`);
+  for (const k of keys) {
+    if (PLUGIN_IGNORED_FIELDS.has(k)) {
+      err(path, `플러그인 에이전트에서 무시되는 필드: ${k} (settings.json 또는 .claude/agents/로 이전 필요)`);
+    } else if (!FIELD_ORDER.includes(k)) {
+      err(path, `지원되지 않는 frontmatter 필드: ${k}`);
+    }
+  }
+
+  const known = keys.filter((k) => FIELD_ORDER.includes(k));
+  const expected = FIELD_ORDER.filter((k) => known.includes(k));
+  if (known.join() !== expected.join()) {
+    err(path, `필드 순서 위반: ${known.join(', ')} (기대: ${expected.join(', ')})`);
   }
   agentNames.add(slug);
 }
@@ -83,7 +122,7 @@ function* mdFiles(dir) {
   }
 }
 const allMd = ['AGENTS.md', 'CLAUDE.md', 'README.md'];
-for (const d of ['agents', 'commands', 'skills', 'tests']) allMd.push(...mdFiles(d));
+for (const d of ['agents', 'skills', 'tests']) allMd.push(...mdFiles(d));
 
 // ---------- 2. 참조 해소 ----------
 for (const rel of allMd) {
@@ -97,6 +136,24 @@ for (const rel of allMd) {
       err(rel, `해소되지 않는 subagent_type: ${m[1]}`);
     }
   }
+}
+
+// ---------- 2a. 구식 도구명(Task) 산문 잔존 ----------
+// frontmatter의 tools는 1번에서 잡지만 본문 산문은 그동안 무검사였고, 실제로
+// 4개 파일 10곳에 `Task 도구`/`Task tool`이 남아 있었다 (v2.1.63부터 Agent).
+// "Task 1"(플랜 번호)·"async Task"(C# 예제)와 구분하려고 도구 어휘가 붙은
+// 경우와 백틱으로 감싼 경우만 잡는다. tests/·examples/는 플랜 번호가 많아 제외.
+// 주의: `\b`는 [A-Za-z0-9_] 기준이라 한글 뒤에서는 경계가 성립하지 않는다.
+// `도구` 뒤에 `\b`를 붙이면 한글 분기가 영원히 매칭되지 않는다 (최초 작성 시 실제로 그랬음).
+const LEGACY_TASK = /`?\bTask`?\s+(?:도구|tool\b)/;
+for (const rel of allMd) {
+  if (rel.startsWith('tests/')) continue;
+  const lines = readFileSync(join(ROOT, rel), 'utf8').split('\n');
+  lines.forEach((line, i) => {
+    if (LEGACY_TASK.test(line)) {
+      err(rel, `구식 도구명 잔존 (${i + 1}행): Task → Agent (v2.1.63)`);
+    }
+  });
 }
 
 // ---------- 2b. @include 대상 해소 ----------
@@ -123,18 +180,38 @@ for (const rel of allMd) {
   if (open !== 0) err(rel, `EOF에서 닫히지 않은 코드펜스 (${open}-backtick)`);
 }
 
-// ---------- 4. 커맨드 카탈로그 등록 ----------
-// 모든 commands/*.md는 카탈로그(commands.md) 또는 루트 문서에서 소개되어야 함 —
-// 이번 세션류의 "존재하지만 어디서도 안내되지 않는 커맨드" 재발 방지.
+// ---------- 4. 스킬 구조·명명·카탈로그 등록 ----------
+// 커맨드가 skills/로 통합되면서 카탈로그 검사 대상도 스킬 전체로 확장됨.
+// name은 특히 중요하다 — 플러그인 스킬에서 frontmatter name이 커맨드의 마지막
+// 세그먼트를 정하므로, 디렉토리명과 어긋나면 호출명이 조용히 바뀐다.
 {
-  const catalog = readFileSync(join(ROOT, 'commands/commands.md'), 'utf8')
+  const catalog = readFileSync(join(ROOT, 'skills/README.md'), 'utf8')
+    + readFileSync(join(ROOT, 'skills/commands/SKILL.md'), 'utf8')
     + readFileSync(join(ROOT, 'CLAUDE.md'), 'utf8')
     + readFileSync(join(ROOT, 'README.md'), 'utf8');
-  for (const f of readdirSync(join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).sort()) {
-    const stem = f.replace(/\.md$/, '');
-    if (stem === 'commands' || f.startsWith('README')) continue;
-    if (!catalog.includes(stem)) {
-      err(`commands/${f}`, '카탈로그(commands.md)·CLAUDE.md·README.md 어디에도 소개되지 않는 커맨드');
+
+  for (const d of readdirSync(join(ROOT, 'skills')).sort()) {
+    const dir = join(ROOT, 'skills', d);
+    if (!statSync(dir).isDirectory()) continue;
+
+    const skillPath = `skills/${d}/SKILL.md`;
+    if (!existsSync(join(ROOT, skillPath))) {
+      err(`skills/${d}/`, 'SKILL.md 없음 — 스킬로 등록되지 않음');
+      continue;
+    }
+
+    const fm = readFileSync(join(ROOT, skillPath), 'utf8').match(/^---\n([\s\S]*?)\n---\n/);
+    if (!fm) { err(skillPath, 'frontmatter 없음'); continue; }
+
+    const nameLine = fm[1].match(/^name:\s*(.+)$/m);
+    const name = nameLine ? nameLine[1].trim().replace(/^["']|["']$/g, '') : null;
+    if (!name) err(skillPath, 'name 없음 — 플러그인 스킬은 name이 호출명의 마지막 세그먼트를 정함');
+    else if (name !== d) err(skillPath, `name(${name})이 디렉토리명(${d})과 다름 — 호출명이 /my-poor-ai:${name}으로 바뀜`);
+
+    if (!/^description:/m.test(fm[1])) err(skillPath, 'description 없음');
+
+    if (d !== 'commands' && !catalog.includes(d)) {
+      err(skillPath, 'skills/README.md·commands 카탈로그·CLAUDE.md·README.md 어디에도 소개되지 않는 스킬');
     }
   }
 }

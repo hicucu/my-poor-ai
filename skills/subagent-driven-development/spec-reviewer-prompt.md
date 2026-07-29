@@ -5,7 +5,7 @@
 **목적:** 구현자가 요청받은 것을 정확히 만들었는지(그 이상도, 그 이하도 아닌지) 검증함.
 
 ```
-Task 도구 (general-purpose):
+Agent 도구 (general-purpose):
   description: "작업 N의 스펙 준수 검토"
   prompt: |
     당신은 구현이 명세와 일치하는지 검토하는 검토자임.

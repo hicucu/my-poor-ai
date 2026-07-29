@@ -2,7 +2,14 @@
 
 **English** | [한국어](README.ko.md)
 
-20 skill directories — process rules the agent must follow, triggered automatically by request content or invoked explicitly. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
+31 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
+
+Two kinds live here, and the difference is who starts them:
+
+- **Process skills** (the first sections below) — Claude loads these automatically when the request matches, and you can also invoke them with `/my-poor-ai:{name}`.
+- **Task commands** ([Commands](#commands) below) — you invoke these with `/my-poor-ai:{name}`. The ones with side effects outside the project set `disable-model-invocation: true` so Claude never starts them on its own.
+
+Both are the same file format. Claude Code merged custom commands into skills, so `commands/deploy.md` and `skills/deploy/SKILL.md` produce the same `/deploy`; skills additionally support a directory of supporting files, invocation control, and subagent execution. This plugin keeps everything under `skills/` for that reason.
 
 ## Design & planning
 
@@ -57,4 +64,22 @@
 | Skill | What it does |
 | --- | --- |
 | [`writing-skills`](writing-skills/) | TDD applied to process documents — how to author, edit, and validate a skill. |
-| [`using-my-poor-ai`](using-my-poor-ai/) | Loaded at the start of every conversation; establishes how to find and invoke skills. |
+| [`using-my-poor-ai`](using-my-poor-ai/) | Request classification and pipeline contracts. `router.md` beside it is the compact block the SessionStart hook injects. |
+
+## Commands
+
+Invoked as `/my-poor-ai:{name}`. `/my-poor-ai:commands` is the catalog entry point.
+
+| Skill | What it does | Model-invocable |
+| --- | --- | --- |
+| [`my-poor-ai`](my-poor-ai/) | Entry point that routes any request into the right pipeline (DEBUG / SIMPLE / FULL) — usable without setup. | Yes |
+| [`commands`](commands/) | Lists what is available; the catalog itself. | Yes |
+| [`roles`](roles/) | Role-preset catalog — routes a role name (architect / builder / debugger / reviewer / docs) to its skill bundle. | Yes |
+| [`code-review`](code-review/) | Reviews the architecture and performance axes, folds in native `/security-review`, and can scaffold a `REVIEW.md`. | Yes |
+| [`detect-stack`](detect-stack/) | Scans marker files to detect the tech stack and generate `stack-profile.json`. | Yes |
+| [`git-resume`](git-resume/) | Reconstructs prior work context from commit history, given a time expression or a commit hash. | Yes |
+| [`session-manager`](session-manager/) | Lists, renames, or deletes local Claude Code sessions. | Yes |
+| [`weekly-commits`](weekly-commits/) | Prints this week's commits for a given author as a markdown table. | Yes |
+| [`setup`](setup/) | Registers the `SessionStart` hook in `~/.claude/settings.json`. | **No** — writes outside the project |
+| [`codex-setup`](codex-setup/) | Registers this plugin's agents in `~/.codex/config.toml`. | **No** — writes outside the project |
+| [`graphify-setup`](graphify-setup/) | Installs and configures a code-graph tool (`graphifyy` or `codegraph`). | **No** — installs packages, adds a git hook |

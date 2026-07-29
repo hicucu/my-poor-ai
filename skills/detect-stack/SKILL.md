@@ -1,4 +1,5 @@
 ---
+name: detect-stack
 description: 프로젝트 마커 파일을 스캔하여 기술 스택을 자동 감지하고 stack-profile.json을 생성하는 단독 커맨드. feature-pipeline 파이프라인 없이 스택 정보만 필요할 때 사용.
 model: opus
 ---

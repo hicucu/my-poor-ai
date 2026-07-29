@@ -103,65 +103,30 @@ UI/뷰 계층 파일(`uiMarkers` 경로)은 테스트 대상에서 제외. 순�
 
 ## Phase 4: 코드 리뷰 (4개 전문 병렬 + 통합)
 
-Phase 2~3에서 생성/수정된 전체 파일 대상. 4개 전문 reviewer를 병렬 실행한 후 aggregator로 통합 보고서 생성.
+리뷰 축·병렬 규칙·리뷰어 입력·aggregator·issue-fixer 계약은 `{팀_위치}/agents/_shared/review-orchestration.md`가 정본임. **Phase 4~5 착수 전 이 파일을 Read로 읽고 그 계약을 따름.**
 
-### Phase 4a: 4개 전문 reviewer 병렬 실행
+`review-agent`(복잡 경로 Phase 4)도 같은 계약을 공유함. 아래는 이 파이프라인이 정하는 "호출자 책임" 값만 기술함.
 
-```
-# 4개 에이전트를 단일 응답에 동시에 호출 (run_in_background: true)
+### Phase 4a~4b: 호출자 책임 값
 
-{팀_위치}/agents/architecture-reviewer.md를 읽고 그 지침에 따라 작업한다.
-리뷰 대상: [Phase 2~3 변경 파일 전체 목록]
-스택 프로필: {workspaceDir}/stack-profile.json
-출력 경로: {workspaceDir}/reviews/architecture.md
+| 호출자 책임 항목 | feature-pipeline의 값 |
+| --- | --- |
+| `{workspaceDir}` | `_workspaces/{workspaceName}/` (기능명 기반) |
+| 리뷰 대상 | Phase 2~3에서 생성·수정된 전체 파일 목록 |
+| 호출 방식 | 에이전트 정의 주입 (`{팀_위치}/agents/{에이전트}.md를 읽고 그 지침에 따라 작업한다`), `run_in_background: true` |
+| 사용자 게이트 | **있음** — aggregator 산출 `review-report.md`를 사용자에게 제시 |
 
-{팀_위치}/agents/security-reviewer.md를 읽고 그 지침에 따라 작업한다.
-리뷰 대상: [동일]
-스택 프로필: {workspaceDir}/stack-profile.json
-출력 경로: {workspaceDir}/reviews/security.md
-
-{팀_위치}/agents/performance-reviewer.md를 읽고 그 지침에 따라 작업한다.
-리뷰 대상: [동일]
-스택 프로필: {workspaceDir}/stack-profile.json
-출력 경로: {workspaceDir}/reviews/performance.md
-
-{팀_위치}/agents/style-reviewer.md를 읽고 그 지침에 따라 작업한다.
-리뷰 대상: [동일]
-스택 프로필: {workspaceDir}/stack-profile.json
-출력 경로: {workspaceDir}/reviews/style.md
-```
-
-### Phase 4b: aggregator로 통합
-
-4개 산출이 모두 도착하면 aggregator 호출:
-
-```
-{팀_위치}/agents/review-aggregator.md를 읽고 그 지침에 따라 작업한다.
-
-입력:
-  {workspaceDir}/reviews/architecture.md
-  {workspaceDir}/reviews/security.md
-  {workspaceDir}/reviews/performance.md
-  {workspaceDir}/reviews/style.md
-스택 프로필: {workspaceDir}/stack-profile.json
-출력: {workspaceDir}/review-report.md  (issue-fixer 입력 호환)
-```
-
-**→ 사용자 확인**: aggregator가 작성한 review-report.md를 사용자에게 제시. Critical이 없으면 사용자가 완료 처리 가능. Critical/High가 1건이라도 있으면 Phase 5 권장.
+**→ 사용자 확인**: Critical이 없으면 사용자가 완료 처리 가능. Critical/High가 1건이라도 있으면 Phase 5 권장.
 **Phase 4 완료 후**: `{workspaceDir}/plan.md`의 `- [ ] Phase 4` 항목을 `- [x] Phase 4`로 업데이트.
 
 ## Phase 5: 이슈 수정
 
-`{workspaceDir}/review-report.md` 기준, 파일 단위로 병렬 수정. `run_in_background: true`.
+공유 지침의 issue-fixer 계약대로 `{workspaceDir}/review-report.md` 기준 파일 단위 병렬 수정. 이 파이프라인이 정하는 값:
 
-```
-# 각 이슈 파일별 에이전트 프롬프트
-{팀_위치}/agents/issue-fixer.md를 읽고 그 지침에 따라 작업한다.
-
-파일 경로: [이슈 대상 파일]
-이슈 목록: [해당 파일의 리뷰 이슈 발췌]
-스택 프로필: {workspaceDir}/stack-profile.json
-```
+| 호출자 책임 항목 | feature-pipeline의 값 |
+| --- | --- |
+| 커밋 여부 | **커밋하지 않음** — 수정만 수행, 커밋은 사용자 판단 |
+| 호출 방식 | 에이전트 정의 주입, `run_in_background: true` |
 
 완료 후 수정 결과 요약 보고 (Critical/High/Medium/Low 처리 건수, 미적용 항목 사유 포함).
 **Phase 5 완료 후**: `{workspaceDir}/plan.md`의 `- [ ] Phase 5` 항목을 `- [x] Phase 5`로 업데이트.
