@@ -2,27 +2,15 @@
 
 [English](README.md) | **한국어**
 
-단일 책임 원칙을 따르는 서브에이전트 정의 24개, 각각 명확한 입출력 계약을 가짐. 각 에이전트 파일의 YAML frontmatter(`name`, `description`, `model`, `tools`)가 정본이며, 이 문서는 빠른 색인 용도임. 호출 순서·Phase 다이어그램·전체 I/O 계약은 저장소 루트의 [`AGENTS.md`](../AGENTS.md) 참조.
+단일 책임 원칙을 따르는 서브에이전트 정의 19개, 각각 명확한 입출력 계약을 가짐. 각 에이전트 파일의 YAML frontmatter(`name`, `description`, `model`, `tools`)가 정본이며, 이 문서는 빠른 색인 용도임. 호출 순서·Phase 다이어그램·전체 I/O 계약은 저장소 루트의 [`AGENTS.md`](../AGENTS.md) 참조.
 
-이 에이전트들은 사용자가 직접 호출하지 않음 — 스킬 오케스트레이터(`feature-pipeline`, `generate-claude-instructions`, `sync-docs-from-diff`)가 호출하거나, `using-my-poor-ai` 복잡 경로(FULL)에서 main agent가 `subagent_type`으로 직접 스폰함.
+이 에이전트들은 사용자가 직접 호출하지 않음 — 스킬 오케스트레이터(`feature-pipeline`, `sync-docs-from-diff`)가 호출하거나, `using-my-poor-ai` 복잡 경로(FULL)에서 main agent가 `subagent_type`으로 직접 스폰함.
 
 ## 공통 인프라 (1개)
 
 | 에이전트 | 역할 |
 | --- | --- |
 | [`project-context.md`](project-context.md) | 기능 개발 시작 전 프로젝트 구조·스택·컨벤션·최근 커밋 캡처. 24시간 캐시. |
-
-## docs-suite — `generate-claude-instructions` 서브그룹 (5개)
-
-Phase 1에서 앞 4개를 병렬 호출하고, Phase 2에서 composer가 그 산출물을 `CLAUDE.md`로 합성함.
-
-| 에이전트 | 역할 |
-| --- | --- |
-| [`dev-principles.md`](dev-principles.md) | `DEVELOPMENT.md` 작성 — SOLID, TDD, 클린 코드, 보안, 성능 원칙 |
-| [`language-guidelines.md`](language-guidelines.md) | `LANGUAGE_GUIDELINES.md` 작성 — 감지된 언어/프레임워크별 섹션 구성 |
-| [`ai-behavior.md`](ai-behavior.md) | `AI_BEHAVIOR.md` 작성 — 응답 형식, 워크플로우, 도구 사용, 자기 검증 원칙 |
-| [`commit-convention.md`](commit-convention.md) | `COMMIT_CONVENTION.md` 작성 — 프로젝트 commitlint 설정 또는 Conventional Commits 기반 |
-| [`claude-md-composer.md`](claude-md-composer.md) | 위 4개 문서를 읽고 포인터 형태의 간결한 `CLAUDE.md`로 합성 |
 
 ## docs-suite — `sync-docs-from-diff` 서브그룹 (5개)
 

@@ -125,7 +125,7 @@ Not sure which skill to start with? `/my-poor-ai:roles` maps common roles to ski
 | **Builder**   | test-driven-development → subagent-driven-development → finishing    |
 | **Debugger**  | systematic-debugging → verification-before-completion                |
 | **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + native `/code-review` |
-| **Docs**      | sync-docs-from-diff / generate-claude-instructions                   |
+| **Docs**      | sync-docs-from-diff                   |
 
 ## `/my-poor-ai:code-review` vs the bundled `/code-review`
 

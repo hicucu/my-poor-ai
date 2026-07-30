@@ -2,27 +2,15 @@
 
 **English** | [한국어](README.ko.md)
 
-24 single-responsibility subagent definitions, each with an explicit input/output contract. Every agent file's YAML frontmatter (`name`, `description`, `model`, `tools`) is the source of truth; this page is a quick index. For call order, phase diagrams, and full I/O contracts, see [`AGENTS.md`](../AGENTS.md) at the repository root.
+19 single-responsibility subagent definitions, each with an explicit input/output contract. Every agent file's YAML frontmatter (`name`, `description`, `model`, `tools`) is the source of truth; this page is a quick index. For call order, phase diagrams, and full I/O contracts, see [`AGENTS.md`](../AGENTS.md) at the repository root.
 
-None of these agents are called directly by the user — they're invoked by a skill orchestrator (`feature-pipeline`, `generate-claude-instructions`, `sync-docs-from-diff`) or spawned by the main agent via `subagent_type` in the `using-my-poor-ai` FULL path.
+None of these agents are called directly by the user — they're invoked by a skill orchestrator (`feature-pipeline`, `sync-docs-from-diff`) or spawned by the main agent via `subagent_type` in the `using-my-poor-ai` FULL path.
 
 ## Common infrastructure (1)
 
 | Agent | What it does |
 | --- | --- |
 | [`project-context.md`](project-context.md) | Captures project structure, stack, conventions, and recent commits before feature work starts; cached for 24h. |
-
-## docs-suite — `generate-claude-instructions` group (5)
-
-Phase 1 runs the first four in parallel; Phase 2 runs the composer to synthesize their output into `CLAUDE.md`.
-
-| Agent | What it does |
-| --- | --- |
-| [`dev-principles.md`](dev-principles.md) | Writes `DEVELOPMENT.md` — SOLID, TDD, clean code, security, and performance principles. |
-| [`language-guidelines.md`](language-guidelines.md) | Writes `LANGUAGE_GUIDELINES.md` — one section per detected language/framework. |
-| [`ai-behavior.md`](ai-behavior.md) | Writes `AI_BEHAVIOR.md` — response format, workflow, tool use, and self-verification principles. |
-| [`commit-convention.md`](commit-convention.md) | Writes `COMMIT_CONVENTION.md` based on the project's commitlint config or Conventional Commits. |
-| [`claude-md-composer.md`](claude-md-composer.md) | Reads the four docs above and synthesizes a concise, pointer-style `CLAUDE.md`. |
 
 ## docs-suite — `sync-docs-from-diff` group (5)
 
