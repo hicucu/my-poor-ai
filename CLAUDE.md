@@ -85,7 +85,7 @@ skills는 단순한 문서가 아니라 에이전트 동작을 형성하는 코�
 
 ```
 my-poor-ai/
-├── skills/               # 개별 skill 디렉토리 (31개 = 프로세스 20 + 커맨드 11)
+├── skills/               # 개별 skill 디렉토리 (30개 = 프로세스 19 + 커맨드 11)
 │   │
 │   │ ── 프로세스 스킬 (요청 내용에 따라 Claude가 자동 로드) ──
 │   ├── brainstorming/
@@ -105,7 +105,6 @@ my-poor-ai/
 │   ├── writing-skills/
 │   ├── using-my-poor-ai/
 │   ├── feature-pipeline/               # 흡수
-│   ├── generate-claude-instructions/   # 흡수
 │   ├── socratic-plan-review/           # 흡수
 │   ├── sync-docs-from-diff/            # 흡수
 │   │

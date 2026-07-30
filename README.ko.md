@@ -125,7 +125,7 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 | **Builder**   | test-driven-development → subagent-driven-development → finishing     |
 | **Debugger**  | systematic-debugging → verification-before-completion                 |
 | **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + 네이티브 `/code-review` |
-| **Docs**      | sync-docs-from-diff / generate-claude-instructions                    |
+| **Docs**      | sync-docs-from-diff                    |
 
 ## `/my-poor-ai:code-review`와 번들 `/code-review`의 차이
 

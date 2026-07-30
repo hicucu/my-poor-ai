@@ -1,6 +1,6 @@
 # AGENTS.md — my-poor-ai 에이전트 명세
 
-이 문서는 my-poor-ai에 포함된 24개 에이전트의 역할·입출력 계약·호출 관계 기술.
+이 문서는 my-poor-ai에 포함된 19개 에이전트의 역할·입출력 계약·호출 관계 기술.
 사용법(스킬 트리거, 커맨드)은 `CLAUDE.md` 참조.
 
 ---
@@ -10,11 +10,11 @@
 | 그룹             | 에이전트 수 | 소속 스킬                                             | 호출 방식                                                  |
 | ---------------- | ----------- | ----------------------------------------------------- | ---------------------------------------------------------- |
 | 공통 인프라      | 1개         | `using-my-poor-ai`                                    | using-my-poor-ai 복잡 경로 Phase 0, 신규 요구사항 수신 시 호출 |
-| docs-suite       | 10개        | `generate-claude-instructions`, `sync-docs-from-diff` | 스킬 오케스트레이터 → 병렬 fan-out                         |
+| docs-suite       | 5개         | `sync-docs-from-diff`                                 | 스킬 오케스트레이터 → 병렬 fan-out                         |
 | feature-pipeline | 9개         | `feature-pipeline`                                    | Phase 1→5 순차 (Phase 내 일부 병렬)                        |
 | subagent-driven 플로우 | 4개   | `using-my-poor-ai` (복잡 경로 FULL)                        | main agent가 `subagent_type`으로 직접 스폰                 |
 
-전체 합계: **1 + 10 + 9 + 4 = 24개**. 모든 에이전트 정의는 `agents/*.md`에 위치함.
+전체 합계: **1 + 5 + 9 + 4 = 19개**. 모든 에이전트 정의는 `agents/*.md`에 위치함.
 
 **호출 방식 2가지**: ① 스킬/커맨드가 에이전트 정의 파일을 읽혀 지침으로 주입 (`{팀_위치}/agents/X.md`), ② `subagent_type`으로 직접 스폰. 리뷰어·aggregator·issue-fixer·project-context는 두 방식 모두에서 동일 계약으로 동작함. subagent-driven 플로우 4개는 `-agent` 접미사를 유지해 유사 역할의 feature-pipeline 세트(feature-planner/file-developer)와 구분함.
 
@@ -42,43 +42,7 @@
 
 ---
 
-## docs-suite 에이전트 그룹 (10개)
-
-### generate-claude-instructions 서브그룹 (5개)
-
-스킬이 Phase 1에서 4개를 병렬 호출하고, Phase 2에서 composer를 순차 호출함.
-
-```
-Phase 1 (병렬, run_in_background: true)
-├── dev-principles.md       → DEVELOPMENT.md
-├── language-guidelines.md  → LANGUAGE_GUIDELINES.md
-├── ai-behavior.md          → AI_BEHAVIOR.md
-└── commit-convention.md    → COMMIT_CONVENTION.md
-         ↓ (모두 완료 대기)
-Phase 2 (순차)
-└── claude-md-composer.md   → CLAUDE.md (위 4개 합성)
-```
-
-**공통 입력 프로토콜** (오케스트레이터가 각 에이전트 프롬프트에 포함):
-
-| 필드           | 설명                                          |
-| -------------- | --------------------------------------------- |
-| `{output_dir}` | 산출물 절대 경로 (`{CWD}/instruction/`)       |
-| `{input_refs}` | 파일/디렉토리 경로 목록 또는 `"없음"`         |
-| `{mode}`       | `초기` / `전체` / `부분`                      |
-| `{팀_위치}`    | my-poor-ai 플러그인 루트의 절대 경로 (하위에 `agents/` 포함) |
-
-**산출물 경로**: `{CWD}/instruction/`
-
-| 에이전트            | 산출물 파일              |
-| ------------------- | ------------------------ |
-| dev-principles      | `DEVELOPMENT.md`         |
-| language-guidelines | `LANGUAGE_GUIDELINES.md` |
-| ai-behavior         | `AI_BEHAVIOR.md`         |
-| commit-convention   | `COMMIT_CONVENTION.md`   |
-| claude-md-composer  | `CLAUDE.md`              |
-
----
+## docs-suite 에이전트 그룹 (5개)
 
 ### sync-docs-from-diff 서브그룹 (5개)
 

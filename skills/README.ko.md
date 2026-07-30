@@ -49,7 +49,6 @@
 
 | 스킬 | 역할 |
 | --- | --- |
-| [`generate-claude-instructions`](generate-claude-instructions/) | `CLAUDE.md`와 참조 문서(`DEVELOPMENT.md`, `LANGUAGE_GUIDELINES.md`, `AI_BEHAVIOR.md`, `COMMIT_CONVENTION.md`)를 생성하는 오케스트레이터 |
 | [`sync-docs-from-diff`](sync-docs-from-diff/) | 브랜치 diff를 분석해 README/docs/인라인 문서 갱신을 제안, 사용자 승인 후에만 적용 |
 | [`preventing-github-actions-loops`](preventing-github-actions-loops/) | GitHub Actions 워크플로우의 자기 트리거 순환(무한루프) 탐지·방지 |
 
