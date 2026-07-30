@@ -14,3 +14,5 @@ jobs:
         run: node scripts/validate-agents.mjs
       - name: Check .codex/agents tomls are in sync with agents/*.md
         run: node scripts/generate-codex-agents.mjs --check
+      - name: Check plugin manifest versions are in sync
+        run: bash scripts/bump-version.sh --check

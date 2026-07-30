@@ -49,7 +49,6 @@ Both are the same file format. Claude Code merged custom commands into skills, s
 
 | Skill | What it does |
 | --- | --- |
-| [`generate-claude-instructions`](generate-claude-instructions/) | Orchestrator that generates `CLAUDE.md` and its reference docs (`DEVELOPMENT.md`, `LANGUAGE_GUIDELINES.md`, `AI_BEHAVIOR.md`, `COMMIT_CONVENTION.md`). |
 | [`sync-docs-from-diff`](sync-docs-from-diff/) | Analyzes a branch diff to propose README/docs/inline doc updates, applied only after user review. |
 | [`preventing-github-actions-loops`](preventing-github-actions-loops/) | Detects and prevents self-triggering GitHub Actions workflow cycles. |
 

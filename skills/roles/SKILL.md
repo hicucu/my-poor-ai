@@ -22,7 +22,7 @@ description: 역할 프리셋 카탈로그 — 역할명으로 시작하면 해�
 | **builder**   | test-driven-development → subagent-driven-development → finishing-a-development-branch | `my-poor-ai:test-driven-development` |
 | **debugger**  | systematic-debugging → verification-before-completion                             | `my-poor-ai:systematic-debugging` |
 | **reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review`             | `my-poor-ai:requesting-code-review` |
-| **docs**      | sync-docs-from-diff / generate-claude-instructions                                | `my-poor-ai:sync-docs-from-diff`  |
+| **docs**      | sync-docs-from-diff                                | `my-poor-ai:sync-docs-from-diff`  |
 
 ## 실행 절차
 
