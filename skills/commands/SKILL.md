@@ -14,7 +14,6 @@ description: my-poor-ai 커맨드 목록 표시 및 진입점. /my-poor-ai:{커�
 | 스킬                           | 트리거                                 | 역할                                 |
 | ------------------------------ | -------------------------------------- | ------------------------------------ |
 | `feature-pipeline`             | "기능 추가해줘", "엔드포인트 만들어줘" | 스택 무관 5단계 기능 개발 파이프라인 |
-| `generate-claude-instructions` | "CLAUDE.md 만들어줘", "지침서 생성"    | CLAUDE.md + 참조 문서 4종 생성       |
 | `sync-docs-from-diff`          | "docs sync", "문서 동기화"             | 브랜치 diff → README·docs 동기화     |
 | `socratic-plan-review`         | 복잡 플랜 검증 요청                    | 산파술로 숨겨진 가정 표면화          |
 
