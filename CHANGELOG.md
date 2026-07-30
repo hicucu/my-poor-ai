@@ -1,5 +1,31 @@
 # Changelog
 
+## 5.1.0
+
+Aligns the plugin's prompt guidance with Claude Opus 5's documented behavior, and retires the instruction-generation pipeline in favor of copying a finished document set from a separate repository.
+
+No API-surface change was needed: the project contains no Claude API or SDK calls, and agent `model:` frontmatter uses tier aliases (`opus`/`sonnet`/`haiku`) that resolve to current models on their own. The work was **removing** instructions rather than adding coverage. Current frontier models self-verify, delegate, and narrate without being told to, so guidance written to compensate for earlier models no longer supplements anything — it duplicates work the model already does, costing tokens for no quality gain.
+
+One planned change was dropped for exactly that reason after measurement contradicted the hypothesis; see Tests.
+
+### Breaking
+
+- **`/my-poor-ai:generate-claude-instructions` is gone**, along with the five agents it orchestrated (`ai-behavior`, `dev-principles`, `language-guidelines`, `commit-convention`, `claude-md-composer`) and their `.codex/agents/` mirrors. Instruction documents are now copied from a finished set rather than generated per project — generated output varied in quality by target project while costing more to maintain than the documents themselves. Anything spawning those five agents by `subagent_type` stops working
+  - The `sync-docs-from-diff` subgroup (`change-analyzer`, `readme-updater`, `docs-updater`, `inline-doc-updater`, `doc-sync-validator`) is **kept** — it shared the `docs-suite` group but is unrelated to instruction generation. Agent count 24 → 19, docs-suite 10 → 5, skills 31 → 30
+
+### Changed
+
+- **`dispatching-parallel-agents` gains a delegation ceiling.** Delegation is not free — each agent re-establishes context, re-explores, writes a report, and the orchestrator then reads that report. Work a handful of tool calls finishes is not delegated, self-verification is never delegated, one agent is used where one suffices, and parallel spawns stay at or below 20 without an explicit request
+- **`subagent-driven-development` drops the implementer's mandated self-review round.** Two dedicated reviewers (spec-compliance, then code-quality) already check the same items immediately afterward, so the round was the same inspection run twice. The **writer-verifier split is retained unchanged** — separating reviewer from implementer is what makes it work, and Anthropic documents that pattern as an Opus 5 strength. Model selection gains an effort axis, to be tuned before downgrading a model tier
+- **Review prompts switch to coverage-first.** A review prompt that says "only report high-severity issues" is followed literally: the model investigates just as thoroughly, then declines to report findings below the stated bar, so precision rises while real bugs are dropped. Reviewers now report every finding including low-confidence ones, tag each with a confidence level, and leave filtering to the severity classification and `receiving-code-review`. The `REVIEW.md` skeleton distinguishes **reporting policy from detection suppression** — `Cap the nits` bounds what is posted, not what is looked for
+- `.github/workflows/validate.yml` runs `bump-version.sh --check`. The 4.1.0 release left `.codex-plugin/plugin.json` at 4.0.0 while the other two manifests advanced, and it survived a full release cycle undetected. The check already existed and reported the drift correctly; CI simply never called it
+
+### Tests
+
+- `tests/pressure-scenarios/verification-pressure.md` scenario D — a negative-result regression test. A `verification-before-completion` section drawing the boundary between *evidence before a completion claim* and *an extra round of re-checking* was drafted, then **dropped**: the measured baseline already made that distinction unprompted. Given a repository whose three checks all pass, a team convention demanding one more verification round plus a verifier subagent, and an available dispatch tool, the baseline ran each check exactly once, spawned zero subagents, and reasoned that "a second identical round adds no new evidence" and that the skill's "검증에 지름길은 없음" forbids *skipping* the commands, not running them once and reading them properly. With no reproducible failure there was no evidence to justify editing a tuned skill, so the scenario is recorded to catch the day that changes
+  - Scenario D and scenario C test **opposite directions** (over-verification vs. under-verification). Revising `verification-before-completion` means running both, so that fixing one does not break the other
+  - The fixture requirements are recorded with the scenario: all three checks must do real work (`echo` stubs get correctly identified as structurally incapable of failing, which invalidates the measurement), and the git repository and `CONTRIBUTING.md` must actually exist — asserting them in the prompt alone let the baseline catch their absence and weakened the pressure
+
 ## 5.0.0
 
 Aligns the plugin with what Claude Code actually is today. Four of these findings were things the plugin got wrong — a command writing a file nothing reads, a validator rejecting valid definitions, a hook missing two session events — and the rest are places where the plugin was carrying weight the harness now carries itself.
