@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-31 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
+28 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
 
 Two kinds live here, and the difference is who starts them:
 
@@ -78,7 +78,5 @@ Invoked as `/my-poor-ai:{name}`. `/my-poor-ai:commands` is the catalog entry poi
 | [`detect-stack`](detect-stack/) | Scans marker files to detect the tech stack and generate `stack-profile.json`. | Yes |
 | [`git-resume`](git-resume/) | Reconstructs prior work context from commit history, given a time expression or a commit hash. | Yes |
 | [`session-manager`](session-manager/) | Lists, renames, or deletes local Claude Code sessions. | Yes |
-| [`weekly-commits`](weekly-commits/) | Prints this week's commits for a given author as a markdown table. | Yes |
 | [`setup`](setup/) | Registers the `SessionStart` hook in `~/.claude/settings.json`. | **No** — writes outside the project |
 | [`codex-setup`](codex-setup/) | Registers this plugin's agents in `~/.codex/config.toml`. | **No** — writes outside the project |
-| [`graphify-setup`](graphify-setup/) | Installs and configures a code-graph tool (`graphifyy` or `codegraph`). | **No** — installs packages, adds a git hook |

@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+Removes two commands that were off-mission. Version intentionally not bumped — release is a separate decision, but note both removals are breaking.
+
+### Breaking
+
+- **`/my-poor-ai:graphify-setup` is gone** (508 lines). It installed third-party tooling — `graphifyy` via pip or `codegraph` via npm — then generated a graph, wired it into Claude Code, registered a git hook, and edited `.gitignore`. That contradicts the plugin's own stated positioning ("pure instruction — no bundled integrations") and `CLAUDE.md`'s rule that tool-specific skills belong outside the plugin. It was also the repository's highest-risk surface: 508 lines of install logic touching the user's machine, with no test asset and a silent rot path whenever either third-party CLI changes. Install either tool by following its own documentation
+- **`/my-poor-ai:weekly-commits` is gone** (246 lines). It wrapped `git log` into a markdown table — a personal productivity utility, not engineering discipline. Its `description` also carried twelve trigger phrases to force automatic invocation, and skill descriptions load into context every session, so a reporting utility competed for skill-selection attention on every request. Ask for the summary in plain words instead
+
+### Fixed
+
+- Skill and agent counts across `README.md`, `README.ko.md`, `skills/README.md`, `skills/README.ko.md`, and `CLAUDE.md` still read 31 skills and 24 subagents after 5.1.0 removed the instruction-generation pipeline. All count statements now match the tree: 28 skills (19 process + 9 commands) and 19 subagents
+
 ## 5.1.0
 
 Aligns the plugin's prompt guidance with Claude Opus 5's documented behavior, and retires the instruction-generation pipeline in favor of copying a finished document set from a separate repository.
