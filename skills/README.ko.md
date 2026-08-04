@@ -2,7 +2,7 @@
 
 [English](README.md) | **한국어**
 
-스킬 디렉토리 31개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
+스킬 디렉토리 28개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
 
 두 종류가 함께 있으며, 차이는 **누가 시작하는가**임:
 
@@ -78,7 +78,5 @@
 | [`detect-stack`](detect-stack/) | 마커 파일 스캔으로 기술 스택 감지, `stack-profile.json` 생성 | 가능 |
 | [`git-resume`](git-resume/) | 자연어 시간 표현 또는 commit hash로 과거 작업 맥락 복원 | 가능 |
 | [`session-manager`](session-manager/) | 로컬 Claude Code 세션 목록 조회·이름 변경·삭제 | 가능 |
-| [`weekly-commits`](weekly-commits/) | 지정 작성자의 이번 주 커밋을 markdown 표로 출력 | 가능 |
 | [`setup`](setup/) | `SessionStart` 훅을 `~/.claude/settings.json`에 등록 | **차단** — 프로젝트 외부 기록 |
 | [`codex-setup`](codex-setup/) | 이 플러그인의 에이전트를 `~/.codex/config.toml`에 등록 | **차단** — 프로젝트 외부 기록 |
-| [`graphify-setup`](graphify-setup/) | 코드 그래프 도구(`graphifyy`·`codegraph`) 설치·설정 | **차단** — 패키지 설치·git hook 등록 |

@@ -26,7 +26,6 @@ description: my-poor-ai 커맨드 목록 표시 및 진입점. /my-poor-ai:{커�
 | `/my-poor-ai:detect-stack`          | 프로젝트 스택 감지 → `_workspaces/stack-profile.json`                    |
 | `/my-poor-ai:git-resume`            | 과거 commit 기반 작업 맥락 복원                                         |
 | `/my-poor-ai:session-manager`       | 로컬 Claude 세션 목록 조회·이름 변경·삭제                               |
-| `/my-poor-ai:weekly-commits`        | 이번 주 커밋 요약                                                       |
 | `/my-poor-ai:roles`                 | 역할 프리셋 카탈로그 — 역할명으로 스킬 번들 진입                        |
 
 ### 셋업 (사용자 호출 전용 — 프로젝트 외부에 기록함)
@@ -35,4 +34,3 @@ description: my-poor-ai 커맨드 목록 표시 및 진입점. /my-poor-ai:{커�
 | --------------------------------- | ----------------------------------------------------------------------- |
 | `/my-poor-ai:setup`                 | SessionStart 훅을 `~/.claude/settings.json`에 등록                       |
 | `/my-poor-ai:codex-setup`           | 에이전트를 `~/.codex/config.toml`에 등록                                 |
-| `/my-poor-ai:graphify-setup`        | 코드 그래프 도구 설치 (graphifyy 또는 codegraph)                        |
