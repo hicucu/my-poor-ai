@@ -9,9 +9,18 @@ Removes two commands that were off-mission. Version intentionally not bumped —
 - **`/my-poor-ai:graphify-setup` is gone** (508 lines). It installed third-party tooling — `graphifyy` via pip or `codegraph` via npm — then generated a graph, wired it into Claude Code, registered a git hook, and edited `.gitignore`. That contradicts the plugin's own stated positioning ("pure instruction — no bundled integrations") and `CLAUDE.md`'s rule that tool-specific skills belong outside the plugin. It was also the repository's highest-risk surface: 508 lines of install logic touching the user's machine, with no test asset and a silent rot path whenever either third-party CLI changes. Install either tool by following its own documentation
 - **`/my-poor-ai:weekly-commits` is gone** (246 lines). It wrapped `git log` into a markdown table — a personal productivity utility, not engineering discipline. Its `description` also carried twelve trigger phrases to force automatic invocation, and skill descriptions load into context every session, so a reporting utility competed for skill-selection attention on every request. Ask for the summary in plain words instead
 
+- **`/my-poor-ai:session-manager` is gone** (293 lines). It parsed the JSONL session files under `~/.claude/projects/` directly — an undocumented internal format, with no test asset to catch a change to it. Use `/insights` for session analysis and `/resume` to return to one; renaming and deleting sessions is no longer offered
+- **`/my-poor-ai:git-resume` is gone** (308 lines). It reconstructed prior work context from commit history, which is `git log` plus `git diff` plus a summary — 308 lines of procedure over something current models do unprompted. The pipeline already writes `HANDOFF.md` for narrative handoff, so the context-restoration path was duplicated
+- **`/my-poor-ai:detect-stack` is gone** (154 lines). `stack-profile.json` is an internal artifact consumed by the pipeline workers and reviewers; `feature-planner` still generates it in Phase 1.0. Exposing that one step as a standalone command asked users to produce a file about a stack they already know
+- **`executing-plans` is gone** (87 lines), absorbed into `subagent-driven-development`. Its own body instructed the reader to use `subagent-driven-development` instead whenever subagents are available — which in Claude Code is always — while `subagent-driven-development` simultaneously routed "parallel session" work back to it. The two skills disagreed about which one applied. What was genuinely distinct moved across: a **critical plan review before starting** (read the plan, raise blocking gaps and unverifiable completion criteria before touching a task), a **stop-and-ask rule** for blockers, and an **inline execution fallback** for platforms without subagents
+
+### Changed
+
+- `roles` drops the **docs** preset. After 5.1.0 removed `generate-claude-instructions` it bundled a single skill, making `/my-poor-ai:roles docs` a slower spelling of `/my-poor-ai:sync-docs-from-diff`. The other four presets still chain two or three skills
+
 ### Fixed
 
-- Skill and agent counts across `README.md`, `README.ko.md`, `skills/README.md`, `skills/README.ko.md`, and `CLAUDE.md` still read 31 skills and 24 subagents after 5.1.0 removed the instruction-generation pipeline. All count statements now match the tree: 28 skills (19 process + 9 commands) and 19 subagents
+- Skill and agent counts across `README.md`, `README.ko.md`, `skills/README.md`, `skills/README.ko.md`, and `CLAUDE.md` still read 31 skills and 24 subagents after 5.1.0 removed the instruction-generation pipeline. All count statements now match the tree: 24 skills (18 process + 6 commands) and 19 subagents
 
 ## 5.1.0
 

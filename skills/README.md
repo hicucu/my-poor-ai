@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-28 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
+24 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
 
 Two kinds live here, and the difference is who starts them:
 
@@ -26,7 +26,6 @@ Both are the same file format. Claude Code merged custom commands into skills, s
 | --- | --- |
 | [`test-driven-development`](test-driven-development/) | RED → GREEN → REFACTOR discipline — write the failing test before the implementation. |
 | [`subagent-driven-development`](subagent-driven-development/) | Executes a plan of independent tasks by dispatching a fresh subagent per task, with a 2-stage review after each. |
-| [`executing-plans`](executing-plans/) | Loads a written plan in a separate session, critiques it, executes all tasks, and reports on completion. |
 | [`using-git-worktrees`](using-git-worktrees/) | Ensures an isolated workspace via native worktree tooling, falling back to a manual git worktree. |
 | [`dispatching-parallel-agents`](dispatching-parallel-agents/) | Delegates 2+ independent tasks to isolated subagents with precisely constructed instructions and context. |
 
@@ -73,10 +72,7 @@ Invoked as `/my-poor-ai:{name}`. `/my-poor-ai:commands` is the catalog entry poi
 | --- | --- | --- |
 | [`my-poor-ai`](my-poor-ai/) | Entry point that routes any request into the right pipeline (DEBUG / SIMPLE / FULL) — usable without setup. | Yes |
 | [`commands`](commands/) | Lists what is available; the catalog itself. | Yes |
-| [`roles`](roles/) | Role-preset catalog — routes a role name (architect / builder / debugger / reviewer / docs) to its skill bundle. | Yes |
+| [`roles`](roles/) | Role-preset catalog — routes a role name (architect / builder / debugger / reviewer) to its skill bundle. | Yes |
 | [`code-review`](code-review/) | Reviews the architecture and performance axes, folds in native `/security-review`, and can scaffold a `REVIEW.md`. | Yes |
-| [`detect-stack`](detect-stack/) | Scans marker files to detect the tech stack and generate `stack-profile.json`. | Yes |
-| [`git-resume`](git-resume/) | Reconstructs prior work context from commit history, given a time expression or a commit hash. | Yes |
-| [`session-manager`](session-manager/) | Lists, renames, or deletes local Claude Code sessions. | Yes |
 | [`setup`](setup/) | Registers the `SessionStart` hook in `~/.claude/settings.json`. | **No** — writes outside the project |
 | [`codex-setup`](codex-setup/) | Registers this plugin's agents in `~/.codex/config.toml`. | **No** — writes outside the project |
