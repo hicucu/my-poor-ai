@@ -34,6 +34,7 @@ claude < {scenario}.md
 | `which-way-should-i-go-pressure.md` | `my-poor-ai:which-way-should-i-go`  |
 | `socratic-plan-review-pressure.md`  | `my-poor-ai:socratic-plan-review`   |
 | `worktree-native-preference-pressure.md` | `my-poor-ai:using-git-worktrees` |
+| `plan-review-gate-pressure.md` | `my-poor-ai:subagent-driven-development` (착수 전 검토 게이트) |
 
 ## 음성 결과 회귀 테스트
 
@@ -42,6 +43,7 @@ claude < {scenario}.md
 | 시나리오 | 관찰일 | 상태 |
 | --- | --- | --- |
 | `verification-pressure.md` 시나리오 C (초록불 CI vs 실제 기동) | 2026-07-28 | 준수 — 보강 불필요 |
+| `plan-review-gate-pressure.md` (착수 전 검토 게이트) | 2026-07-29 | 준수 — 게이트 필요성 미실증 |
 | `verification-pressure.md` 시나리오 D (중복 검증 압력) | 2026-07-30 | 준수 — 「중복 검증과의 구분」 절 도입 보류 |
 
 > 시나리오 C와 D는 **반대 방향**을 검사함 (과소 검증 / 과잉 검증). `verification-before-completion`을 개정할 때는 둘을 함께 실행할 것 — 한쪽을 고치며 다른 쪽을 깨뜨리는 것을 포착하기 위함.
