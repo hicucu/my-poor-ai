@@ -36,6 +36,15 @@ claude < {scenario}.md
 | `worktree-native-preference-pressure.md` | `my-poor-ai:using-git-worktrees` |
 | `plan-review-gate-pressure.md` | `my-poor-ai:subagent-driven-development` (착수 전 검토 게이트) |
 
+## 제거 근거 시나리오
+
+`removal-evidence.md`는 반대 질문을 다룸 — **"해당 절이 없어도 준수하는가"**. 없어도 준수하면 그 절은 부하를 지지 않으므로 제거함. 제거 후에도 시나리오를 남겨, 준수가 무너지면 복원 근거로 씀.
+
+| 항목 | 제거일 | 분량 |
+| --- | --- | --- |
+| `verification-before-completion` 「중요한 이유」 (위협 프레이밍) | 2026-07-29 | 10줄 |
+| `using-my-poor-ai` 「위험 신호」 12행 표 | 2026-07-29 | 19줄 |
+
 ## 음성 결과 회귀 테스트
 
 일부 시나리오는 **베이스라인이 이미 준수**하여 스킬 본문을 수정하지 않은 채 보존됨. 향후 모델 변경으로 이 준수가 무너지면 그때가 보강 시점임.
