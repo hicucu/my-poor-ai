@@ -44,6 +44,7 @@ claude < {scenario}.md
 | --- | --- | --- |
 | `verification-before-completion` 「중요한 이유」 (위협 프레이밍) | 2026-07-29 | 10줄 |
 | `using-my-poor-ai` 「위험 신호」 12행 표 | 2026-07-29 | 19줄 |
+| `dispatching-parallel-agents` 비지시문 3개 절 (내용 분류 근거 — 행동 측정 아님) | 2026-07-29 | 47줄 |
 
 ## 음성 결과 회귀 테스트
 
