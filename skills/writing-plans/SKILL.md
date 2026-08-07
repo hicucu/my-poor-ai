@@ -51,7 +51,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 ```markdown
 # [기능 이름] 구현 플랜
 
-> **에이전트 작업자를 위해:** 필수 서브 SKILL: my-poor-ai:subagent-driven-development (권장) 또는 my-poor-ai:executing-plans를 사용하여 이 플랜을 작업 단위로 구현. 단계는 추적을 위해 체크박스 (`- [ ]`) 문법 사용.
+> **에이전트 작업자를 위해:** 필수 서브 SKILL: my-poor-ai:subagent-driven-development를 사용하여 이 플랜을 작업 단위로 구현. 단계는 추적을 위해 체크박스 (`- [ ]`) 문법 사용.
 
 **목표:** [무엇을 만드는지 한 문장으로]
 
@@ -178,7 +178,7 @@ git commit -m "feat: add specific feature"
 
 **1. 서브에이전트 주도 방식 (권장)** — 작업별로 새로운 서브에이전트를 배포하고, 작업 사이에 검토하며 빠른 반복
 
-**2. 인라인 실행** — executing-plans를 사용하여 이 세션에서 작업 실행, 체크포인트가 있는 배치 실행
+**2. 인라인 실행** — subagent-driven-development의 인라인 폴백으로 이 세션에서 작업 실행 (서브에이전트를 쓸 수 없는 환경)
 
 **어떤 방식을 선택하시겠습니까?"**
 
@@ -189,12 +189,12 @@ git commit -m "feat: add specific feature"
 
 **인라인 실행 선택 시:**
 
-- **필수 서브 SKILL:** my-poor-ai:executing-plans 사용
+- **필수 서브 SKILL:** my-poor-ai:subagent-driven-development 사용
 - 검토 체크포인트가 있는 배치 실행
 
 ## HANDOFF.md — 세션 인계 안내 (실행 주체에게)
 
-복잡 경로에서 컨텍스트가 끊겨도 다음 세션·에이전트가 이어받을 수 있도록, 실행 주체(subagent-driven-development / executing-plans)는 `_workspaces/{branch-slug}/HANDOFF.md`를 유지해야 함. writing-plans는 이 파일을 직접 만들지 않으며, 아래 규약을 실행 주체에 전달함:
+복잡 경로에서 컨텍스트가 끊겨도 다음 세션·에이전트가 이어받을 수 있도록, 실행 주체(subagent-driven-development)는 `_workspaces/{branch-slug}/HANDOFF.md`를 유지해야 함. writing-plans는 이 파일을 직접 만들지 않으며, 아래 규약을 실행 주체에 전달함:
 
 - **갱신 트리거**: spec 완료 시 또는 phase 완료 시. **task 완료는 체크박스로만 추적 — HANDOFF를 건드리지 않음.**
 - **없으면 생성**: HANDOFF.md가 없는 상태로 갱신 트리거가 오면 먼저 생성 후 채움.

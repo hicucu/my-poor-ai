@@ -18,7 +18,7 @@ It told me there was some whole checklist for open-sourcing this, so I said sure
 
 ## Why My Poor AI
 
-AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **28 skills** — 19 process rules the agent must follow plus 9 task commands you invoke — and **19 subagents** (single-responsibility workers), wired together by an orchestrator that classifies each request and enforces the matching pipeline.
+AI coding agents are fast but undisciplined: they fix symptoms instead of root causes, skip tests under pressure, and declare victory without verification. my-poor-ai counters this with **24 skills** — 18 process rules the agent must follow plus 6 task commands you invoke — and **19 subagents** (single-responsibility workers), wired together by an orchestrator that classifies each request and enforces the matching pipeline.
 
 ## Quick Start
 
@@ -110,8 +110,8 @@ The FULL path runs a 5-phase multi-agent pipeline: a brainstorming agent produce
 
 ## Core Components
 
-- **28 skills, all invocable as `/my-poor-ai:{name}`** — 19 process skills (TDD, systematic debugging, brainstorming, plan writing, code review, multi-agent pipelines, doc sync, worktree isolation, skill authoring) and 9 task commands (`code-review`, `detect-stack`, `roles`, session management, setup utilities). Claude loads process skills automatically when the request matches; the three setup commands that write outside the project set `disable-model-invocation` so only you can start them
-- **24 subagents** — project-context capture, a 10-agent docs suite, a 9-agent feature pipeline, and a 4-agent subagent-driven flow; each with a single responsibility and an explicit I/O contract (see `AGENTS.md`)
+- **24 skills, all invocable as `/my-poor-ai:{name}`** — 18 process skills (TDD, systematic debugging, brainstorming, plan writing, code review, multi-agent pipelines, doc sync, worktree isolation, skill authoring) and 6 task commands (`code-review`, `roles`, the catalog, and setup utilities). Claude loads process skills automatically when the request matches; the three setup commands that write outside the project set `disable-model-invocation` so only you can start them
+- **19 subagents** — project-context capture, a 5-agent docs suite, a 9-agent feature pipeline, and a 4-agent subagent-driven flow; each with a single responsibility and an explicit I/O contract (see `AGENTS.md`)
 - **Session handoff** — `HANDOFF.md` records narrative context at spec/phase completion so a fresh session can pick up mid-pipeline; `GOAL.md` tracks goal and success criteria as a completion gate
 - **Multi-platform** — Claude Code first; agent definitions auto-generated for Codex (`.codex/agents/`), tool mappings for Copilot CLI, Gemini CLI, and an OpenCode test suite
 
@@ -125,7 +125,6 @@ Not sure which skill to start with? `/my-poor-ai:roles` maps common roles to ski
 | **Builder**   | test-driven-development → subagent-driven-development → finishing    |
 | **Debugger**  | systematic-debugging → verification-before-completion                |
 | **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + native `/code-review` |
-| **Docs**      | sync-docs-from-diff                   |
 
 ## `/my-poor-ai:code-review` vs the bundled `/code-review`
 
@@ -145,7 +144,7 @@ If your repository uses GitHub Code Review, put your review rules in a root `REV
 
 my-poor-ai applies its own discipline to itself:
 
-- **CI-validated on every push** — `validate-agents.mjs` checks frontmatter contracts (name/model/tool whitelists), reference resolution, and code-fence balance across 100+ markdown files; `generate-codex-agents.mjs --check` blocks drift between the 24 agent definitions and their generated Codex mirrors
+- **CI-validated on every push** — `validate-agents.mjs` checks frontmatter contracts (name/model/tool whitelists), reference resolution, and code-fence balance across 100+ markdown files; `generate-codex-agents.mjs --check` blocks drift between the 19 agent definitions and their generated Codex mirrors
 - **Behaviorally tested** — skills are validated with RED–GREEN–PRESSURE runs against live agents; the worktree-isolation skill's guidance held at **50/50 runs with zero failures** (20 GREEN + 20 PRESSURE + 10 full-skill-text)
 - **Adversarial pressure scenarios** — a dedicated test suite verifies that discipline skills (TDD, debugging) hold up under time pressure, sunk cost, and authority pressure — the exact conditions where agents rationalize shortcuts
 
@@ -155,9 +154,9 @@ my-poor-ai applies its own discipline to itself:
 my-poor-ai/
 ├── .claude-plugin/        # marketplace + plugin manifests
 ├── .codex/agents/         # auto-generated Codex agent definitions (do not edit)
-├── agents/                # 24 subagent definitions (single source of truth)
+├── agents/                # 19 subagent definitions (single source of truth)
 ├── hooks/                 # SessionStart hooks (Claude Code + Cursor)
-├── skills/                # 28 skill directories (19 process + 9 commands)
+├── skills/                # 24 skill directories (18 process + 6 commands)
 ├── scripts/               # CI validators + Codex mirror generator
 ├── tests/                 # deterministic + LLM-behavioral + pressure-scenario suites
 ├── docs/                  # recommended MCP pairings

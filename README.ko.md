@@ -18,7 +18,7 @@
 
 ## 왜 My Poor AI인가
 
-AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 28개**(에이전트가 따라야 할 프로세스 규칙 19개 + 사용자가 호출하는 커맨드 9개)와 **서브에이전트 19개**(단일 책임 워커)를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
+AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 24개**(에이전트가 따라야 할 프로세스 규칙 18개 + 사용자가 호출하는 커맨드 6개)와 **서브에이전트 19개**(단일 책임 워커)를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
 
 ## 빠른 시작
 
@@ -110,8 +110,8 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 
 ## 핵심 구성
 
-- **스킬 28개, 전부 `/my-poor-ai:{이름}`으로 호출 가능** — 프로세스 스킬 19개(TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰, 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법)와 커맨드 9개(`code-review`, `detect-stack`, `roles`, 세션 관리, 셋업 유틸리티). 프로세스 스킬은 요청이 맞으면 Claude가 자동 로드하며, 프로젝트 외부에 기록하는 셋업 커맨드 3종은 `disable-model-invocation`으로 사용자만 시작할 수 있음
-- **서브에이전트 24개** — project-context 캡처, docs-suite 10개, feature-pipeline 9개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
+- **스킬 24개, 전부 `/my-poor-ai:{이름}`으로 호출 가능** — 프로세스 스킬 18개(TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰, 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법)와 커맨드 6개(`code-review`, `roles`, 카탈로그, 셋업 유틸리티). 프로세스 스킬은 요청이 맞으면 Claude가 자동 로드하며, 프로젝트 외부에 기록하는 셋업 커맨드 3종은 `disable-model-invocation`으로 사용자만 시작할 수 있음
+- **서브에이전트 19개** — project-context 캡처, docs-suite 5개, feature-pipeline 9개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
 - **세션 인계** — spec/phase 완료 시 `HANDOFF.md`에 서술형 맥락을 기록해 새 세션이 파이프라인 중간부터 이어받음; `GOAL.md`는 목표·성공 기준을 완료 게이트로 추적
 - **멀티플랫폼** — Claude Code 우선; Codex용 에이전트 정의 자동 생성(`.codex/agents/`), Copilot CLI·Gemini CLI 도구 매핑, OpenCode 테스트 스위트
 
@@ -125,7 +125,6 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 | **Builder**   | test-driven-development → subagent-driven-development → finishing     |
 | **Debugger**  | systematic-debugging → verification-before-completion                 |
 | **Reviewer**  | requesting-code-review / receiving-code-review / `/my-poor-ai:code-review` + 네이티브 `/code-review` |
-| **Docs**      | sync-docs-from-diff                    |
 
 ## `/my-poor-ai:code-review`와 번들 `/code-review`의 차이
 
@@ -145,7 +144,7 @@ GitHub Code Review를 쓰는 저장소라면 리뷰 규칙을 루트 `REVIEW.md`
 
 my-poor-ai는 자신의 규율을 스스로에게도 적용함:
 
-- **push마다 CI 검증** — `validate-agents.mjs`가 100+ 마크다운 파일의 frontmatter 계약(name/model/도구 화이트리스트), 참조 해소, 코드펜스 균형을 검사; `generate-codex-agents.mjs --check`가 에이전트 정의 24개와 Codex 미러 간 드리프트를 차단
+- **push마다 CI 검증** — `validate-agents.mjs`가 100+ 마크다운 파일의 frontmatter 계약(name/model/도구 화이트리스트), 참조 해소, 코드펜스 균형을 검사; `generate-codex-agents.mjs --check`가 에이전트 정의 19개와 Codex 미러 간 드리프트를 차단
 - **행동 테스트** — 스킬은 실제 에이전트 대상 RED–GREEN–PRESSURE 실행으로 검증됨; 워크트리 격리 스킬은 **50/50 실행 무실패** 기록 (GREEN 20 + PRESSURE 20 + 전체 스킬 텍스트 10)
 - **적대적 압박 시나리오** — 규율 스킬(TDD, 디버깅)이 시간 압박·매몰 비용·권위 압박, 즉 에이전트가 지름길을 합리화하는 바로 그 조건에서 버티는지 전용 테스트 스위트로 검증
 
@@ -155,9 +154,9 @@ my-poor-ai는 자신의 규율을 스스로에게도 적용함:
 my-poor-ai/
 ├── .claude-plugin/        # 마켓플레이스 + 플러그인 매니페스트
 ├── .codex/agents/         # Codex용 에이전트 정의 자동 생성물 (수동 편집 금지)
-├── agents/                # 서브에이전트 정의 24개 (단일 소스)
+├── agents/                # 서브에이전트 정의 19개 (단일 소스)
 ├── hooks/                 # SessionStart 훅 (Claude Code + Cursor)
-├── skills/                # 스킬 디렉토리 28개 (프로세스 19 + 커맨드 9)
+├── skills/                # 스킬 디렉토리 24개 (프로세스 18 + 커맨드 6)
 ├── scripts/               # CI 검증기 + Codex 미러 생성기
 ├── tests/                 # 결정론적 + LLM 행동 + 압박 시나리오 스위트
 ├── docs/                  # 권장 MCP 조합

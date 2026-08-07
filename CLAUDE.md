@@ -85,14 +85,13 @@ skills는 단순한 문서가 아니라 에이전트 동작을 형성하는 코�
 
 ```
 my-poor-ai/
-├── skills/               # 개별 skill 디렉토리 (28개 = 프로세스 19 + 커맨드 9)
+├── skills/               # 개별 skill 디렉토리 (24개 = 프로세스 18 + 커맨드 6)
 │   │
 │   │ ── 프로세스 스킬 (요청 내용에 따라 Claude가 자동 로드) ──
 │   ├── brainstorming/
 │   ├── which-way-should-i-go/
 │   ├── writing-plans/
 │   ├── subagent-driven-development/
-│   ├── executing-plans/
 │   ├── test-driven-development/
 │   ├── systematic-debugging/
 │   ├── verification-before-completion/
@@ -113,9 +112,6 @@ my-poor-ai/
 │   ├── commands/            # 카탈로그
 │   ├── roles/               # 역할 프리셋
 │   ├── code-review/         # 아키텍처·성능 축 + 네이티브 /security-review
-│   ├── detect-stack/        # stack-profile.json 생성
-│   ├── git-resume/          # 과거 커밋 기반 맥락 복원
-│   ├── session-manager/     # 로컬 세션 조회·이름 변경·삭제
 │   ├── setup/               # SessionStart 훅 등록 (자동 발동 차단)
 │   └── codex-setup/         # Codex 에이전트 등록 (자동 발동 차단)
 ├── agents/               # 서브에이전트 (19개: project-context + docs-suite 5 + feature-pipeline 9 + subagent-driven 플로우 4) — AGENTS.md 참조
