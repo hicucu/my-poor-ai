@@ -2,7 +2,7 @@
 
 [English](README.md) | **한국어**
 
-스킬 디렉토리 31개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
+스킬 디렉토리 24개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
 
 두 종류가 함께 있으며, 차이는 **누가 시작하는가**임:
 
@@ -26,7 +26,6 @@
 | --- | --- |
 | [`test-driven-development`](test-driven-development/) | RED → GREEN → REFACTOR — 구현 전 실패하는 테스트부터 작성 |
 | [`subagent-driven-development`](subagent-driven-development/) | 독립 태스크로 구성된 플랜을 태스크별 신규 서브에이전트로 실행, 매 태스크 후 2단계 검토 |
-| [`executing-plans`](executing-plans/) | 별도 세션에서 작성된 플랜을 불러와 비판적으로 검토, 전체 실행 후 완료 보고 |
 | [`using-git-worktrees`](using-git-worktrees/) | 네이티브 worktree 도구로 격리된 작업 공간 보장, 없으면 수동 git worktree로 대체 |
 | [`dispatching-parallel-agents`](dispatching-parallel-agents/) | 독립적인 태스크 2개 이상을 정밀하게 구성한 지시·컨텍스트로 격리된 서브에이전트에 위임 |
 
@@ -73,12 +72,7 @@
 | --- | --- | --- |
 | [`my-poor-ai`](my-poor-ai/) | 요청을 알맞은 파이프라인(DEBUG/SIMPLE/FULL)으로 라우팅하는 진입점 — setup 없이도 사용 가능 | 가능 |
 | [`commands`](commands/) | 사용 가능한 목록 표시, 카탈로그 자체 | 가능 |
-| [`roles`](roles/) | 역할 프리셋 카탈로그 — 역할명(architect/builder/debugger/reviewer/docs)을 스킬 번들로 라우팅 | 가능 |
+| [`roles`](roles/) | 역할 프리셋 카탈로그 — 역할명(architect/builder/debugger/reviewer)을 스킬 번들로 라우팅 | 가능 |
 | [`code-review`](code-review/) | 아키텍처·성능 축 검토 + 네이티브 `/security-review` 통합, `REVIEW.md` 초안 생성 | 가능 |
-| [`detect-stack`](detect-stack/) | 마커 파일 스캔으로 기술 스택 감지, `stack-profile.json` 생성 | 가능 |
-| [`git-resume`](git-resume/) | 자연어 시간 표현 또는 commit hash로 과거 작업 맥락 복원 | 가능 |
-| [`session-manager`](session-manager/) | 로컬 Claude Code 세션 목록 조회·이름 변경·삭제 | 가능 |
-| [`weekly-commits`](weekly-commits/) | 지정 작성자의 이번 주 커밋을 markdown 표로 출력 | 가능 |
 | [`setup`](setup/) | `SessionStart` 훅을 `~/.claude/settings.json`에 등록 | **차단** — 프로젝트 외부 기록 |
 | [`codex-setup`](codex-setup/) | 이 플러그인의 에이전트를 `~/.codex/config.toml`에 등록 | **차단** — 프로젝트 외부 기록 |
-| [`graphify-setup`](graphify-setup/) | 코드 그래프 도구(`graphifyy`·`codegraph`) 설치·설정 | **차단** — 패키지 설치·git hook 등록 |

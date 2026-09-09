@@ -168,7 +168,7 @@ Phase 4~5의 리뷰·수정은 feature-pipeline 세트와 동일한 에이전트
 | 파일                 | 생성 주체                      | 역할                                   | 수명     |
 | -------------------- | ------------------------------ | -------------------------------------- | -------- |
 | `project-context.md` | project-context          | 스택·아키텍처·구조 분석                | 24h 캐시 |
-| `stack-profile.json` | detect-stack / feature-planner | 언어·프레임워크·테스트 프레임워크 감지 | 재생성   |
+| `stack-profile.json` | feature-planner                | 언어·프레임워크·테스트 프레임워크 감지 | 재생성   |
 
 **복잡 경로(FULL) — `{branch-slug}/`**
 

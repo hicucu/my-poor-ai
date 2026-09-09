@@ -2,7 +2,7 @@
 
 ## 테스트 목적
 
-복잡 경로 구현 중 실행 주체(subagent-driven-development / executing-plans / developer-agent)가
+복잡 경로 구현 중 실행 주체(subagent-driven-development / developer-agent)가
 `_workspaces/{branch-slug}/HANDOFF.md`를 **spec/phase 완료 시에만** 정확히 갱신하고,
 **task 완료마다 갱신하는 과잉을 피하는지** 확인한다.
 
