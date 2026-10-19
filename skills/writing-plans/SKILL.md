@@ -64,7 +64,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## 작업 구조
 
-> 아래는 언어 중립 의사코드 예시. 실제 작성 시에는 프로젝트 언어/프레임워크의 문법으로 바꿔 쓰되, 단계의 입자도와 코드 블록 필수 원칙은 그대로 유지. 테스트·구현 실행 명령은 `_workspaces/stack-profile.json`의 `testFramework`가 결정하는 명령으로 채울 것 — 특정 스택을 임의로 고정하지 말 것.
+> 아래는 언어 중립 의사코드 예시. 실제 작성 시에는 프로젝트 언어/프레임워크의 문법으로 바꿔 쓰되, 단계의 입자도와 코드 블록 필수 원칙은 그대로 유지. 테스트·구현 실행 명령은 `_workspaces/stack-profile.json`의 `testFramework`가 결정하는 명령(파일이 없으면 프로젝트 매니페스트·기존 테스트 관례에서 확인한 명령)으로 채울 것 — 특정 스택을 임의로 고정하지 말 것.
 
 ````markdown
 ### 작업 N: [컴포넌트 이름]

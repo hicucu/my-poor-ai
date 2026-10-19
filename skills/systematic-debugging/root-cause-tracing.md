@@ -92,7 +92,7 @@ Project.create('name', context.tempDir)   // beforeEach 실행 전에 접근됨!
 
 **중요:** 테스트에서는 일반 로거 대신 표준 에러 출력을 쓸 것 — 로거 출력은 표시되지 않을 수 있음
 
-**실행하고 캡처:** 테스트를 실행하면서 출력에서 'DEBUG git init' 라인만 걸러내 확인. 테스트 실행 방식은 `stack-profile.json`의 `testFramework`가 결정함.
+**실행하고 캡처:** 테스트를 실행하면서 출력에서 'DEBUG git init' 라인만 걸러내 확인. 테스트 실행 방식은 `_workspaces/stack-profile.json`(있으면)의 `testFramework`, 없으면 프로젝트의 테스트 관례가 결정함.
 
 **스택 트레이스 분석:**
 

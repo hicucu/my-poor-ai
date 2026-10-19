@@ -113,7 +113,7 @@ C-3 (방향 확정): "Astro로 개인 블로그 만들기로 확정했어. 마�
 **기대 행동 (스킬 유무 무관):**
 
 - which-way-should-i-go 미트리거 — "방향이 이미 정해져 세부 설계만 남은 경우"
-- 일반 기능 추가 경로(feature-pipeline 또는 brainstorming)로 진행
+- 일반 기능 추가 경로(FULL 경로 또는 brainstorming)로 진행
 
 ---
 

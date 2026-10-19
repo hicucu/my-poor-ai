@@ -1,5 +1,7 @@
 # Gemini CLI 도구 매핑
 
+> 2026-07 기준 매핑 — 현행 Gemini CLI 릴리스에서 미검증. 도구명이 다르면 플랫폼 문서를 우선함.
+
 스킬은 Claude Code 도구 이름을 사용함. 스킬에서 아래 도구를 만나면, 사용 중인 플랫폼의 대응 도구를 사용함:
 
 | 스킬에서 참조하는 도구          | Gemini CLI 대응 도구                                         |
@@ -10,7 +12,7 @@
 | `Bash` (명령 실행)              | `run_shell_command`                                          |
 | `Grep` (파일 내용 검색)         | `grep_search`                                                |
 | `Glob` (이름으로 파일 검색)     | `glob`                                                       |
-| `TodoWrite` (작업 추적)         | `write_todos`                                                |
+| 작업 추적 (`TaskCreate`·`TodoWrite` 등, 있을 때) | `write_todos`                               |
 | `Skill` 도구 (스킬 호출)        | `activate_skill`                                             |
 | `WebSearch`                     | `google_web_search`                                          |
 | `WebFetch`                      | `web_fetch`                                                  |

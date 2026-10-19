@@ -11,7 +11,7 @@ tools: Bash, Edit, Glob, Grep, Read, Write
 
 ## 공통 구현 규약
 
-아래 공유 규약(코딩 규율·스택 컨벤션 매트릭스·파일 유형별 가이드)을 준수함. 런타임에서는 `{팀_위치}/agents/_shared/implementation-conventions.md`를 Read로 읽어 적용함.
+아래 공유 규약(코딩 규율·스택 컨벤션 매트릭스·파일 유형별 가이드)을 준수함. 런타임에서는 `${CLAUDE_PLUGIN_ROOT}/agents/_shared/implementation-conventions.md`를 Read로 읽어 적용함.
 
 @include: _shared/implementation-conventions.md
 
@@ -53,7 +53,7 @@ NEEDS_CONTEXT: {질문 내용}
 BLOCKING: {구현할 수 없는 이유}
 ```
 
-오케스트레이터에게 반환 후 답변을 받아 재시작. 불명확한 상태로 추측하여 구현하지 않음.
+오케스트레이터에게 반환함 — 오케스트레이터가 답변을 `SendMessage`로 보내면 이력을 유지한 채 이어서 진행함(재개 수단이 없는 환경이면 답변을 담아 다시 호출됨). 불명확한 상태로 추측하여 구현하지 않음.
 
 ### Step 3: TDD 사이클 실행
 
@@ -118,9 +118,11 @@ BLOCKING: {구현할 수 없는 이유}
 ### Step 6: 커밋
 
 ```bash
-git add {변경 파일 목록} _workspaces/{branch-slug}/HANDOFF.md
+git add {변경 파일 목록}
 git commit -m "feat: {스펙 제목}"
 ```
+
+`HANDOFF.md`는 `git ls-files _workspaces` 결과가 있을 때(프로젝트가 `_workspaces/`를 추적함)만 `git add`에 포함함 — 무시 대상 경로를 `git add`하면 명령이 실패해 커밋 단계가 깨짐.
 
 ## 출력 프로토콜
 

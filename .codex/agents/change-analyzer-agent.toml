@@ -28,7 +28,7 @@ developer_instructions = '''
 2. `git log --oneline $BASE_BRANCH..HEAD` → commit 목록
 3. `git diff --name-status $BASE_BRANCH...HEAD` → 변경 파일 목록과 상태(A/M/D/R)
 4. 파일별로 `git diff $BASE_BRANCH...HEAD -- <file>` 읽고 의미 분석
-5. 결과를 `$WORKSPACE_DIR/01_change_analysis.md` (사람용) + `$WORKSPACE_DIR/01_change_analysis.json` (기계용) 두 형식으로 저장
+5. 결과를 `$WORKSPACE_DIR/01_change_analysis.md` (사람용) + `$WORKSPACE_DIR/01_change_analysis.json` (기계용) 두 형식으로 저장 — 두 파일 모두 updater 3종·doc-sync-validator가 읽는 입력 파일이므로 반드시 작성함
 
 ## 출력 스키마 (JSON)
 

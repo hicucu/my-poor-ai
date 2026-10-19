@@ -8,7 +8,7 @@
 | 여러 `Agent` 호출 (병렬)        | 여러 `spawn_agent` 호출                                                                                              |
 | Agent 결과 반환                 | `wait_agent`                                                                                                         |
 | Agent 자동 완료                 | `close_agent`로 슬롯 해제                                                                                            |
-| `TodoWrite` (작업 추적)         | `update_plan`                                                                                                        |
+| 작업 추적 (`TaskCreate`·`TodoWrite` 등, 있을 때) | `update_plan`                                                                                       |
 | `Skill` 도구 (스킬 호출)        | 스킬이 네이티브로 로드됨 — 지침을 그대로 따름                                                                        |
 | `Read`, `Write`, `Edit` (파일)  | 네이티브 파일 도구 사용                                                                                              |
 | `Bash` (명령 실행)              | 네이티브 셸 도구 사용                                                                                                |

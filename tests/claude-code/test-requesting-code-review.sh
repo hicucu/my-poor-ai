@@ -103,7 +103,7 @@ Print the reviewer's full output."
 # other concurrent claude sessions.
 echo "Running Claude (plugin-dir: $PLUGIN_DIR, cwd: $TEST_PROJECT)..."
 echo "================================================================================"
-cd "$TEST_PROJECT" && timeout 600 claude -p "$PROMPT" \
+cd "$TEST_PROJECT" && run_with_timeout 600 claude -p "$PROMPT" \
     --plugin-dir "$PLUGIN_DIR" \
     --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || {
     echo ""

@@ -11,7 +11,7 @@
 ## 호출 방법
 
 ```
-Agent(subagent_type="planning-agent"):
+Agent(subagent_type="my-poor-ai:planning-agent"):
   branch-slug: feature-tags
   design-path: _workspaces/feature-tags/design.md
   프로젝트 경로: {테스트용 프로젝트 경로}

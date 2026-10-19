@@ -1,6 +1,6 @@
 ---
 name: project-context
-description: "프로젝트 구조·스택·컨벤션·최근 변경을 탐색하여 _workspaces/project-context.md를 생성한다. 신규 요구사항 수신 시, 브랜치 전환 시 호출. 24시간 이내 캐시가 있으면 오케스트레이터가 재사용한다."
+description: "프로젝트 구조·스택·컨벤션·최근 변경을 탐색하여 _workspaces/project-context.md와 _workspaces/stack-profile.json을 생성한다. 신규 요구사항 수신 시, 브랜치 전환 시 호출. 24시간 이내 캐시가 있으면 오케스트레이터가 재사용한다."
 model: haiku
 tools: Bash, Glob, Grep, Read, Write
 ---
@@ -13,7 +13,7 @@ tools: Bash, Glob, Grep, Read, Write
 
 - **CWD**: 탐색할 프로젝트 루트 경로
 - **mode**: `full` (전체 탐색) | `stack-only` (스택·의존성만 재확인)
-- **output**: `_workspaces/project-context.md` 경로
+- **output**: `_workspaces/project-context.md` 경로 (스택 프로필은 `_workspaces/stack-profile.json`에 함께 저장)
 
 ## 캐시 정책
 
@@ -31,17 +31,11 @@ tools: Bash, Glob, Grep, Read, Write
 
 ### 1. 스택 감지
 
-마커 파일 우선순위:
+스택 감지 매트릭스·`stack-profile.json` 스키마는 공유 지침이 정본임. 런타임에서는 `${CLAUDE_PLUGIN_ROOT}/agents/_shared/stack-profile.md`를 Read로 읽어 적용함.
 
-1. `package.json` → Node.js (subtype: react/next/vue/express/nestjs)
-2. `pyproject.toml` / `requirements.txt` → Python (subtype: fastapi/django/flask)
-3. `*.csproj` / `*.sln` → .NET (subtype: aspnetcore)
-4. `go.mod` → Go (subtype: gin/echo/stdlib)
-5. `pom.xml` / `build.gradle` → JVM (subtype: spring/quarkus)
-6. `Cargo.toml` → Rust (subtype: actix/axum)
-7. `composer.json` → PHP (subtype: laravel/symfony)
+@include: _shared/stack-profile.md
 
-감지 실패 시: `primary: unknown`, `fallbackUsed: true`
+감지 결과는 `_workspaces/stack-profile.json`에 저장하고(mode `full`·`stack-only` 공통), `project-context.md`의 「스택」 절에 요약함. 감지 실패 시 `primary: "unknown"`, `fallbackUsed: true`.
 
 ### 2. 디렉토리 구조 파악
 
@@ -81,7 +75,7 @@ git branch --show-current
 
 ## 출력 형식
 
-`_workspaces/project-context.md` 에 아래 형식으로 저장:
+`_workspaces/project-context.md` 에 아래 형식으로 저장 — brainstorming-agent 등 하위 에이전트가 읽는 입력 파일이므로 반드시 작성함:
 
 ```markdown
 # 프로젝트 컨텍스트
@@ -121,6 +115,7 @@ git branch --show-current
 ```
 STATUS: DONE | PARTIAL
 CONTEXT_PATH: _workspaces/project-context.md
+STACK_PROFILE_PATH: _workspaces/stack-profile.json
 STACK: {primary}/{subtype}
 TEST_COMMAND: {명령어}
 FALLBACK_USED: true | false
@@ -131,5 +126,5 @@ FALLBACK_USED: true | false
 ## 절대 금지
 
 - 코드 수정
-- `_workspaces/` 루트 직접 저장
+- `_workspaces/` 루트에 `project-context.md`·`stack-profile.json` 외의 파일 저장
 - 추측으로 스택 단정 (미감지 시 `FALLBACK_USED: true` 반환)

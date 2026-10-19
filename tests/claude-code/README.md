@@ -9,15 +9,20 @@ This test suite verifies that skills are loaded correctly and Claude follows the
 ## Requirements
 
 - Claude Code CLI installed and in PATH (`claude --version` should work)
-- Local my-poor-ai plugin installed (see main README for installation)
+- The runners load this repository with `--plugin-dir`, so they test the working tree rather than the installed release
+- Timeouts go through `tests/lib/portable-timeout.sh` (`timeout`, then `gtimeout`, then `perl`), so the suite runs on a stock macOS install
 
 ## Running Tests
 
-### Run all fast tests (recommended):
+### Fast skill-knowledge checks
+
+These run as evals now (`evals/knowledge-sdd-*`, 9 cases). From the repository root:
 
 ```bash
-./run-skill-tests.sh
+claude plugin eval . --tag knowledge --ablation none --trust-plugin --no-publish
 ```
+
+`./run-skill-tests.sh` without flags prints this pointer and exits.
 
 ### Run integration tests (slow, 10-30 minutes):
 
@@ -28,13 +33,13 @@ This test suite verifies that skills are loaded correctly and Claude follows the
 ### Run specific test:
 
 ```bash
-./run-skill-tests.sh --test test-subagent-driven-development.sh
+./run-skill-tests.sh --test test-requesting-code-review.sh
 ```
 
 ### Run with verbose output:
 
 ```bash
-./run-skill-tests.sh --verbose
+./run-skill-tests.sh --integration --verbose
 ```
 
 ### Set custom timeout:
@@ -88,19 +93,7 @@ echo "=== All tests passed ==="
 
 ## Current Tests
 
-### Fast Tests (run by default)
-
-#### test-subagent-driven-development.sh
-
-Tests skill content and requirements (~2 minutes):
-
-- Skill loading and accessibility
-- Workflow ordering (spec compliance before code quality)
-- Self-review requirements documented
-- Plan reading efficiency documented
-- Spec compliance reviewer skepticism documented
-- Review loops documented
-- Task context provision documented
+The former fast test (skill loading, review order and split, plan reading, reviewer skepticism, review loops, task context, worktree prerequisite, main-branch rule) is the `knowledge` eval tag — see `evals/README.md`.
 
 ### Integration Tests (use --integration flag)
 
@@ -114,7 +107,7 @@ Full workflow execution test (~10-30 minutes):
 - Verifies actual behaviors:
   - Plan read once at start (not per task)
   - Full task text provided in subagent prompts
-  - Subagents perform self-review before reporting
+  - Progress tracked (plan checkboxes, or task tools when the model has them)
   - Spec compliance review happens before code quality
   - Spec reviewer reads code independently
   - Working implementation is produced
@@ -177,7 +170,7 @@ RED-GREEN-REFACTOR behavioral test for the `using-git-worktrees` skill (phase an
 With `--verbose`, you'll see full Claude output:
 
 ```bash
-./run-skill-tests.sh --verbose --test test-subagent-driven-development.sh
+./run-skill-tests.sh --verbose --test test-requesting-code-review.sh
 ```
 
 Without verbose, only failures show output.
@@ -188,7 +181,7 @@ To run in CI:
 
 ```bash
 # Run with explicit timeout for CI environments
-./run-skill-tests.sh --timeout 900
+./run-skill-tests.sh --integration --timeout 1800
 
 # Exit code 0 = success, non-zero = failure
 ```

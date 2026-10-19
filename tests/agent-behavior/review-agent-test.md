@@ -7,7 +7,7 @@
 ## 호출 방법
 
 ```
-Agent(subagent_type="review-agent"):
+Agent(subagent_type="my-poor-ai:review-agent"):
   branch-slug: feature-tags
   base-branch: main
   프로젝트 경로: {테스트용 프로젝트 경로}

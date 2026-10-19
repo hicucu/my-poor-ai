@@ -1,6 +1,7 @@
 ---
 name: sync-docs-from-diff
 description: "Analyzes the commits and diff from the develop (or specified base) branch up to the current branch to synchronize README.md / ./docs/ / inline documentation (*.md) near the changed code. Operates in review-then-apply mode — shows the proposed changes for each file and applies them after user approval. Trigger phrases: \"update docs compared to develop\", \"reflect branch changes in README/docs\", \"update documentation to match committed changes\", \"sync docs with this PR's changes\", \"docs sync\", and follow-up requests (\"redo just the docs part\", \"re-run README only\", \"restart from analysis\", \"re-run the validator only\"). Does not trigger for simple README writing, creating new documents, or change requests written without a diff."
+argument-hint: "[base-branch]"
 ---
 
 # Sync Docs From Diff — 오케스트레이터
@@ -9,7 +10,11 @@ description: "Analyzes the commits and diff from the develop (or specified base)
 
 ## 실행 모드
 
-서브 에이전트 + 파이프라인 (필요 시 부분 재실행). 모델 전략: 분석·검증 에이전트(`change-analyzer`, `doc-sync-validator`)는 `model: "opus"`, 문서 업데이트 에이전트 3개(`inline-doc-updater`, `readme-updater`, `docs-updater`)는 `model: "haiku"`.
+서브 에이전트 + 파이프라인 (필요 시 부분 재실행). 에이전트는 `subagent_type`에 `my-poor-ai:` 접두사를 붙인 이름으로 스폰하며, 모델·도구는 각 에이전트 frontmatter가 정함 (분석·검증 `change-analyzer`·`doc-sync-validator`는 opus, 문서 업데이트 3개는 haiku).
+
+모든 에이전트 프롬프트에 "산출 파일은 다음 단계가 읽는 입력 파일이므로 반드시 작성"이라고 명시함 — 서브에이전트 하네스는 보고서·분석용 `.md` 작성을 금지하고 입력 파일만 예외로 둠 (`AGENTS.md` 불변식 12). 산출 파일이 없고 에이전트가 내용을 텍스트로 반환했으면 그 텍스트를 해당 경로에 저장한 뒤 다음 Phase로 진행함.
+
+에이전트가 등록되지 않은 환경에서만 범용 에이전트에 `${CLAUDE_PLUGIN_ROOT}/agents/<에이전트명>.md`를 읽혀 같은 입력으로 실행함 — 이때는 frontmatter가 적용되지 않으므로 위 모델을 `model`로 직접 지정하고, 읽은 정의 파일 본문의 변수는 치환되지 않으므로 플러그인 루트 절대 경로를 함께 전달함.
 
 ## 핵심 원칙
 
@@ -40,16 +45,15 @@ description: "Analyzes the commits and diff from the develop (or specified base)
    - 아니면 `git rev-parse --verify develop` → 실패 시 `main` → 실패 시 `master` 순서로 시도
    - 모두 실패하면 사용자에게 베이스 브랜치를 묻고 입력 받음
 2. `Agent` 호출:
-   - `subagent_type`: `general-purpose`
-   - `model`: `"opus"`
+   - `subagent_type`: `"my-poor-ai:change-analyzer"`
    - `description`: "변경 분석 보고서 생성"
-   - `prompt`: 에이전트 정의(`{팀_위치}/agents/change-analyzer.md`)를 따르라는 지시 + `BASE_BRANCH`, `WORKSPACE_DIR`, `PROJECT_ROOT` 변수 전달
+   - `prompt`: `BASE_BRANCH`, `WORKSPACE_DIR`, `PROJECT_ROOT` 변수 전달
 3. 산출물 검증: `_workspaces/01_change_analysis.json`과 `_workspaces/01_change_analysis.md` 모두 존재 확인.
 4. 분석에 변경이 0건이면(빈 commits/files) "변경 없음, 종료" 보고 후 종료.
 
 ## Phase 2: 업데이트 제안 생성 (병렬, 파일 수정 없음)
 
-3개 updater를 동시 호출함. 모두 `run_in_background: true`, `model: "haiku"`.
+3개 updater를 단일 응답에서 동시 호출함 (서브에이전트는 백그라운드로 실행됨). `subagent_type`은 `"my-poor-ai:inline-doc-updater"`·`"my-poor-ai:readme-updater"`·`"my-poor-ai:docs-updater"`.
 
 | 에이전트             | 영역                                                                           | 산출물                         |
 | -------------------- | ------------------------------------------------------------------------------ | ------------------------------ |
@@ -59,7 +63,6 @@ description: "Analyzes the commits and diff from the develop (or specified base)
 
 각 호출 prompt에 다음을 포함:
 
-- 자신의 에이전트 정의(`{팀_위치}/agents/<name>.md`)를 따르라는 지시
 - 환경 변수: `WORKSPACE_DIR`, `PROJECT_ROOT`
 - 강조: "파일을 직접 수정하지 말고 반드시 `proposals/<영역>/` 하위에 패치만 작성하라"
 
@@ -85,9 +88,9 @@ description: "Analyzes the commits and diff from the develop (or specified base)
 
 `Agent` 호출:
 
-- `subagent_type`: `general-purpose`, `model`: `"opus"`
+- `subagent_type`: `"my-poor-ai:doc-sync-validator"`
 - `description`: "문서 동기화 검증 보고서"
-- prompt: `{팀_위치}/agents/doc-sync-validator.md`를 따르라는 지시 + `WORKSPACE_DIR`, `PROJECT_ROOT`
+- prompt: `WORKSPACE_DIR`, `PROJECT_ROOT`
 
 검증 보고서(`_workspaces/02_validation_report.md`)에 WARN/FAIL이 있으면 사용자에게 그 부분을 강조 보고하고 부분 재실행 옵션을 제시.
 
@@ -181,5 +184,5 @@ description: "Analyzes the commits and diff from the develop (or specified base)
 
 ## 참고
 
-- `{팀_위치}/agents/*.md` — 각 에이전트의 입력/출력 프로토콜과 검증 체크리스트 (`{팀_위치}`는 my-poor-ai 플러그인 루트의 절대 경로)
+- `${CLAUDE_PLUGIN_ROOT}/agents/*.md` — 각 에이전트의 입력/출력 프로토콜과 검증 체크리스트 (`${CLAUDE_PLUGIN_ROOT}`는 스킬 로드 시 플러그인 루트 절대 경로로 치환됨)
 - `references/review-protocol.md` — Phase 3 사용자 검토 절차 상세
