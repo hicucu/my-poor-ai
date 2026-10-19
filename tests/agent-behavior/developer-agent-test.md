@@ -7,7 +7,7 @@
 ## 호출 방법
 
 ```
-Agent(subagent_type="developer-agent"):
+Agent(subagent_type="my-poor-ai:developer-agent"):
   spec-path: _workspaces/feature-tags/specs/spec-a.md
   branch-slug: feature-tags
   프로젝트 경로: {테스트용 프로젝트 경로}

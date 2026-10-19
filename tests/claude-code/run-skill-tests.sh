@@ -5,6 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
+source "$SCRIPT_DIR/../lib/portable-timeout.sh"
 
 echo "========================================"
 echo " Claude Code Skills Test Suite"
@@ -56,8 +57,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --integration, -i    Run integration tests (slow, 10-30 min)"
             echo "  --help, -h           Show this help"
             echo ""
-            echo "Tests:"
-            echo "  test-subagent-driven-development.sh  Test skill loading and requirements"
+            echo "Fast skill-knowledge checks run as evals (from the repository root):"
+            echo "  claude plugin eval . --tag knowledge --ablation none --trust-plugin --no-publish"
             echo ""
             echo "Integration Tests (use --integration):"
             echo "  test-subagent-driven-development-integration.sh  Full workflow execution"
@@ -73,10 +74,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# List of skill tests to run (fast unit tests)
-tests=(
-    "test-subagent-driven-development.sh"
-)
+tests=()
 
 # Integration tests (slow, full execution)
 integration_tests=(
@@ -93,6 +91,14 @@ fi
 # Filter to specific test if requested
 if [ -n "$SPECIFIC_TEST" ]; then
     tests=("$SPECIFIC_TEST")
+fi
+
+# Expanding an empty array under set -u fails on bash 3.2 (macOS default), so stop before the loop.
+if [ ${#tests[@]} -eq 0 ]; then
+    echo "No shell tests selected. Fast skill-knowledge checks run as evals (from the repository root):"
+    echo "  claude plugin eval . --tag knowledge --ablation none --trust-plugin --no-publish"
+    echo "Use --integration for the full-workflow shell tests."
+    exit 0
 fi
 
 # Track results
@@ -122,7 +128,7 @@ for test in "${tests[@]}"; do
     start_time=$(date +%s)
 
     if [ "$VERBOSE" = true ]; then
-        if timeout "$TIMEOUT" bash "$test_path"; then
+        if run_with_timeout "$TIMEOUT" bash "$test_path"; then
             end_time=$(date +%s)
             duration=$((end_time - start_time))
             echo ""
@@ -133,8 +139,11 @@ for test in "${tests[@]}"; do
             end_time=$(date +%s)
             duration=$((end_time - start_time))
             echo ""
-            if [ $exit_code -eq 124 ]; then
+            # A command inside the test that times out also exits 124; only the elapsed time tells them apart.
+            if [ $exit_code -eq 124 ] && [ $duration -ge "$TIMEOUT" ]; then
                 echo "  [FAIL] $test (timeout after ${TIMEOUT}s)"
+            elif [ $exit_code -eq 124 ]; then
+                echo "  [FAIL] $test (a command inside the test timed out, ${duration}s)"
             else
                 echo "  [FAIL] $test (${duration}s)"
             fi
@@ -142,7 +151,7 @@ for test in "${tests[@]}"; do
         fi
     else
         # Capture output for non-verbose mode
-        if output=$(timeout "$TIMEOUT" bash "$test_path" 2>&1); then
+        if output=$(run_with_timeout "$TIMEOUT" bash "$test_path" 2>&1); then
             end_time=$(date +%s)
             duration=$((end_time - start_time))
             echo "  [PASS] (${duration}s)"
@@ -151,8 +160,10 @@ for test in "${tests[@]}"; do
             exit_code=$?
             end_time=$(date +%s)
             duration=$((end_time - start_time))
-            if [ $exit_code -eq 124 ]; then
+            if [ $exit_code -eq 124 ] && [ $duration -ge "$TIMEOUT" ]; then
                 echo "  [FAIL] (timeout after ${TIMEOUT}s)"
+            elif [ $exit_code -eq 124 ]; then
+                echo "  [FAIL] (a command inside the test timed out, ${duration}s)"
             else
                 echo "  [FAIL] (${duration}s)"
             fi

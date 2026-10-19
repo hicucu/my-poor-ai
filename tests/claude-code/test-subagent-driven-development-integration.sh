@@ -13,7 +13,7 @@ echo ""
 echo "This test executes a real plan using the skill and verifies:"
 echo "  1. Plan is read once (not per task)"
 echo "  2. Full task text provided to subagents"
-echo "  3. Subagents perform self-review"
+echo "  3. Progress tracked (plan checkboxes, or task tools when available)"
 echo "  4. Spec compliance review before code quality"
 echo "  5. Review loops when issues found"
 echo "  6. Spec reviewer reads code independently"
@@ -52,6 +52,8 @@ This is a minimal plan to test the subagent-driven-development workflow.
 
 ## Task 1: Create Add Function
 
+- [ ] **Task 1 complete**
+
 Create a function that adds two numbers.
 
 **File:** `src/math.js`
@@ -77,6 +79,8 @@ export function add(a, b) {
 **Verification:** `npm test`
 
 ## Task 2: Create Multiply Function
+
+- [ ] **Task 2 complete**
 
 Create a function that multiplies two numbers.
 
@@ -126,7 +130,7 @@ I want you to execute the implementation plan at docs/my-poor-ai/plans/implement
 IMPORTANT: Follow the skill exactly. I will be verifying that you:
 1. Read the plan once at the beginning
 2. Provide full task text to subagents (don't make them read files)
-3. Ensure subagents do self-review before reporting
+3. Track progress as the skill describes
 4. Run spec compliance review before code quality review
 5. Use review loops when issues are found
 
@@ -140,7 +144,7 @@ PROMPT="Execute the implementation plan at docs/my-poor-ai/plans/implementation-
 IMPORTANT: Follow the skill exactly. I will be verifying that you:
 1. Read the plan once at the beginning
 2. Provide full task text to subagents (don't make them read files)
-3. Ensure subagents do self-review before reporting
+3. Track progress as the skill describes
 4. Run spec compliance review before code quality review
 5. Use review loops when issues are found
 
@@ -153,7 +157,7 @@ PLUGIN_DIR=$(cd "$SCRIPT_DIR/../.." && pwd)
 # other concurrent claude sessions.
 echo "Running Claude (plugin-dir: $PLUGIN_DIR, cwd: $TEST_PROJECT)..."
 echo "================================================================================"
-cd "$TEST_PROJECT" && timeout 1800 claude -p "$PROMPT" --plugin-dir "$PLUGIN_DIR" --allowed-tools=all --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || {
+cd "$TEST_PROJECT" && run_with_timeout 1800 claude -p "$PROMPT" --plugin-dir "$PLUGIN_DIR" --allowed-tools=all --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || {
     echo ""
     echo "================================================================================"
     echo "EXECUTION FAILED (exit code: $?)"
@@ -213,13 +217,15 @@ else
 fi
 echo ""
 
-# Test 3: TodoWrite was used for tracking
+# Test 3: Progress was tracked. Claude 5 models get no task tools by default,
+# so the plan's own checkboxes count as tracking.
 echo "Test 3: Task tracking..."
-todo_count=$(grep -c '"name":"TodoWrite"' "$SESSION_FILE" || echo "0")
-if [ "$todo_count" -ge 1 ]; then
-    echo "  [PASS] TodoWrite used $todo_count time(s) for task tracking"
+tool_count=$(grep -cE '"name":"(TodoWrite|TaskCreate|TaskUpdate)"' "$SESSION_FILE" || true)
+checked_count=$(grep -c '^- \[x\]' "$TEST_PROJECT/docs/my-poor-ai/plans/implementation-plan.md" || true)
+if [ "${tool_count:-0}" -ge 1 ] || [ "${checked_count:-0}" -ge 1 ]; then
+    echo "  [PASS] Progress tracked (task tool calls: ${tool_count:-0}, checked plan items: ${checked_count:-0})"
 else
-    echo "  [FAIL] TodoWrite not used"
+    echo "  [FAIL] No progress tracking (no task tool calls, no checked plan items)"
     FAILED=$((FAILED + 1))
 fi
 echo ""
@@ -306,7 +312,7 @@ if [ $FAILED -eq 0 ]; then
     echo "The subagent-driven-development skill correctly:"
     echo "  ✓ Reads plan once at start"
     echo "  ✓ Provides full task text to subagents"
-    echo "  ✓ Enforces self-review"
+    echo "  ✓ Tracks progress"
     echo "  ✓ Runs spec compliance before code quality"
     echo "  ✓ Spec reviewer verifies independently"
     echo "  ✓ Produces working implementation"

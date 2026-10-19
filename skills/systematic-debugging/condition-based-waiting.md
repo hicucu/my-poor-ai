@@ -76,7 +76,7 @@ result = 결과_조회()
         지연(10ms 동안 대기)   // 10ms마다 폴링
 ```
 
-이 디렉토리의 `condition-based-waiting-example.ts`에 도메인 특화 헬퍼(`waitForEvent`, `waitForEventCount`, `waitForEventMatch`)를 포함한 완전한 구현 예시가 있음 — 실제 디버깅 세션에서 도출된 코드. 구체적인 실행 방식(테스트 러너 등)은 `stack-profile.json`의 `testFramework`가 결정함.
+이 디렉토리의 `condition-based-waiting-example.ts`에 도메인 특화 헬퍼(`waitForEvent`, `waitForEventCount`, `waitForEventMatch`)를 포함한 완전한 구현 예시가 있음 — 실제 디버깅 세션에서 도출된 코드. 구체적인 실행 방식(테스트 러너 등)은 `_workspaces/stack-profile.json`(있으면)의 `testFramework`, 없으면 프로젝트의 테스트 관례가 결정함.
 
 ## 흔한 실수
 

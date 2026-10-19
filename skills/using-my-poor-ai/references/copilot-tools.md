@@ -1,5 +1,7 @@
 # Copilot CLI 도구 매핑
 
+> 2026-07 기준 매핑 — 현행 Copilot CLI 릴리스에서 미검증. 도구명이 다르면 플랫폼 문서를 우선함.
+
 스킬은 Claude Code 도구 이름을 사용함. 스킬에서 아래 도구를 만나면, 사용 중인 플랫폼의 대응 도구를 사용함:
 
 | 스킬에서 참조하는 도구           | Copilot CLI 대응 도구                                            |
@@ -15,7 +17,7 @@
 | `Agent` 도구 (서브에이전트 파견) | `agent_type: "general-purpose"` 또는 `"explore"`를 지정한 `task` |
 | 여러 `Agent` 호출 (병렬)         | 여러 `task` 호출                                                 |
 | Agent 상태/출력                  | `read_agent`, `list_agents`                                      |
-| `TodoWrite` (작업 추적)          | 내장 `todos` 테이블을 사용하는 `sql`                             |
+| 작업 추적 (`TaskCreate`·`TodoWrite` 등, 있을 때) | 내장 `todos` 테이블을 사용하는 `sql`             |
 | `WebSearch`                      | 대응 도구 없음 — 검색 엔진 URL로 `web_fetch` 사용                |
 | `EnterPlanMode` / `ExitPlanMode` | 대응 도구 없음 — 메인 세션에 머무름                              |
 

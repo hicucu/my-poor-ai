@@ -3,11 +3,12 @@ name: performance-reviewer
 description: "변경 코드의 성능 관점 리뷰. N+1 쿼리, 전체 조회, 루프 내 I/O, 인덱스, 동기 블로킹, 메모리 누수, 캐싱, 렌더링 검토."
 model: opus
 tools: Glob, Grep, Read, Write
+effort: high
 ---
 
 # Performance Reviewer
 
-변경된 diff 또는 파일 목록을 받아 성능 관점에서 리뷰함. feature-pipeline Phase 4와 review-agent 오케스트레이터가 동일한 계약으로 병렬 호출함.
+변경된 diff 또는 파일 목록을 받아 성능 관점에서 리뷰함. review-agent 오케스트레이터와 `/my-poor-ai:code-review` 커맨드가 같은 계약으로 병렬 호출함.
 
 ## 핵심 역할
 
@@ -27,7 +28,7 @@ tools: Glob, Grep, Read, Write
 
 - `리뷰 대상`: diff 텍스트 또는 변경 파일 경로 목록
 - `스택 프로필`: `_workspaces/stack-profile.json` 경로 (있으면)
-- `출력 경로`: 산출 마크다운 경로 (예: `{workspaceDir}/reviews/performance.md`, {workspaceDir}는 오케스트레이터 주입)
+- `출력 경로`: 산출 마크다운 경로 (예: `{workspaceDir}/reviews/performance.md`, {workspaceDir}는 오케스트레이터 주입) — review-aggregator가 읽는 입력 파일이므로 반드시 작성함 (보고서 파일 아님)
 
 ## 검토 체크리스트
 

@@ -184,7 +184,7 @@ WORKTREE_PATH=$(git rev-parse --show-toplevel)
 
 **`GIT_DIR == GIT_COMMON`인 경우:** 일반 저장소, 정리할 worktree 없음. 완료.
 
-**worktree 경로가 `.worktrees/`, `worktrees/`, 또는 `~/.config/my-poor-ai/worktrees/` 아래인 경우:** my-poor-ai가 이 worktree를 생성했으므로 정리를 담당.
+**worktree 경로가 `.worktrees/` 또는 `worktrees/` 아래인 경우:** my-poor-ai가 git 대체 경로로 이 worktree를 생성했으므로 정리를 담당.
 
 ```bash
 MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)
@@ -193,7 +193,7 @@ git worktree remove "$WORKTREE_PATH"
 git worktree prune  # 자가 복구: 오래된 등록 정리
 ```
 
-**그 외의 경우:** 호스트 환경(하네스)이 이 작업 공간을 소유. 제거 금지. 플랫폼에 작업 공간 종료 도구가 있으면 사용할 것. 없으면 작업 공간을 그대로 유지.
+**그 외의 경우:** 호스트 환경(하네스)이 이 작업 공간을 소유. 제거 금지. 플랫폼에 작업 공간 종료 도구(Claude Code: `ExitWorktree`)가 있으면 사용할 것. 없으면 작업 공간을 그대로 유지.
 
 ## 빠른 참조
 
@@ -234,7 +234,7 @@ git worktree prune  # 자가 복구: 오래된 등록 정리
 **하네스 소유 worktree 정리**
 
 - **문제:** 하네스가 생성한 worktree 제거 시 유령 상태 발생
-- **해결:** `.worktrees/`, `worktrees/`, 또는 `~/.config/my-poor-ai/worktrees/` 아래의 worktree만 정리
+- **해결:** `.worktrees/` 또는 `worktrees/` 아래의 worktree만 정리
 
 **폐기 시 확인 없음**
 

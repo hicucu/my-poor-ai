@@ -1,5 +1,6 @@
 {
   "name": "hicucu",
+  "description": "hicucu's Claude Code plugins — my-poor-ai, engineering discipline for AI coding agents.",
   "owner": {
     "name": "hicucu"
   },
@@ -7,8 +8,8 @@
     {
       "name": "my-poor-ai",
       "source": "./",
-      "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent pipelines, and doc sync.",
-      "version": "6.0.0",
+      "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent review, and doc sync.",
+      "version": "7.0.0",
       "license": "MIT",
       "keywords": [
         "skills",

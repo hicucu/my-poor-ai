@@ -4,8 +4,8 @@ my-poor-ai는 순수 지침(스킬·에이전트) 플러그인이라 외부 도�
 
 | 파이프라인 단계 | MCP 서버 | 보강되는 것 |
 | --- | --- | --- |
-| brainstorming / feature-planner | [Context7](https://github.com/upstash/context7) | 라이브러리 최신 문서 조회 — 설계 시 API 가정 오류 감소 |
-| test-writer / verification | [Playwright MCP](https://github.com/microsoft/playwright-mcp) | 브라우저 기반 E2E 검증 — "동작 증명 후 완료 보고" 원칙의 웹 프런트엔드 커버 |
+| brainstorming / planning | [Context7](https://github.com/upstash/context7) | 라이브러리 최신 문서 조회 — 설계 시 API 가정 오류 감소 |
+| developer-agent / verification | [Playwright MCP](https://github.com/microsoft/playwright-mcp) | 브라우저 기반 E2E 검증 — "동작 증명 후 완료 보고" 원칙의 웹 프런트엔드 커버 |
 | systematic-debugging | 프로젝트 DB용 MCP (예: Postgres MCP) | 근본 원인 추적 시 데이터 상태 직접 관찰 |
 | review-agent (security) | [GitHub MCP](https://github.com/github/github-mcp-server) | PR·이슈 컨텍스트 연동, 리뷰 결과의 PR 코멘트 반영 |
 | 전 단계 공통 | 웹 검색 계열 MCP | 스택 관련 최신 정보 확인 (Claude Code 내장 WebSearch로 대체 가능) |

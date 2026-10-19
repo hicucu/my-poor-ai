@@ -5,7 +5,7 @@ description: Use when implementing any feature or bug fix, before writing implem
 
 # 테스트 주도 개발 (TDD)
 
-> 이 문서는 스택을 가리지 않음. 테스트 실행 명령·프레임워크·파일 명명은 `stack-profile.json`의 `testFramework`가 정함. 아래 코드는 모두 **언어 중립 의사코드**임.
+> 이 문서는 스택을 가리지 않음. 테스트 실행 명령·프레임워크·파일 명명은 `_workspaces/stack-profile.json`(있으면)의 `testFramework`가 정하고, 없으면 프로젝트 매니페스트·기존 테스트 관례로 판단함. 아래 코드는 모두 **언어 중립 의사코드**임.
 
 ## 개요
 
