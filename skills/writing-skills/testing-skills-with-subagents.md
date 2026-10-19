@@ -12,7 +12,7 @@
 
 **필수 배경:** 이 스킬을 사용하기 전에 my-poor-ai:test-driven-development를 반드시 이해해야 함. 해당 스킬이 근본적인 RED-GREEN-REFACTOR 사이클을 정의함. 이 스킬은 스킬에 특화된 테스트 형식(압박 시나리오, 합리화 표)을 제공함.
 
-**전체 작동 예시:** CLAUDE.md 문서 변형을 테스트하는 전체 테스트 캠페인은 examples/CLAUDE_MD_TESTING.md 참조.
+**eval과의 관계:** 반복 실행·점수화가 필요한 시나리오는 `claude plugin eval` 케이스로 옮김 (SKILL.md "eval로 RED/GREEN 실행"). 이 문서의 수동 압박 테스트는 다중 턴 압박처럼 eval 케이스로 표현하기 어려운 경우의 보조 수단임.
 
 ## 사용 시점
 

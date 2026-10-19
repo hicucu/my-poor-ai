@@ -29,8 +29,8 @@ tools: Glob, Grep, Read, Write
 2. 각 부모 dir에서 `Glob`으로 `*.md` 검색 (단, 루트 `README.md`와 `docs/` 하위는 결과에서 제거)
 3. 검색된 각 문서를 `Read`로 읽고, `affected_symbols`·`behavioral_changes` 텍스트가 포함된 섹션을 식별
 4. 변경이 필요한 섹션에 대해 before/after 블록 작성
-5. `$WORKSPACE_DIR/proposals/inline/<sanitized-doc-path>.patch.md` 로 저장
-6. 종합 인덱스 `$WORKSPACE_DIR/proposals/inline/_index.md` 작성 — 처리한 문서·변경 사유·예상 영향 요약
+5. `$WORKSPACE_DIR/proposals/inline/<sanitized-doc-path>.patch.md` 로 저장 — 오케스트레이터가 사용자 검토·적용에 읽는 입력 파일이므로 반드시 작성함
+6. 종합 인덱스 `$WORKSPACE_DIR/proposals/inline/_index.md` 작성 — 처리한 문서·변경 사유·예상 영향 요약. 오케스트레이터·validator가 읽는 입력 파일이므로 반드시 작성함
 
 ## 출력 형식
 

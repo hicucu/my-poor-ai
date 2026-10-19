@@ -18,7 +18,7 @@ agent-behavior/
 각 에이전트를 Claude Code에서 직접 호출:
 
 ```
-Agent(subagent_type="brainstorming-agent"):
+Agent(subagent_type="my-poor-ai:brainstorming-agent"):
   요구사항: {테스트 케이스 요구사항}
   프로젝트 경로: {테스트 프로젝트 경로}
   branch-slug: test-feature

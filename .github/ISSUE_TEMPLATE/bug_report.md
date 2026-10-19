@@ -12,7 +12,7 @@ labels: bug
 
 ## Reproduction
 
-- Platform: <!-- Claude Code / Codex / Copilot CLI / Gemini CLI / OpenCode -->
+- Platform: <!-- Claude Code / Codex / Copilot CLI / Gemini CLI -->
 - Plugin version: <!-- /plugin list or .claude-plugin/plugin.json -->
 - Trigger: <!-- the prompt or command you ran -->
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | **한국어**
 
-스킬 디렉토리 24개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
+스킬 디렉토리 21개. 각 스킬 `SKILL.md`의 frontmatter `description`이 실제 트리거 조건이며, 이 문서는 개발 단계별로 묶은 빠른 색인임. 수정 전에는 `skills/writing-skills/` 참조 필수.
 
 두 종류가 함께 있으며, 차이는 **누가 시작하는가**임:
 
@@ -51,28 +51,20 @@
 | [`sync-docs-from-diff`](sync-docs-from-diff/) | 브랜치 diff를 분석해 README/docs/인라인 문서 갱신을 제안, 사용자 승인 후에만 적용 |
 | [`preventing-github-actions-loops`](preventing-github-actions-loops/) | GitHub Actions 워크플로우의 자기 트리거 순환(무한루프) 탐지·방지 |
 
-## 파이프라인
-
-| 스킬 | 역할 |
-| --- | --- |
-| [`feature-pipeline`](feature-pipeline/) | 스택 무관 5단계 멀티에이전트 파이프라인: 계획 → 구현 → 테스트 → 리뷰 → 수정 |
-
 ## 메타
 
 | 스킬 | 역할 |
 | --- | --- |
 | [`writing-skills`](writing-skills/) | 프로세스 문서에 적용한 TDD — 스킬 작성·수정·검증 방법 |
-| [`using-my-poor-ai`](using-my-poor-ai/) | 요청 분류와 파이프라인 계약. 옆의 `router.md`가 SessionStart 훅이 주입하는 압축 블록임 |
+| [`using-my-poor-ai`](using-my-poor-ai/) | 요청 분류와 파이프라인 계약. 옆의 `router.md`가 SessionStart 훅이 주입하는 압축 블록임. 둘 다 라우팅 규칙을 담으므로 함께 수정함 |
 
 ## 커맨드
 
-`/my-poor-ai:{이름}` 형태로 호출함. `/my-poor-ai:commands`가 카탈로그 진입점임.
+`/my-poor-ai:{이름}` 형태로 호출함.
 
 | 스킬 | 역할 | 모델 자동 발동 |
 | --- | --- | --- |
-| [`my-poor-ai`](my-poor-ai/) | 요청을 알맞은 파이프라인(DEBUG/SIMPLE/FULL)으로 라우팅하는 진입점 — setup 없이도 사용 가능 | 가능 |
-| [`commands`](commands/) | 사용 가능한 목록 표시, 카탈로그 자체 | 가능 |
+| [`my-poor-ai`](my-poor-ai/) | 요청을 알맞은 파이프라인(DEBUG/SIMPLE/FULL)으로 라우팅하는 진입점 | 가능 |
 | [`roles`](roles/) | 역할 프리셋 카탈로그 — 역할명(architect/builder/debugger/reviewer)을 스킬 번들로 라우팅 | 가능 |
-| [`code-review`](code-review/) | 아키텍처·성능 축 검토 + 네이티브 `/security-review` 통합, `REVIEW.md` 초안 생성 | 가능 |
-| [`setup`](setup/) | `SessionStart` 훅을 `~/.claude/settings.json`에 등록 | **차단** — 프로젝트 외부 기록 |
+| [`code-review`](code-review/) | 아키텍처·성능 축 검토 + 네이티브 `/security-review`·`/code-review` 통합, `REVIEW.md` 초안 생성 | 가능 |
 | [`codex-setup`](codex-setup/) | 이 플러그인의 에이전트를 `~/.codex/config.toml`에 등록 | **차단** — 프로젝트 외부 기록 |

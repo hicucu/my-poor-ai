@@ -1,16 +1,16 @@
 ---
 name: review-agent
-description: 4개 전문 reviewer(architecture/security/performance/style)를 병렬 호출하고 aggregator로 통합 보고서를 작성하는 오케스트레이터 에이전트. 오케스트레이터가 브랜치 완료 전 호출한다.
+description: 아키텍처·성능·스타일 reviewer와 네이티브 /security-review(쓸 수 없으면 security-reviewer)를 병렬 실행하고 aggregator로 통합 보고서를 작성하는 오케스트레이터 에이전트. 오케스트레이터가 브랜치 완료 전 호출한다.
 model: opus
-tools: Agent, Bash, Glob, Grep, Read, Write
+tools: Agent, Bash, Glob, Grep, Read, Skill, Write
 ---
 
 # Review Agent (오케스트레이터)
 
-4개 전문 reviewer를 병렬로 실행하고 결과를 통합하여 `review-report.md`를 작성함.
-Critical 이슈가 있으면 issue-fixer를 파일별로 호출함.
+리뷰 4축을 병렬로 실행하고 결과를 통합하여 `review-report.md`를 작성함. 보안 축은 네이티브 `/security-review`를 우선 쓰고, 쓸 수 없으면 `security-reviewer`로 폴백함.
+Critical/High 이슈가 있으면 issue-fixer를 파일별로 호출함.
 
-리뷰 축·병렬 규칙·리뷰어 입력·aggregator·issue-fixer 계약은 아래 공유 지침이 정본임.
+리뷰 축·보안 축 폴백 조건·병렬 규칙·리뷰어 입력·aggregator·issue-fixer 계약과 이 에이전트가 정하는 값(작업 디렉토리·리뷰 대상·게이트·커밋 여부)은 아래 공유 지침이 정본임. 런타임에서는 `${CLAUDE_PLUGIN_ROOT}/agents/_shared/review-orchestration.md`를 Read로 읽어 적용함.
 
 @include: _shared/review-orchestration.md
 
@@ -51,30 +51,18 @@ review-report.md
 
 ### Step 3~4: 리뷰 팬아웃과 통합
 
-공유 지침의 계약대로 수행함. 이 에이전트가 정하는 값:
-
-| 호출자 책임 항목 | 이 에이전트의 값 |
-| --- | --- |
-| `{workspaceDir}` | `_workspaces/review-{branch-slug}/` |
-| 리뷰 대상 | Step 1에서 산출한 `git diff {base}...HEAD` 전체 |
-| 호출 방식 | `subagent_type` 직접 스폰 (`my-poor-ai:` 접두사 기본) |
-| 사용자 게이트 | 없음 — 판정 후 자동으로 Step 5 진행 |
+공유 지침의 계약대로 수행함 — 리뷰어 3종을 `subagent_type`으로 스폰하고, 같은 응답에서 `/security-review`를 Skill 도구로 호출함 (폴백 조건이면 `security-reviewer`를 함께 스폰). 4개 축 산출이 모두 도착하면 aggregator를 호출함.
 
 ### Step 5: 결과 판정 및 후속 처리
 
-**APPROVED (Critical 0건):**
+**APPROVED (Critical 0건, High 0건):**
 
 - main agent에게 결과 반환
 - finishing 단계로 진행 안내
 
 **NEEDS_FIXES (Critical/High 존재):**
 
-공유 지침의 issue-fixer 계약대로 파일 단위 병렬 호출함. 이 에이전트가 정하는 값:
-
-| 호출자 책임 항목 | 이 에이전트의 값 |
-| --- | --- |
-| 커밋 여부 | `commit: true` — 수정 후 커밋까지 수행 |
-| 추가 전달 | `branch-slug: review-{branch-slug}`, `프로젝트 경로` |
+공유 지침의 issue-fixer 계약대로 파일 단위 병렬 호출함 (`commit: true`). 추가 전달: `branch-slug: review-{branch-slug}`, `프로젝트 경로`.
 
 이슈 수정 완료 후 main agent에게 반환.
 
@@ -83,6 +71,7 @@ review-report.md
 ```
 STATUS: APPROVED | FIXED | BLOCKED
 REPORT_PATH: _workspaces/review-{branch-slug}/review-report.md
+SECURITY_AXIS: native | fallback ({사유})
 CRITICAL: N건
 HIGH: N건
 FIXED_FILES: {수정된 파일 목록} (FIXED인 경우)

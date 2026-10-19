@@ -18,7 +18,7 @@ brainstorming → writing-plans(spec) → subagent-driven-development(구현) �
 implementer는 다음을 입력으로 받음:
 
 - **spec**: 구현할 작업 명세 (`writing-plans` 산출, `_workspaces/{branch-slug}/specs/`)
-- **stack-profile.json**: 테스트 실행 명령·프레임워크·파일 명명 규칙을 결정. 본문(SKILL.md)은 스택 어휘를 쓰지 않고, 구체 명령은 이 프로필에서 가져옴.
+- **`_workspaces/stack-profile.json`**: 테스트 실행 명령·프레임워크·파일 명명 규칙을 결정. 복잡 경로에서는 Phase 0 `project-context`가 생성함 (없으면 프로젝트 매니페스트에서 판단). 본문(SKILL.md)은 스택 어휘를 쓰지 않고, 구체 명령은 이 프로필에서 가져옴.
 
 ## 실행 계약 (능력)
 
@@ -35,11 +35,9 @@ implementer는 다음을 입력으로 받음:
 
 - 파이프라인·문서·프롬프트에서 이 skill 참조는 항상 **`my-poor-ai:test-driven-development`** 로 함 (구 네임스페이스 형태 금지).
 
-## harness 대체 메모 (권고, 침습 변경 아님)
+## 에이전트 체인에서의 적용
 
-`example-project/harness`의 `feature-pipeline`은 "TDD"를 표방하지만 실제로는 TDD 정합이 아님:
+복잡 경로의 에이전트 체인(`planning-agent` → `developer-agent`)도 같은 두 계약을 따름:
 
-- Phase 2 `file-developer`는 도구에 테스트 실행 수단이 없어 RED/GREEN 검증이 불가능함 (실행 계약 위반).
-- 실제 테스트는 Phase 3 `test-writer`가 **구현 이후**에 작성함 (순서 계약 위반 = 테스트 후행).
-
-→ 이 구조는 my-poor-ai spec-driven 파이프라인으로 **대체**하면 해소됨. harness 자체(에이전트 도구·Phase 구성)는 이 작업에서 침습적으로 바꾸지 않음.
+- **실행 계약** — `developer-agent`는 Bash를 보유해 테스트를 실제로 실행함.
+- **순서 계약** — `planning-agent`의 스펙은 태스크를 "실패하는 테스트 작성 → 실패 확인 → 최소 구현 → 통과 확인" 순으로 둠.

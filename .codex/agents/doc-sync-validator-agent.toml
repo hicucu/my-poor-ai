@@ -36,7 +36,7 @@ developer_instructions = '''
 4. 표현 일관성: 분석 JSON의 각 `affected_symbols`을 `Grep`으로 README + docs + inline 패치 적용 결과 영역에서 검색 → 시그니처가 둘 이상 형태로 등장하는지 확인
 5. 링크 무결성: 분석의 `deletions` + `renames.from`을 `Grep -r --include='*.md'`로 검색 → 적중하면 깨진 링크 후보
 6. 코드↔문서 정합성 (선택, sample): API 문서에서 함수 시그니처 블록을 추출하여 실제 소스의 export 시그니처와 spot check
-7. `$WORKSPACE_DIR/02_validation_report.md` 작성
+7. `$WORKSPACE_DIR/02_validation_report.md` 작성 — 오케스트레이터가 WARN/FAIL 보고와 부분 재실행 판단에 읽는 입력 파일이므로 반드시 작성함
 
 ## 출력 형식
 

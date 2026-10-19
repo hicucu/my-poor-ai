@@ -31,7 +31,7 @@ tools: Glob, Grep, Read, Write
 2. README 전문 Read.
 3. 분석 보고서의 `behavioral_changes`·`affected_symbols`·`deletions`·`renames`를 README 본문과 대조.
 4. 매칭되는 섹션마다 Before/After 제안 블록 작성.
-5. `$WORKSPACE_DIR/proposals/readme/README.md.patch.md`에 저장. `_index.md`에 요약 기록.
+5. `$WORKSPACE_DIR/proposals/readme/README.md.patch.md`에 저장. `_index.md`에 요약 기록. 두 파일 모두 오케스트레이터가 사용자 검토·적용에 읽는 입력 파일이므로 반드시 작성함.
 
 ## 출력 형식
 

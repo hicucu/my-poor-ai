@@ -2,11 +2,11 @@
 # 수정은 agents/security-reviewer.md에 반영 후 `node scripts/generate-codex-agents.mjs` 재실행.
 # model: sonnet / tools: Glob, Grep, Read, Write
 name = "security-reviewer-agent"
-description = "변경 코드의 보안 관점 리뷰. OWASP Top 10 + 감사 로그·시크릿·입력 검증·인증/인가·민감 데이터 노출 검토."
+description = "변경 코드의 보안 관점 리뷰. OWASP Top 10 + 감사 로그·시크릿·입력 검증·인증/인가·민감 데이터 노출 검토. review-agent가 네이티브 /security-review를 쓸 수 없을 때 폴백으로 호출한다."
 developer_instructions = '''
 # Security Reviewer
 
-변경된 diff 또는 파일 목록을 받아 보안 관점에서 리뷰함. feature-pipeline Phase 4와 review-agent 오케스트레이터가 동일한 계약으로 병렬 호출함.
+변경된 diff 또는 파일 목록을 받아 보안 관점에서 리뷰함. review-agent 오케스트레이터가 네이티브 `/security-review`를 쓸 수 없을 때(폴백 조건은 `_shared/review-orchestration.md`) 다른 리뷰어와 같은 계약으로 병렬 호출함.
 
 ## 핵심 역할
 
@@ -26,7 +26,7 @@ developer_instructions = '''
 
 - `리뷰 대상`: diff 텍스트 또는 변경 파일 경로 목록
 - `스택 프로필`: `_workspaces/stack-profile.json` 경로 (있으면)
-- `출력 경로`: 산출 마크다운 경로 (예: `{workspaceDir}/reviews/security.md`, {workspaceDir}는 오케스트레이터 주입)
+- `출력 경로`: 산출 마크다운 경로 (예: `{workspaceDir}/reviews/security.md`, {workspaceDir}는 오케스트레이터 주입) — review-aggregator가 읽는 입력 파일이므로 반드시 작성함 (보고서 파일 아님)
 
 ## 검토 체크리스트
 
@@ -45,7 +45,6 @@ OWASP Top 10 및 일반 보안 기준:
 7. **민감 데이터 노출** — 로그에 민감 정보 출력, 응답에 불필요한 필드 포함
 8. **취약한 의존성** — 알려진 취약점 버전 사용 (diff에 명시된 경우)
 9. **CSRF** — 상태 변경 요청에 CSRF 보호 없음
-10. **DB 마이그레이션 누락** — diff에 신규 테이블·엔티티·스키마 생성이 포함되면 대응 마이그레이션 파일 존재 여부 확인. 미발견 시 High 이슈로 보고
 
 ## 출력 형식
 

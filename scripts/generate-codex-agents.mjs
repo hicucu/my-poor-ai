@@ -9,6 +9,8 @@
  *   name                  = frontmatter name + "-agent" (이미 -agent로 끝나면 그대로)
  *   description           = frontmatter description (TOML basic string으로 이스케이프)
  *   developer_instructions = frontmatter를 제외한 .md 본문 verbatim ('''리터럴 블록)
+ *                            — `@include` 줄은 대상 파일 내용으로 인라인,
+ *                              `${CLAUDE_PLUGIN_ROOT}`는 PLUGIN_ROOT_PLACEHOLDER로 치환
  *   model/tools           = Codex 스키마 밖 정보 — 상단 주석으로만 보존
  *
  * 사용:
@@ -23,6 +25,10 @@ const ROOT = new URL('..', import.meta.url).pathname;
 const AGENT_DIR = join(ROOT, 'agents');
 const CODEX_DIR = join(ROOT, '.codex', 'agents');
 const CHECK = process.argv.includes('--check');
+
+// Claude Code는 플러그인 마크다운의 ${CLAUDE_PLUGIN_ROOT}를 로드 시 치환하지만 Codex는 치환하지 않는다.
+// 셸이 빈 환경변수로 펼쳐 엉뚱한 경로를 읽지 않도록, 해석할 수 없는 자리임을 드러내는 문구로 바꾼다.
+const PLUGIN_ROOT_PLACEHOLDER = '<my-poor-ai 플러그인 루트>';
 
 const errors = [];
 
@@ -69,7 +75,8 @@ for (const f of readdirSync(AGENT_DIR).filter((f) => f.endsWith('.md') && !f.sta
   const description = unquote(fields.description ?? '');
   if (!name || !description) { errors.push(`${src}: name/description 누락`); continue; }
 
-  let body = expandIncludes(text.slice(m[0].length).replace(/^\n+/, ''), src);
+  let body = expandIncludes(text.slice(m[0].length).replace(/^\n+/, ''), src)
+    .replaceAll('${CLAUDE_PLUGIN_ROOT}', PLUGIN_ROOT_PLACEHOLDER);
   if (body.includes("'''")) {
     errors.push(`${src}: 본문에 ''' 포함 — TOML 리터럴 블록과 충돌, 본문 수정 필요`);
     continue;
