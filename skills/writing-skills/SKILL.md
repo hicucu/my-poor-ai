@@ -11,7 +11,7 @@ description: Use when creating a new skill, editing an existing skill, or valida
 
 **개인 스킬은 에이전트별 디렉토리에 위치 (Claude Code의 경우 `~/.claude/skills`, Codex의 경우 `~/.agents/skills/`)**
 
-테스트 케이스(subagent를 활용한 압박 시나리오)를 작성하고, 실패를 관찰하고(기준 동작), 스킬(문서)을 작성하고, 테스트 통과를 관찰하고(에이전트 준수), 리팩터링(허점 제거)함.
+테스트 케이스(eval 케이스 또는 subagent를 활용한 압박 시나리오)를 작성하고, 실패를 관찰하고(기준 동작), 스킬(문서)을 작성하고, 테스트 통과를 관찰하고(에이전트 준수), 리팩터링(허점 제거)함.
 
 **핵심 원칙:** 스킬 없이 에이전트가 실패하는 것을 직접 보지 않았다면, 스킬이 올바른 것을 가르치는지 알 수 없음.
 
@@ -29,18 +29,18 @@ description: Use when creating a new skill, editing an existing skill, or valida
 
 ## 스킬을 위한 TDD 매핑
 
-| TDD 개념                | 스킬 생성                                    |
-| ----------------------- | -------------------------------------------- |
-| **테스트 케이스**       | subagent를 활용한 압박 시나리오              |
-| **프로덕션 코드**       | 스킬 문서 (SKILL.md)                         |
-| **테스트 실패 (RED)**   | 스킬 없이 에이전트가 규칙 위반 (기준)        |
-| **테스트 통과 (GREEN)** | 스킬이 있을 때 에이전트 준수                 |
-| **리팩터링**            | 준수를 유지하면서 허점 제거                  |
-| **테스트 먼저 작성**    | 스킬 작성 전 기준 시나리오 실행              |
-| **실패 관찰**           | 에이전트가 자연스럽게 사용하는 합리화 문서화 |
-| **최소 코드**           | 해당 특정 위반을 다루는 스킬 작성            |
-| **통과 관찰**           | 에이전트가 이제 준수하는지 확인              |
-| **리팩터링 사이클**     | 새로운 합리화 발견 → 보완 → 재검증           |
+| TDD 개념                | 스킬 생성                                          |
+| ----------------------- | -------------------------------------------------- |
+| **테스트 케이스**       | eval 케이스 또는 subagent를 활용한 압박 시나리오   |
+| **프로덕션 코드**       | 스킬 문서 (SKILL.md)                               |
+| **테스트 실패 (RED)**   | 스킬 없이 에이전트가 규칙 위반 (기준)              |
+| **테스트 통과 (GREEN)** | 스킬이 있을 때 에이전트 준수                       |
+| **리팩터링**            | 준수를 유지하면서 허점 제거                        |
+| **테스트 먼저 작성**    | 스킬 작성 전 기준 시나리오 실행                    |
+| **실패 관찰**           | 에이전트가 자연스럽게 사용하는 합리화 문서화       |
+| **최소 코드**           | 해당 특정 위반을 다루는 스킬 작성                  |
+| **통과 관찰**           | 에이전트가 이제 준수하는지 확인                    |
+| **리팩터링 사이클**     | 새로운 합리화 발견 → 보완 → 재검증                 |
 
 전체 스킬 생성 프로세스는 RED-GREEN-REFACTOR를 따름.
 
@@ -62,17 +62,9 @@ description: Use when creating a new skill, editing an existing skill, or valida
 
 ## 스킬 유형
 
-### 기법
-
-구체적인 방법과 따를 단계 (condition-based-waiting, root-cause-tracing)
-
-### 패턴
-
-문제를 바라보는 방식 (flatten-with-flags, test-invariants)
-
-### 참조
-
-API 문서, 구문 가이드, 도구 문서 (office docs)
+- **기법** — 구체적인 방법과 따를 단계 (condition-based-waiting, root-cause-tracing)
+- **패턴** — 문제를 바라보는 방식 (flatten-with-flags, test-invariants)
+- **참조** — API 문서, 구문 가이드, 도구 문서 (office docs)
 
 ## 디렉토리 구조
 
@@ -80,81 +72,33 @@ API 문서, 구문 가이드, 도구 문서 (office docs)
 skills/
   skill-name/
     SKILL.md              # 주요 참조 (필수)
-    supporting-file.*     # 필요한 경우에만
+    references/           # 대용량 참조 (필요한 경우에만)
+    supporting-file.*     # 재사용 도구 (필요한 경우에만)
 ```
 
 **플랫 네임스페이스** — 검색 가능한 하나의 네임스페이스에 모든 스킬
 
-**별도 파일 사용 시:**
+**별도 파일 사용 시:** 대용량 참조 (100줄 이상 — API 문서, 포괄적인 구문), 재사용 가능한 도구 (스크립트, 유틸리티, 템플릿)
 
-1. **대용량 참조** (100줄 이상) — API 문서, 포괄적인 구문
-2. **재사용 가능한 도구** — 스크립트, 유틸리티, 템플릿
+**인라인 유지:** 원칙과 개념, 코드 패턴 (50줄 미만), 그 외 모든 것
 
-**인라인 유지:**
+본문 골격·순서도·코드 예시·파일 구성·안티 패턴은 `references/authoring-patterns.md` 참조.
 
-- 원칙과 개념
-- 코드 패턴 (50줄 미만)
-- 그 외 모든 것
+## Frontmatter
 
-## SKILL.md 구조
-
-**Frontmatter (YAML):**
-
-- 두 가지 필수 필드: `name`과 `description` ([agentskills.io/specification](https://agentskills.io/specification)에서 지원되는 모든 필드 확인)
+- 필수: `name`과 `description` — Agent Skills 표준(claude.ai·API 업로드)에서 필수이며, 이 저장소는 validator가 `name` = 디렉토리명을 강제함
 - 최대 1024자
-- `name`: 문자, 숫자, 하이픈만 사용 (괄호, 특수 문자 없음)
+- `name`: 소문자·숫자·하이픈만 사용 (괄호, 특수 문자 없음)
 - `description`: 3인칭, 언제 사용할지만 설명 (무엇을 하는지 아님)
   - 트리거 조건에 집중하기 위해 "Use when..."으로 시작
   - 구체적인 증상, 상황, 맥락 포함
-  - **스킬의 프로세스나 워크플로우 요약 절대 금지** (CSO 섹션 참조)
+  - **스킬의 프로세스나 워크플로우 요약 절대 금지** (아래 CSO 절 참조)
   - 가능하면 500자 이하 유지
-
-```markdown
----
-name: Skill-Name-With-Hyphens
-description: Use when [specific triggering conditions and symptoms]
----
-
-# 스킬 이름
-
-## 개요
-
-이것은 무엇인가? 1-2문장으로 핵심 원칙.
-
-## 사용 시점
-
-[결정이 명확하지 않은 경우 간단한 인라인 순서도]
-
-증상과 사용 사례 목록
-사용하지 않는 경우
-
-## 핵심 패턴 (기법/패턴의 경우)
-
-이전/이후 코드 비교
-
-## 빠른 참조
-
-일반 작업 스캔을 위한 표 또는 불릿
-
-## 구현
-
-간단한 패턴은 인라인 코드
-대용량 참조나 재사용 도구는 파일 링크
-
-## 흔한 실수
-
-무엇이 잘못되는지 + 해결책
-
-## 실제 영향 (선택사항)
-
-구체적인 결과
-```
+- Claude Code는 `when_to_use`·`disable-model-invocation`·`allowed-tools`·`context: fork` 등을 추가로 받음. `when_to_use`도 `description`과 함께 상시 목록에 들어가므로 같은 규칙을 적용함. 전체 필드와 플랫폼별 인식 범위는 `references/frontmatter.md` 참조
 
 ## Claude Search Optimization (CSO)
 
 **발견에 중요:** 미래의 Claude가 스킬을 찾을 수 있어야 함
-
-### 1. 풍부한 Description 필드
 
 **목적:** Claude는 주어진 작업에 어떤 스킬을 불러올지 결정하기 위해 description을 읽음. "지금 이 스킬을 읽어야 하는가?"에 답하도록 만들 것.
 
@@ -193,215 +137,7 @@ description: Use when implementing any feature or bugfix, before writing impleme
 - 3인칭으로 작성 (시스템 프롬프트에 주입됨)
 - **스킬의 프로세스나 워크플로우 절대 요약 금지**
 
-```yaml
-# ❌ BAD: Too abstract, vague, doesn't include when to use
-description: For async testing
-
-# ❌ BAD: First person
-description: I can help you with async tests when they're flaky
-
-# ❌ BAD: Mentions technology but skill isn't specific to it
-description: Use when tests use setTimeout/sleep and are flaky
-
-# ✅ GOOD: Starts with "Use when", describes problem, no workflow
-description: Use when tests have race conditions, timing dependencies, or pass/fail inconsistently
-
-# ✅ GOOD: Technology-specific skill with explicit trigger
-description: Use when using React Router and handling authentication redirects
-```
-
-### 2. 키워드 커버리지
-
-Claude가 검색할 단어 사용:
-
-- 에러 메시지: "Hook timed out", "ENOTEMPTY", "race condition"
-- 증상: "flaky", "hanging", "zombie", "pollution"
-- 동의어: "timeout/hang/freeze", "cleanup/teardown/afterEach"
-- 도구: 실제 명령어, 라이브러리 이름, 파일 유형
-
-### 3. 설명적 이름 짓기
-
-**능동태, 동사 시작:**
-
-- ✅ `creating-skills` not `skill-creation`
-- ✅ `condition-based-waiting` not `async-test-helpers`
-
-### 4. 토큰 효율성 (중요)
-
-**문제:** getting-started와 자주 참조되는 스킬은 모든 대화에 로드됨. 모든 토큰이 중요.
-
-**목표 단어 수:**
-
-- getting-started 워크플로우: 각 150단어 미만
-- 자주 로드되는 스킬: 전체 200단어 미만
-- 기타 스킬: 500단어 미만 (여전히 간결하게)
-
-**기법:**
-
-**상세 내용을 도구 도움말로 이동:**
-
-```bash
-# ❌ BAD: Document all flags in SKILL.md
-search-conversations supports --text, --both, --after DATE, --before DATE, --limit N
-
-# ✅ GOOD: Reference --help
-search-conversations supports multiple modes and filters. Run --help for details.
-```
-
-**교차 참조 사용:**
-
-```markdown
-# ❌ BAD: Repeat workflow details
-
-When searching, dispatch subagent with template...
-[20 lines of repeated instructions]
-
-# ✅ GOOD: Reference other skill
-
-Always use subagents (50-100x context savings). REQUIRED: Use [other-skill-name] for workflow.
-```
-
-**예시 압축:**
-
-```markdown
-# ❌ BAD: Verbose example (42 words)
-
-your human partner: "How did we handle authentication errors in React Router before?"
-You: I'll search past conversations for React Router authentication patterns.
-[Dispatch subagent with search query: "React Router authentication error handling 401"]
-
-# ✅ GOOD: Minimal example (20 words)
-
-Partner: "How did we handle auth errors in React Router?"
-You: Searching...
-[Dispatch subagent → synthesis]
-```
-
-**중복 제거:**
-
-- 교차 참조된 스킬에 있는 내용 반복 금지
-- 명령어에서 명백한 것 설명 금지
-- 동일 패턴의 여러 예시 포함 금지
-
-**검증:**
-
-```bash
-wc -w skills/path/SKILL.md
-# getting-started 워크플로우: 각 150단어 목표
-# 기타 자주 로드되는 스킬: 전체 200단어 목표
-```
-
-**행동이나 핵심 통찰에 따라 이름 짓기:**
-
-- ✅ `condition-based-waiting` > `async-test-helpers`
-- ✅ `using-skills` not `skill-usage`
-- ✅ `flatten-with-flags` > `data-structure-refactoring`
-- ✅ `root-cause-tracing` > `debugging-techniques`
-
-**동명사(-ing)는 프로세스에 잘 맞음:**
-
-- `creating-skills`, `testing-skills`, `debugging-with-logs`
-- 능동적이고, 수행 중인 행동을 설명
-
-### 4. 다른 스킬 교차 참조
-
-**다른 스킬을 참조하는 문서 작성 시:**
-
-스킬 이름만 사용하고, 명시적인 필수 표시 사용:
-
-- ✅ 좋음: `**필수 서브 스킬:** my-poor-ai:test-driven-development 사용`
-- ✅ 좋음: `**필수 배경:** my-poor-ai:systematic-debugging을 반드시 이해해야 함`
-- ❌ 나쁨: `See skills/testing/test-driven-development` (필수 여부 불명확)
-- ❌ 나쁨: `@skills/testing/test-driven-development/SKILL.md` (강제 로드, 컨텍스트 소모)
-
-**@ 링크를 사용하지 않는 이유:** `@` 구문은 필요하기 전에 파일을 즉시 로드하여 200k+ 컨텍스트를 소모.
-
-## 순서도 사용
-
-```dot
-digraph when_flowchart {
-    "정보를 보여줘야 하는가?" [shape=diamond];
-    "내가 틀릴 수 있는 결정인가?" [shape=diamond];
-    "마크다운 사용" [shape=box];
-    "작은 인라인 순서도" [shape=box];
-
-    "정보를 보여줘야 하는가?" -> "내가 틀릴 수 있는 결정인가?" [label="예"];
-    "내가 틀릴 수 있는 결정인가?" -> "작은 인라인 순서도" [label="예"];
-    "내가 틀릴 수 있는 결정인가?" -> "마크다운 사용" [label="아니오"];
-}
-```
-
-**순서도 사용 경우:**
-
-- 명확하지 않은 결정 지점
-- 너무 일찍 멈출 수 있는 프로세스 루프
-- "A vs B 중 언제 사용" 결정
-
-**순서도 사용 금지:**
-
-- 참조 자료 → 표, 목록
-- 코드 예시 → 마크다운 블록
-- 선형 지시사항 → 번호 목록
-- 의미 없는 레이블 (step1, helper2)
-
-## 코드 예시
-
-**많은 평범한 예시보다 하나의 훌륭한 예시가 나음**
-
-가장 관련성 높은 언어 선택:
-
-- 테스트 기법 → TypeScript/JavaScript
-- 시스템 디버깅 → Shell/Python
-- 데이터 처리 → Python
-
-**좋은 예시:**
-
-- 완전하고 실행 가능
-- WHY를 설명하는 주석 포함
-- 실제 시나리오에서 가져옴
-- 패턴을 명확하게 보여줌
-- 적용 가능한 형태 (일반적인 템플릿 아님)
-
-**금지:**
-
-- 5개 이상의 언어로 구현
-- 빈칸 채우기 템플릿 생성
-- 가상의 예시 작성
-
-하나의 훌륭한 예시면 충분.
-
-## 파일 구성
-
-### 독립형 스킬
-
-```
-defense-in-depth/
-  SKILL.md    # 모든 내용 인라인
-```
-
-사용 시: 모든 내용이 맞고, 대용량 참조가 필요 없을 때
-
-### 재사용 도구가 있는 스킬
-
-```
-condition-based-waiting/
-  SKILL.md    # 개요 + 패턴
-  example.ts  # 적용 가능한 작동 헬퍼
-```
-
-사용 시: 도구가 서술이 아닌 재사용 가능한 코드일 때
-
-### 대용량 참조가 있는 스킬
-
-```
-pptx/
-  SKILL.md       # 개요 + 워크플로우
-  pptxgenjs.md   # 600줄 API 참조
-  ooxml.md       # 500줄 XML 구조
-  scripts/       # 실행 가능한 도구
-```
-
-사용 시: 참조 자료가 인라인에 넣기엔 너무 클 때
+키워드 커버리지·이름 짓기·토큰 효율성·교차 참조 규칙은 `references/cso.md` 참조.
 
 ## 철칙 (TDD와 동일)
 
@@ -425,58 +161,26 @@ pptx/
 
 **필수 배경:** my-poor-ai:test-driven-development 스킬이 이것이 중요한 이유를 설명함. 동일한 원칙이 문서에도 적용됨.
 
-## 모든 스킬 유형 테스트
+## eval로 RED/GREEN 실행
 
-스킬 유형에 따라 다른 테스트 접근 방식이 필요:
+플러그인 스킬은 `claude plugin eval`(Claude Code 2.1.269+)로 RED/GREEN을 반복 실행하고 점수화함. 이 저장소의 케이스는 `evals/`에 있음.
 
-### 규율 강화 스킬 (규칙/요구사항)
+| TDD 단계 | eval 대응 |
+| --- | --- |
+| 테스트 케이스 | `evals/<case>/prompt.md` (frontmatter `max_turns`·`allowed_tools`·`tags`·`runs`) + `evals/<case>/graders/*.md` |
+| RED (스킬 없이 실패) | `--ablation with-without`(기본)의 no-plugin 기준 arm |
+| GREEN (스킬로 통과) | 같은 실행의 with arm — 두 arm의 점수 차이가 스킬의 효과 |
+| 트리거 확인 | `type: tool_used` + `tool: Skill` grader. ablation 실행에서는 점수가 아니라 "플러그인 발동 지표"로만 집계되므로 트리거 케이스는 `--ablation none`으로 따로 실행 |
+| 행동 판정 | `type: llm` grader(본문에 기대 행동 기준) 또는 `type: regex` |
 
-**예시:** TDD, verification-before-completion, designing-before-coding
+```bash
+claude plugin eval . --tag trigger --ablation none --no-publish      # 트리거
+claude plugin eval . --tag pressure --runs 3 --no-publish             # 압박 시나리오 RED/GREEN
+```
 
-**테스트 방법:**
+샌드박스는 사용자 CLAUDE.md·설정을 배제하고 플러그인 SessionStart 훅은 실행함. 다중 턴 압박처럼 케이스로 표현하기 어려운 시나리오는 서브에이전트 수동 테스트(testing-skills-with-subagents.md)로 보완함.
 
-- 학문적 질문: 규칙을 이해하는가?
-- 압박 시나리오: 압박 하에서도 준수하는가?
-- 여러 압박 결합: 시간 + 매몰 비용 + 피로
-- 합리화 식별 후 명시적 반론 추가
-
-**성공 기준:** 에이전트가 최대 압박 하에서도 규칙 준수
-
-### 기법 스킬 (방법 가이드)
-
-**예시:** condition-based-waiting, root-cause-tracing, defensive-programming
-
-**테스트 방법:**
-
-- 적용 시나리오: 기법을 올바르게 적용할 수 있는가?
-- 변형 시나리오: 엣지 케이스를 처리하는가?
-- 정보 누락 테스트: 지시사항에 공백이 있는가?
-
-**성공 기준:** 에이전트가 새로운 시나리오에 기법을 성공적으로 적용
-
-### 패턴 스킬 (멘탈 모델)
-
-**예시:** reducing-complexity, information-hiding 개념
-
-**테스트 방법:**
-
-- 인식 시나리오: 패턴이 적용되는 것을 인식하는가?
-- 적용 시나리오: 멘탈 모델을 사용할 수 있는가?
-- 반례: 적용하지 않을 때를 아는가?
-
-**성공 기준:** 에이전트가 패턴을 언제/어떻게 적용할지 올바르게 식별
-
-### 참조 스킬 (문서/API)
-
-**예시:** API 문서, 명령어 참조, 라이브러리 가이드
-
-**테스트 방법:**
-
-- 검색 시나리오: 올바른 정보를 찾을 수 있는가?
-- 적용 시나리오: 찾은 것을 올바르게 사용할 수 있는가?
-- 공백 테스트: 일반적인 사용 사례가 포함되어 있는가?
-
-**성공 기준:** 에이전트가 참조 정보를 찾아 올바르게 적용
+스킬 유형(규율·기법·패턴·참조)별 테스트 방법과 성공 기준은 `references/testing-by-skill-type.md` 참조.
 
 ## 테스트 건너뛰기에 대한 흔한 합리화
 
@@ -575,7 +279,7 @@ TDD 사이클 따르기:
 
 ### RED: 실패하는 테스트 작성 (기준)
 
-스킬 없이 subagent로 압박 시나리오 실행. 정확한 동작 문서화:
+스킬 없이 압박 시나리오 실행 (eval 기준 arm 또는 subagent). 정확한 동작 문서화:
 
 - 어떤 선택을 했는가?
 - 어떤 합리화를 사용했는가 (그대로)?
@@ -593,38 +297,7 @@ TDD 사이클 따르기:
 
 에이전트가 새로운 합리화를 찾았는가? 명시적 반론 추가. 방탄화될 때까지 재테스트.
 
-**테스트 방법론:** 전체 테스트 방법론은 @testing-skills-with-subagents.md 참조:
-
-- 압박 시나리오 작성 방법
-- 압박 유형 (시간, 매몰 비용, 권위, 피로)
-- 체계적인 허점 제거
-- 메타 테스트 기법
-
-## 안티 패턴
-
-### ❌ 서술적 예시
-
-"2025-10-03 세션에서 빈 projectDir이 원인이었음..."
-**이유:** 너무 구체적, 재사용 불가
-
-### ❌ 다중 언어 희석
-
-example-js.js, example-py.py, example-go.go
-**이유:** 품질 저하, 유지보수 부담
-
-### ❌ 순서도 내 코드
-
-```dot
-step1 [label="import fs"];
-step2 [label="read file"];
-```
-
-**이유:** 복사 붙여넣기 불가, 읽기 어려움
-
-### ❌ 일반적인 레이블
-
-helper1, helper2, step3, pattern4
-**이유:** 레이블에는 의미론적 의미가 있어야 함
+**테스트 방법론:** 압박 시나리오 작성 방법, 압박 유형 (시간, 매몰 비용, 권위, 피로), 체계적인 허점 제거, 메타 테스트 기법은 testing-skills-with-subagents.md 참조.
 
 ## 중단: 다음 스킬로 넘어가기 전
 
@@ -636,65 +309,26 @@ helper1, helper2, step3, pattern4
 - 현재 스킬 검증 전에 다음 스킬로 이동
 - "일괄 처리가 더 효율적이다"는 이유로 테스트 건너뛰기
 
-**아래의 배포 체크리스트는 각 스킬에 대해 필수.**
+**배포 체크리스트는 각 스킬에 대해 필수.**
 
 테스트되지 않은 스킬 배포 = 테스트되지 않은 코드 배포. 품질 기준 위반.
 
-## 스킬 생성 체크리스트 (TDD 적용)
+## 스킬 생성 체크리스트
 
-**중요: 아래 각 체크리스트 항목에 대해 TodoWrite를 사용하여 할 일을 생성할 것.**
+**필수:** `references/checklist.md`를 읽고 각 항목(RED·GREEN·REFACTOR·품질 확인·배포)을 할 일로 만들어 추적함 — 작업 추적 도구가 있으면 그 도구, 없으면 응답 내 체크리스트.
 
-**RED 단계 — 실패하는 테스트 작성:**
+## 참조 파일
 
-- [ ] 압박 시나리오 생성 (규율 스킬의 경우 3개 이상의 결합 압박)
-- [ ] 스킬 없이 시나리오 실행 — 기준 동작 그대로 문서화
-- [ ] 합리화/실패의 패턴 식별
-
-**GREEN 단계 — 최소 스킬 작성:**
-
-- [ ] 이름은 문자, 숫자, 하이픈만 사용 (괄호/특수 문자 없음)
-- [ ] 필수 `name`과 `description` 필드가 있는 YAML frontmatter (최대 1024자; [spec](https://agentskills.io/specification) 참조)
-- [ ] Description이 "Use when..."으로 시작하고 구체적인 트리거/증상 포함
-- [ ] Description이 3인칭으로 작성됨
-- [ ] 검색을 위한 키워드 전체에 분산 (에러, 증상, 도구)
-- [ ] 핵심 원칙이 있는 명확한 개요
-- [ ] RED에서 식별된 특정 기준 실패를 다룸
-- [ ] 코드 인라인 또는 별도 파일 링크
-- [ ] 하나의 훌륭한 예시 (다중 언어 아님)
-- [ ] 스킬이 있는 시나리오 실행 — 에이전트가 이제 준수하는지 확인
-
-**REFACTOR 단계 — 허점 제거:**
-
-- [ ] 테스트에서 새로운 합리화 식별
-- [ ] 명시적 반론 추가 (규율 스킬의 경우)
-- [ ] 모든 테스트 반복에서 합리화 표 구축
-- [ ] 위험 신호 목록 생성
-- [ ] 방탄화될 때까지 재테스트
-
-**품질 확인:**
-
-- [ ] 결정이 명확하지 않은 경우에만 소형 순서도
-- [ ] 빠른 참조 표
-- [ ] 흔한 실수 섹션
-- [ ] 서술적 스토리텔링 없음
-- [ ] 도구나 대용량 참조에만 지원 파일
-
-**배포:**
-
-- [ ] 스킬을 git에 커밋하고 fork에 push (구성된 경우)
-- [ ] 광범위하게 유용하다면 PR을 통한 기여 고려
-
-## 발견 워크플로우
-
-미래의 Claude가 스킬을 찾는 방법:
-
-1. **문제 발생** ("tests are flaky")
-2. **스킬 찾기** (description이 일치)
-3. **개요 스캔** (관련성 있는가?)
-4. **패턴 읽기** (빠른 참조 표)
-5. **예시 로드** (구현 시에만)
-
-**이 흐름에 최적화** — 검색 가능한 용어를 초반에, 자주 배치.
+| 파일 | 내용 |
+| --- | --- |
+| `references/frontmatter.md` | Claude Code frontmatter 전 필드, 플랫폼별 인식 범위, 상시 비용 |
+| `references/cso.md` | 키워드 커버리지, 이름 짓기, 토큰 효율성, 교차 참조, 발견 워크플로우 |
+| `references/authoring-patterns.md` | 본문 골격, 순서도, 코드 예시, 파일 구성, 안티 패턴 |
+| `references/testing-by-skill-type.md` | 스킬 유형별 테스트 방법과 성공 기준 |
+| `references/checklist.md` | 스킬 생성 체크리스트 |
+| `testing-skills-with-subagents.md` | 서브에이전트 수동 압박 테스트 방법론 |
+| `persuasion-principles.md` | 설득 원칙 연구 기반 |
+| `anthropic-best-practices.md` | Anthropic 공식 스킬 작성 모범 사례 (번역) |
 
 ## 결론
 

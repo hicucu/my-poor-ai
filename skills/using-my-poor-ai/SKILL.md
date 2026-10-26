@@ -35,6 +35,8 @@ CLAUDE.md, GEMINI.md, AGENTS.md에 "TDD 사용 금지"라고 명시되어 있고
 
 **다른 환경에서:** 스킬이 로드되는 방법은 해당 플랫폼 문서를 확인함.
 
+> Copilot CLI·Gemini CLI 항목은 2026-07 기준이며 현행 릴리스에서 미검증임 — 다르면 플랫폼 문서를 우선함.
+
 ## 플랫폼 적응
 
 스킬은 Claude Code 도구 이름을 사용함. 비 CC 플랫폼의 경우: 도구 매핑은 `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex), `references/gemini-tools.md` (Gemini CLI)를 참조함.
@@ -54,7 +56,7 @@ digraph request_dispatch {
     "파일 1-2개·설계 불필요·10분 이내?" [shape=diamond];
     "DEBUG" [shape=box, label="【디버깅 경로】\nsystematic-debugging\n→ verification-before-completion"];
     "SIMPLE" [shape=box, label="【단순 경로】\ntest-driven-development\n→ verification-before-completion"];
-    "FULL" [shape=box, label="【복잡 경로】\nbrainstorming → writing-plans\n→ subagent-driven-development\n→ requesting-code-review\n→ finishing-a-development-branch"];
+    "FULL" [shape=box, label="【복잡 경로】\nproject-context → brainstorming-agent\n→ 사용자 승인 → planning-agent\n→ developer-agent → review-agent\n→ finishing-a-development-branch"];
 
     "요청 수신" -> "버그·에러·예상치 못한 동작?";
     "버그·에러·예상치 못한 동작?" -> "DEBUG" [label="예"];
@@ -84,7 +86,7 @@ digraph request_dispatch {
 
 ### 작업 목표 추적 (GOAL.md 소프트 게이트)
 
-SIMPLE·DEBUG 경로 진입 직후, 작업의 목표와 성공 기준(디버깅 경로의 경우 버그 증상·수정 완료 기준)을 `_workspaces/{branch-slug}/GOAL.md`에 기록함. 목표(왜/완료 기준)와 TodoWrite(지금 무엇을)의 역할을 분리함.
+SIMPLE·DEBUG 경로 진입 직후, 작업의 목표와 성공 기준(디버깅 경로의 경우 버그 증상·수정 완료 기준)을 `_workspaces/{branch-slug}/GOAL.md`에 기록함. 목표(왜/완료 기준)와 작업 추적(지금 무엇을 — 작업 추적 도구가 있으면 그 도구, 없으면 응답 내 체크리스트)의 역할을 분리함.
 
 **소프트 게이트**: 작성이 기본이며 생략은 예외임. 결과가 자명하고 별도 검증이 불필요한 작업(예: 오타 수정)만 생략을 허용함 — 분량이 적어도 동작·결과가 바뀌는 수정(예: 한 줄짜리 버그 수정)은 작성함. 착수 자체를 막는 하드 게이트는 아님.
 
@@ -157,6 +159,17 @@ Phase별 실행 상세:
 
 > 위 에이전트들은 플러그인 설치 시 `my-poor-ai:` 접두사로 네임스페이스된다 — Agent 도구 호출 시 `subagent_type="my-poor-ai:brainstorming-agent"` 형식을 기본으로 쓰고, 접두사가 해소되지 않는 환경에서만 bare name을 쓴다.
 
+**NEEDS_CONTEXT 중계**: 에이전트가 `STATUS: NEEDS_CONTEXT`로 반환하면(planning-agent의 마이그레이션 방식 미확인, developer-agent의 스펙 모호 등) 질문을 사용자에게 전달하고, 답변을 `SendMessage`로 **같은 에이전트**에 보내 재개함 — 새로 스폰하면 그 에이전트가 이미 파악한 맥락을 버림. 재개 수단이 없는 환경이면 원래 입력에 답변을 더해 다시 호출함.
+
+### 스킬 체인 (대화형 설계·에이전트 미등록 환경)
+
+Claude Code에서는 위 에이전트 체인이 복잡 경로의 정본임. 다음 경우에만 같은 단계를 스킬로 수행함:
+
+- 사용자가 설계를 대화로 함께 다듬기를 원함 — 질문·대안 제시 루프는 `brainstorming` 스킬이 담당함
+- 플러그인 에이전트가 등록되지 않는 플랫폼
+
+순서: `my-poor-ai:brainstorming` → `my-poor-ai:writing-plans` → `my-poor-ai:subagent-driven-development` (최종 검토에 `requesting-code-review` 템플릿 사용, 서브에이전트가 없으면 인라인 폴백) → `my-poor-ai:finishing-a-development-branch`. 산출물은 에이전트 체인과 같은 `_workspaces/{branch-slug}/`에 둠.
+
 ### 부분 재실행
 
 "이어서", "계속", "리뷰부터 다시" 요청 시 처음부터 재시작하지 않고 미완료 Phase부터 재시작함.
@@ -220,7 +233,7 @@ digraph skill_flow {
     "Skill 도구 호출" [shape=box];
     "안내: '[목적]을 위해 [스킬] 사용'" [shape=box];
     "체크리스트가 있는가?" [shape=diamond];
-    "항목별로 TodoWrite 할 일 생성" [shape=box];
+    "항목별로 할 일 생성 (작업 추적 도구 또는 체크리스트)" [shape=box];
     "스킬을 정확히 따름" [shape=box];
     "응답 (명확화 질문 포함)" [shape=doublecircle];
 
@@ -234,9 +247,9 @@ digraph skill_flow {
     "적용 가능한 스킬이 있는가?" -> "응답 (명확화 질문 포함)" [label="확실히 아니오"];
     "Skill 도구 호출" -> "안내: '[목적]을 위해 [스킬] 사용'";
     "안내: '[목적]을 위해 [스킬] 사용'" -> "체크리스트가 있는가?";
-    "체크리스트가 있는가?" -> "항목별로 TodoWrite 할 일 생성" [label="예"];
+    "체크리스트가 있는가?" -> "항목별로 할 일 생성 (작업 추적 도구 또는 체크리스트)" [label="예"];
     "체크리스트가 있는가?" -> "스킬을 정확히 따름" [label="아니오"];
-    "항목별로 TodoWrite 할 일 생성" -> "스킬을 정확히 따름";
+    "항목별로 할 일 생성 (작업 추적 도구 또는 체크리스트)" -> "스킬을 정확히 따름";
 }
 ```
 

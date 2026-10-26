@@ -7,7 +7,7 @@
 ## 호출 방법
 
 ```
-Agent(subagent_type="brainstorming-agent"):
+Agent(subagent_type="my-poor-ai:brainstorming-agent"):
   요구사항: 블로그 포스트에 태그 기능 추가. 태그로 검색 가능해야 함.
   프로젝트 경로: {테스트용 프로젝트 경로}
   branch-slug: feature-tags

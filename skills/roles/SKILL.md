@@ -1,6 +1,7 @@
 ---
 name: roles
 description: 역할 프리셋 카탈로그 — 역할명으로 시작하면 해당 스킬 번들의 진입 스킬로 라우팅. /my-poor-ai:roles {역할} 형태로 실행.
+argument-hint: "[architect|builder|debugger|reviewer]"
 ---
 
 # my-poor-ai:roles — 역할 프리셋
@@ -28,7 +29,7 @@ description: 역할 프리셋 카탈로그 — 역할명으로 시작하면 해�
 1. 인자 없이 호출되면 위 프리셋 표를 그대로 표시하고 종료.
 2. 역할명이 주어지면 해당 행의 **진입 스킬**을 Skill 도구로 호출. 이후 흐름은 스킬 자체의 지침을 따름 (번들의 후속 스킬은 진입 스킬이 자연스럽게 연결함).
 3. 역할명이 표에 없으면 표를 표시하고 가장 가까운 역할을 제안.
-4. reviewer 역할에서 "내 코드 리뷰 받기"는 `my-poor-ai:requesting-code-review`, "리뷰 피드백 처리"는 `my-poor-ai:receiving-code-review`, "브랜치 diff 4종 병렬 리뷰"는 `/my-poor-ai:code-review` 커맨드로 세분화하여 사용자 의도에 맞게 선택.
+4. reviewer 역할에서 "내 코드 리뷰 받기"는 `my-poor-ai:requesting-code-review`, "리뷰 피드백 처리"는 `my-poor-ai:receiving-code-review`, "브랜치 diff 다축 리뷰(아키텍처·성능 + 네이티브 보안·정확성)"는 `/my-poor-ai:code-review` 커맨드로 세분화하여 사용자 의도에 맞게 선택.
 
 ## 주의
 

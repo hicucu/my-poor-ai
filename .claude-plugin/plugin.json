@@ -1,7 +1,7 @@
 {
   "name": "my-poor-ai",
-  "version": "6.0.0",
-  "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent pipelines, and doc sync.",
+  "version": "7.0.0",
+  "description": "Engineering discipline for AI coding agents — unified skills, subagents, and commands: TDD, systematic debugging, brainstorming, implementation planning, subagent-driven development, multi-agent review, and doc sync.",
   "author": {
     "name": "hicucu"
   },
@@ -15,5 +15,23 @@
     "code-review",
     "subagent",
     "worktree"
+  ],
+  "agents": [
+    "./agents/architecture-reviewer.md",
+    "./agents/brainstorming-agent.md",
+    "./agents/change-analyzer.md",
+    "./agents/developer-agent.md",
+    "./agents/doc-sync-validator.md",
+    "./agents/docs-updater.md",
+    "./agents/inline-doc-updater.md",
+    "./agents/issue-fixer.md",
+    "./agents/performance-reviewer.md",
+    "./agents/planning-agent.md",
+    "./agents/project-context.md",
+    "./agents/readme-updater.md",
+    "./agents/review-agent.md",
+    "./agents/review-aggregator.md",
+    "./agents/security-reviewer.md",
+    "./agents/style-reviewer.md"
   ]
 }

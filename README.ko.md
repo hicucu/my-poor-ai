@@ -18,7 +18,7 @@
 
 ## 왜 My Poor AI인가
 
-AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 24개**(에이전트가 따라야 할 프로세스 규칙 18개 + 사용자가 호출하는 커맨드 6개)와 **서브에이전트 19개**(단일 책임 워커)를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
+AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 증상을 고치고, 압박 속에서 테스트를 건너뛰고, 검증 없이 완료를 선언함. my-poor-ai는 **스킬 21개**(에이전트가 따라야 할 프로세스 규칙 17개 + 사용자가 호출하는 커맨드 4개)와 **서브에이전트 16개**(단일 책임 워커)를 오케스트레이터로 엮어 요청마다 맞는 파이프라인을 강제함.
 
 ## 빠른 시작
 
@@ -35,39 +35,15 @@ AI 코딩 에이전트는 빠르지만 규율이 없음: 근본 원인 대신 �
 /reload-plugins
 ```
 
-### 3. 세션 시작 워크플로 등록
+### 3. 세션 시작 워크플로
 
-세션 시작마다 my-poor-ai 워크플로가 자동 적용되도록 등록함. 사용하는 CLI에 맞춰 선택함.
+세션 시작마다 my-poor-ai 워크플로가 적용됨. 할 일은 사용하는 CLI에 따라 다름.
 
 #### Claude Code CLI
 
-등록하면 매 세션 시작(`/clear`, `/compact`, `/resume`, `/fork`, 신규 세션)마다 압축 라우팅 블록이 SessionStart 훅으로 자동 주입됨. 요청 분류에 필요한 것만 담기며, `using-my-poor-ai` 스킬 전문은 Skill 도구로 필요할 때 로드됨. 자동 등록 또는 수동 등록 중 하나를 선택함.
+등록 절차 없음. 플러그인이 활성화되어 있으면 플러그인 자체의 `SessionStart` 훅(`hooks/hooks.json`)이 매 세션 시작(신규 세션, `--resume` / `/resume`, `/clear`, `/compact`, `/fork`)마다 압축 라우팅 블록을 주입함. 요청 분류에 필요한 것만 담기며, `using-my-poor-ai` 스킬 전문은 Skill 도구로 필요할 때 로드됨.
 
-**자동 등록**
-
-```
-/my-poor-ai:setup
-```
-
-`my-poor-ai:setup` 스킬이 `~/.claude/settings.json`을 직접 읽고 훅을 추가함.
-
-**수동 등록**
-
-`~/.claude/settings.json`의 `hooks` 섹션에 아래를 추가함:
-
-```json
-"SessionStart": [
-  {
-    "hooks": [
-      {
-        "type": "command",
-        "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start\"",
-        "timeout": 10000
-      }
-    ]
-  }
-]
-```
+> **6.0.0 이하에서 업그레이드하는 경우**: 이전 릴리스의 `/my-poor-ai:setup`은 이 훅을 버전 고정 플러그인 캐시 경로로 `~/.claude/settings.json`에 복사했음. 플러그인 자체 훅이 이미 실행되므로 그 사본은 중복이며, 다음 플러그인 업데이트 때 사라지는 캐시 디렉토리를 가리킴. `~/.claude/settings.json`의 `hooks.SessionStart`에서 `my-poor-ai` 항목을 삭제할 것.
 
 #### Codex
 
@@ -106,14 +82,14 @@ Codex에는 SessionStart 훅이 없으므로, 전역 지침 파일 `~/.codex/AGE
 | **SIMPLE** | 파일 1–2개, 설계 불필요, 10분 내 | GOAL.md → TDD → verification                          |
 | **FULL**   | 신규 기능, 복잡한 변경          | brainstorming → planning → 병렬 개발 → 4종 병렬 리뷰  |
 
-FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이전트가 설계 문서를 작성하고(사용자 승인 게이트), planning 에이전트가 TDD 태스크 스펙으로 분해하며, developer 에이전트들이 그룹 단위로 병렬 구현하고, 리뷰 오케스트레이터가 4종 리뷰어(아키텍처/보안/성능/스타일)를 병렬 파견해 결과를 통합하고 issue-fixer를 병렬 파견함.
+FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이전트가 설계 문서를 작성하고(사용자 승인 게이트), planning 에이전트가 TDD 태스크 스펙으로 분해하며, developer 에이전트들이 그룹 단위로 병렬 구현하고, 리뷰 오케스트레이터가 4개 리뷰 축 — 아키텍처·성능·스타일 리뷰어와 네이티브 `/security-review`(실행 불가 시 보안 리뷰어 에이전트로 대체) — 를 병렬 실행해 결과를 통합하고 issue-fixer를 병렬 파견함.
 
 ## 핵심 구성
 
-- **스킬 24개, 전부 `/my-poor-ai:{이름}`으로 호출 가능** — 프로세스 스킬 18개(TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰, 멀티에이전트 파이프라인, 문서 동기화, 워크트리 격리, 스킬 작성법)와 커맨드 6개(`code-review`, `roles`, 카탈로그, 셋업 유틸리티). 프로세스 스킬은 요청이 맞으면 Claude가 자동 로드하며, 프로젝트 외부에 기록하는 셋업 커맨드 3종은 `disable-model-invocation`으로 사용자만 시작할 수 있음
-- **서브에이전트 19개** — project-context 캡처, docs-suite 5개, feature-pipeline 9개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
+- **스킬 21개, 전부 `/my-poor-ai:{이름}`으로 호출 가능** — 프로세스 스킬 17개(TDD, 체계적 디버깅, 브레인스토밍, 플랜 작성, 코드 리뷰, 서브에이전트 주도 실행, 문서 동기화, 워크트리 격리, 스킬 작성법)와 커맨드 4개(진입점 `my-poor-ai`, `code-review`, `roles`, `codex-setup`). 프로세스 스킬은 요청이 맞으면 Claude가 자동 로드하며, 프로젝트 외부에 기록하는 `codex-setup`은 `disable-model-invocation`으로 사용자만 시작할 수 있음
+- **서브에이전트 16개** — project-context 캡처, docs-suite 5개, 리뷰 그룹 6개, subagent-driven 플로우 4개; 각각 단일 책임과 명시적 입출력 계약 보유 (`AGENTS.md` 참조)
 - **세션 인계** — spec/phase 완료 시 `HANDOFF.md`에 서술형 맥락을 기록해 새 세션이 파이프라인 중간부터 이어받음; `GOAL.md`는 목표·성공 기준을 완료 게이트로 추적
-- **멀티플랫폼** — Claude Code 우선; Codex용 에이전트 정의 자동 생성(`.codex/agents/`), Copilot CLI·Gemini CLI 도구 매핑, OpenCode 테스트 스위트
+- **멀티플랫폼** — Claude Code 우선; Codex용 에이전트 정의 자동 생성(`.codex/agents/`), Copilot CLI·Gemini CLI 도구 매핑 (Copilot·Gemini·Cursor 매핑은 2026-07 기준이며 현행 릴리스에서 미검증)
 
 ## 역할 프리셋
 
@@ -128,15 +104,15 @@ FULL 경로는 5단계 멀티에이전트 파이프라인: brainstorming 에이�
 
 ## `/my-poor-ai:code-review`와 번들 `/code-review`의 차이
 
-둘 다 존재하며 담당이 다름. 이 플러그인은 번들 `/code-review`를 대체하거나 감싸지 않음 — 둘 다 실행하는 것이 정상임.
+둘 다 존재하며 담당이 다름. 이 플러그인은 번들 `/code-review`를 대체하지 않음 — 정확성 축은 번들 `/code-review`를 호출해 맡기고, 그것이 덮지 않는 축을 더함.
 
 | | `/my-poor-ai:code-review` | 번들 `/code-review` |
 | --- | --- | --- |
-| 검토 축 | 아키텍처·성능 + 네이티브 `/security-review` 통합 | 정확성 버그·회귀·엣지케이스 + 재사용·단순화·효율 정리 |
+| 검토 축 | 아키텍처·성능 + 네이티브 `/security-review`·`/code-review` 통합 | 정확성 버그·회귀·엣지케이스 + 재사용·단순화·효율 정리 |
 | 산출 | `_workspaces/` 하위 `review-report.md` (축 통합 리포트) | 대화 내 결과, `--fix`로 적용·`--comment`로 PR 코멘트 |
-| 실행 주체 | 사용자 또는 Claude | **사용자만** — `disable-model-invocation`이라 어떤 스킬·커맨드도 대신 실행 불가 |
+| 실행 주체 | 사용자 또는 Claude | 사용자 또는 Claude — 설정(`skillOverrides`)으로 사용자 전용으로 바꾼 경우 제외 |
 
-플러그인은 정확성 축을 의도적으로 재구현하지 않음. `/my-poor-ai:code-review`가 끝나면 그 사실을 명시하고 `/code-review` 직접 실행을 안내함. 네임스페이스가 분리되어 있어 이름 충돌은 없으며 두 커맨드는 별개로 유지됨.
+플러그인은 정확성 축을 의도적으로 재구현하지 않음: `/my-poor-ai:code-review`는 번들 `/code-review`를 Skill 도구로 리뷰 전용(`--fix`·`--comment` 없이) 호출하고 그 결과를 리포트에 통합함. 설정상 스킬이 `/code-review`를 호출할 수 없으면 리포트에 정확성 축 미수행을 명시하고 직접 실행을 안내함. 네임스페이스가 분리되어 있어 이름 충돌은 없으며 두 커맨드는 별개로 유지됨.
 
 GitHub Code Review를 쓰는 저장소라면 리뷰 규칙을 루트 `REVIEW.md`에 둘 것 — 리뷰 파이프라인 전 에이전트의 시스템 프롬프트에 최우선 블록으로 주입됨. `/my-poor-ai:code-review --init-review-md`가 초안을 생성함.
 
@@ -144,9 +120,9 @@ GitHub Code Review를 쓰는 저장소라면 리뷰 규칙을 루트 `REVIEW.md`
 
 my-poor-ai는 자신의 규율을 스스로에게도 적용함:
 
-- **push마다 CI 검증** — `validate-agents.mjs`가 100+ 마크다운 파일의 frontmatter 계약(name/model/도구 화이트리스트), 참조 해소, 코드펜스 균형을 검사; `generate-codex-agents.mjs --check`가 에이전트 정의 19개와 Codex 미러 간 드리프트를 차단
+- **push마다 CI 검증** — `validate-agents.mjs`가 90+ 마크다운 파일의 frontmatter 계약(name/model/도구 화이트리스트), 참조 해소, 코드펜스 균형, 스킬 색인 등록을 검사; `generate-codex-agents.mjs --check`가 에이전트 정의 16개와 Codex 미러 간 드리프트를 차단
 - **행동 테스트** — 스킬은 실제 에이전트 대상 RED–GREEN–PRESSURE 실행으로 검증됨; 워크트리 격리 스킬은 **50/50 실행 무실패** 기록 (GREEN 20 + PRESSURE 20 + 전체 스킬 텍스트 10)
-- **적대적 압박 시나리오** — 규율 스킬(TDD, 디버깅)이 시간 압박·매몰 비용·권위 압박, 즉 에이전트가 지름길을 합리화하는 바로 그 조건에서 버티는지 전용 테스트 스위트로 검증
+- **적대적 압박 시나리오를 eval로 실행** — `evals/`에 `claude plugin eval` 케이스 63개(트리거·스킬 지식·압박)가 있음. 압박 케이스는 플러그인 있음·없음을 함께 실행해, 규율 스킬이 시간 압박·매몰 비용·권위 압박(에이전트가 지름길을 합리화하는 바로 그 조건)에서 버티는지 RED 기준과 GREEN 결과를 한 번에 기록함. GitHub Actions에서는 수동 `evals` 워크플로로 실행함
 
 ## 저장소 구조
 
@@ -154,11 +130,12 @@ my-poor-ai는 자신의 규율을 스스로에게도 적용함:
 my-poor-ai/
 ├── .claude-plugin/        # 마켓플레이스 + 플러그인 매니페스트
 ├── .codex/agents/         # Codex용 에이전트 정의 자동 생성물 (수동 편집 금지)
-├── agents/                # 서브에이전트 정의 19개 (단일 소스)
-├── hooks/                 # SessionStart 훅 (Claude Code + Cursor)
-├── skills/                # 스킬 디렉토리 24개 (프로세스 18 + 커맨드 6)
+├── agents/                # 서브에이전트 정의 16개 (단일 소스)
+├── hooks/                 # SessionStart 훅 (Claude Code; Cursor 매핑 미검증)
+├── skills/                # 스킬 디렉토리 21개 (프로세스 17 + 커맨드 4)
 ├── scripts/               # CI 검증기 + Codex 미러 생성기
-├── tests/                 # 결정론적 + LLM 행동 + 압박 시나리오 스위트
+├── evals/                 # claude plugin eval 스위트 (트리거 · 지식 · 압박)
+├── tests/                 # 픽스처·다중 턴 셸 러너 + 시나리오 기록
 ├── docs/                  # 권장 MCP 조합
 ├── AGENTS.md              # 에이전트 입출력 계약·불변식
 ├── CLAUDE.md              # 이 저장소에서 AI 에이전트의 작업 협약

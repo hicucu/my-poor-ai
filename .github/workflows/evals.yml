@@ -1,0 +1,74 @@
+name: evals
+
+# 수동 실행 전용 — 실행마다 ANTHROPIC_API_KEY로 API 비용이 발생함. push·PR 트리거를 두지 않음.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "케이스 태그"
+        required: true
+        default: trigger
+        type: choice
+        options: [trigger, knowledge, pressure, diag]
+      model:
+        description: "실행 모델 (haiku, sonnet, opus, fable 또는 전체 ID)"
+        required: true
+        default: haiku
+      runs:
+        description: "케이스당 실행 횟수"
+        required: true
+        default: "1"
+      max_cost_usd:
+        description: "비용 상한 (USD) — 도달 시 남은 run 중단"
+        required: true
+        default: "3"
+      threshold:
+        description: "케이스 점수 하한 (0이면 점수와 무관하게 성공 처리)"
+        required: true
+        default: "0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install sandbox dependencies
+        run: sudo apt-get update && sudo apt-get install -y bubblewrap socat
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@2.1.303
+      - name: Run eval suite
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TAG: ${{ inputs.tag }}
+          MODEL: ${{ inputs.model }}
+          RUNS: ${{ inputs.runs }}
+          MAX_COST: ${{ inputs.max_cost_usd }}
+          THRESHOLD: ${{ inputs.threshold }}
+        run: |
+          # trigger·knowledge는 tool_used: Skill 채점기가 점수에 들어가야 하므로 ablation을 끔
+          ablation=with-without
+          case "$TAG" in trigger|knowledge) ablation=none ;; esac
+          mkdir -p evals/results
+          claude plugin eval . --tag "$TAG" --ablation "$ablation" --runs "$RUNS" \
+            --model "$MODEL" --trust-plugin --no-publish --max-cost-usd "$MAX_COST" \
+            --threshold "$THRESHOLD" --json evals/results/ci-result.json < /dev/null
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ inputs.tag }}
+          path: evals/results/
+          if-no-files-found: warn

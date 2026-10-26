@@ -5,9 +5,11 @@
  * 검사 항목:
  *  1. agents/*.md frontmatter — name=파일명, model 유효값, tools 화이트리스트,
  *     tools 알파벳순, 필드 순서·미지원 필드
- *  2. 참조 해소 — {팀_위치}/agents/X.md 경로 참조와 subagent_type="..." 참조가
- *     실재 에이전트 정의로 해소되는지
+ *  1b. .claude-plugin/plugin.json agents 목록 = frontmatter를 가진 agents/*.md
+ *  2. 참조 해소 — ${CLAUDE_PLUGIN_ROOT}/agents/X.md 경로 참조와 subagent_type="..." 참조가
+ *     실재 에이전트 정의로 해소되는지, @include 대상 실재, 레거시 표기 잔존
  *  3. 코드펜스 균형 — 중첩 펜스 조기 닫힘/미닫힘 (포매터 손상 회귀 방지)
+ *  4. 스킬 구조·명명·카탈로그 등록, 5. 훅 매니페스트 → 스크립트 실재
  *
  * 사용: node scripts/validate-agents.mjs   (저장소 루트에서 실행)
  * 종료 코드: 0 = 통과, 1 = 위반 발견
@@ -23,7 +25,9 @@ const MODEL_ID = /^claude-[a-z0-9][a-z0-9.-]*$/;
 
 // 백그라운드 서브에이전트가 실제로 보유하는 빌트인 도구 집합.
 // 플러그인 에이전트는 기본이 백그라운드 실행이므로 이 집합이 유효 상한이다.
-// `Agent`는 포그라운드/깊이 제한 조건부라 별도 허용 (review-agent 오케스트레이터용).
+// `Agent`는 깊이 제한 조건부 (review-agent 오케스트레이터용).
+// macOS·Linux에서 Glob·Grep은 tools에 Bash가 함께 있으면 바인딩되지 않는다 — Bash의
+// find·grep이 대신하므로 기능 손실은 없고, 적어 두어도 오류가 아니다.
 const VALID_TOOLS = new Set([
   'Agent', 'Artifact', 'Bash', 'Edit', 'EnterWorktree', 'ExitWorktree',
   'Glob', 'Grep', 'Monitor', 'NotebookEdit', 'PowerShell', 'Read',
@@ -35,7 +39,7 @@ const VALID_TOOLS = new Set([
 // 전량 제거되면 0-tool 스폰 실패로 이어지므로 이름 단계에서 잡는다.
 const NEVER_IN_SUBAGENT = new Set([
   'AskUserQuestion', 'EndConversation', 'EnterPlanMode', 'ExitPlanMode',
-  'ScheduleWakeup', 'TaskOutput', 'WaitForMcpServers', 'Workflow',
+  'ScheduleWakeup', 'WaitForMcpServers', 'Workflow',
 ]);
 
 // 지원 frontmatter 필드의 정본 순서. 존재하는 키가 이 순서의 부분수열이어야 한다.
@@ -112,6 +116,26 @@ for (const f of readdirSync(agentDir).filter((f) => f.endsWith('.md') && !f.star
   agentNames.add(slug);
 }
 
+// ---------- 1b. plugin.json agents 목록 ----------
+// 목록은 기본 스캔(agents/ 하위 모든 .md 재귀 로드)을 대체한다. 목록에서 빠진 에이전트는
+// 로드되지 않고, 목록이 없으면 frontmatter 없는 README·_shared 문서까지 가짜 에이전트가 된다.
+{
+  const manifestPath = '.claude-plugin/plugin.json';
+  const listed = JSON.parse(readFileSync(join(ROOT, manifestPath), 'utf8')).agents;
+  if (!Array.isArray(listed)) {
+    err(manifestPath, 'agents 목록 없음 — agents/ 하위 비에이전트 문서까지 에이전트로 로드됨');
+  } else {
+    const expected = new Set([...agentNames].map((n) => `./agents/${n}.md`));
+    for (const p of listed) {
+      if (!expected.has(p)) err(manifestPath, `agents 목록의 ${p}: frontmatter를 가진 agents/*.md 정의가 아님`);
+    }
+    const listedSet = new Set(listed);
+    for (const p of expected) {
+      if (!listedSet.has(p)) err(manifestPath, `agents 목록에 ${p} 누락 — 로드되지 않음`);
+    }
+  }
+}
+
 // ---------- 마크다운 파일 수집 ----------
 function* mdFiles(dir) {
   for (const e of readdirSync(join(ROOT, dir))) {
@@ -127,7 +151,7 @@ for (const d of ['agents', 'skills', 'tests']) allMd.push(...mdFiles(d));
 // ---------- 2. 참조 해소 ----------
 for (const rel of allMd) {
   const text = readFileSync(join(ROOT, rel), 'utf8');
-  for (const m of text.matchAll(/(?:\{팀_위치\}\/)?agents\/([a-z0-9-]+\.md)/g)) {
+  for (const m of text.matchAll(/(?:\$\{CLAUDE_PLUGIN_ROOT\}\/)?agents\/([a-z0-9-]+\.md)/g)) {
     if (!existsSync(join(agentDir, m[1]))) err(rel, `존재하지 않는 에이전트 파일 참조: agents/${m[1]}`);
   }
   for (const m of text.matchAll(/subagent_type[=:]\s*"([^"]+)"/g)) {
@@ -156,6 +180,23 @@ for (const rel of allMd) {
   });
 }
 
+// ---------- 2a'. 레거시 표기 잔존 ----------
+// `{팀_위치}`는 모델이 해석해야 하던 플레이스홀더 — 플러그인 마크다운의 `${CLAUDE_PLUGIN_ROOT}`는
+// 로드 시 절대 경로로 치환된다. `run_in_background`는 서브에이전트 호출 파라미터가 아니다
+// (서브에이전트는 기본 백그라운드 실행). tests/는 과거 관측 기록을 인용하므로 제외.
+const LEGACY_TOKENS = [
+  [/\{팀_위치\}/, '`{팀_위치}` → `${CLAUDE_PLUGIN_ROOT}`'],
+  [/run_in_background/, '`run_in_background` → "단일 응답에서 동시 호출"'],
+];
+for (const rel of allMd) {
+  if (rel.startsWith('tests/')) continue;
+  readFileSync(join(ROOT, rel), 'utf8').split('\n').forEach((line, i) => {
+    for (const [re, hint] of LEGACY_TOKENS) {
+      if (re.test(line)) err(rel, `레거시 표기 잔존 (${i + 1}행): ${hint}`);
+    }
+  });
+}
+
 // ---------- 2b. @include 대상 해소 ----------
 // 워커가 공유 지침 모듈을 include하는 `@include: <path>` 지시가 실재 파일로 해소되는지 검사.
 // path는 agents/ 기준 상대 (예: _shared/implementation-conventions.md).
@@ -180,15 +221,14 @@ for (const rel of allMd) {
   if (open !== 0) err(rel, `EOF에서 닫히지 않은 코드펜스 (${open}-backtick)`);
 }
 
-// ---------- 4. 스킬 구조·명명·카탈로그 등록 ----------
-// 커맨드가 skills/로 통합되면서 카탈로그 검사 대상도 스킬 전체로 확장됨.
+// ---------- 4. 스킬 구조·명명·색인 등록 ----------
 // name은 특히 중요하다 — 플러그인 스킬에서 frontmatter name이 커맨드의 마지막
 // 세그먼트를 정하므로, 디렉토리명과 어긋나면 호출명이 조용히 바뀐다.
+// 색인 등록은 링크 `](<dir>/)`로 판정함 — 이름 부분 문자열로 판정하면
+// `setup`이 `codex-setup`에 걸리듯 삭제된 스킬의 잔재를 놓침.
 {
-  const catalog = readFileSync(join(ROOT, 'skills/README.md'), 'utf8')
-    + readFileSync(join(ROOT, 'skills/commands/SKILL.md'), 'utf8')
-    + readFileSync(join(ROOT, 'CLAUDE.md'), 'utf8')
-    + readFileSync(join(ROOT, 'README.md'), 'utf8');
+  const indexes = ['skills/README.md', 'skills/README.ko.md']
+    .map((p) => [p, readFileSync(join(ROOT, p), 'utf8')]);
 
   for (const d of readdirSync(join(ROOT, 'skills')).sort()) {
     const dir = join(ROOT, 'skills', d);
@@ -210,8 +250,17 @@ for (const rel of allMd) {
 
     if (!/^description:/m.test(fm[1])) err(skillPath, 'description 없음');
 
-    if (d !== 'commands' && !catalog.includes(d)) {
-      err(skillPath, 'skills/README.md·commands 카탈로그·CLAUDE.md·README.md 어디에도 소개되지 않는 스킬');
+    for (const [indexPath, text] of indexes) {
+      if (!text.includes(`](${d}/)`)) err(skillPath, `${indexPath}에 링크로 등록되지 않은 스킬`);
+    }
+  }
+
+  // 역방향: 색인에 링크만 남고 디렉토리가 사라진 스킬
+  for (const [indexPath, text] of indexes) {
+    for (const m of text.matchAll(/\]\(([a-z0-9-]+)\/\)/g)) {
+      if (!existsSync(join(ROOT, 'skills', m[1], 'SKILL.md'))) {
+        err(indexPath, `존재하지 않는 스킬 링크: ${m[1]}/`);
+      }
     }
   }
 }

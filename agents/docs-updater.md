@@ -34,8 +34,8 @@ tools: Glob, Grep, Read, Write
    - `renames`의 from/to 양쪽
 3. 각 키워드로 `Grep -r docs/` 실행 → 후보 파일 집합
 4. 후보 파일을 Read하고 매칭 부분에 대해 Before/After 제안 작성
-5. `$WORKSPACE_DIR/proposals/docs/<sanitized-doc-path>.patch.md`로 저장
-6. `_index.md`에 처리 요약 기록 (전체 docs 개수, 검토 후보, 패치 생성, 갱신 불필요 분류)
+5. `$WORKSPACE_DIR/proposals/docs/<sanitized-doc-path>.patch.md`로 저장 — 오케스트레이터가 사용자 검토·적용에 읽는 입력 파일이므로 반드시 작성함
+6. `_index.md`에 처리 요약 기록 (전체 docs 개수, 검토 후보, 패치 생성, 갱신 불필요 분류) — 오케스트레이터·validator가 읽는 입력 파일이므로 반드시 작성함
 
 ## 출력 형식
 

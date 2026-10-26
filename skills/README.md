@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-24 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
+21 skill directories. Each skill's `SKILL.md` frontmatter `description` is the actual trigger condition; this page is a quick index grouped by development phase. See `skills/writing-skills/` before editing any of these.
 
 Two kinds live here, and the difference is who starts them:
 
@@ -51,28 +51,20 @@ Both are the same file format. Claude Code merged custom commands into skills, s
 | [`sync-docs-from-diff`](sync-docs-from-diff/) | Analyzes a branch diff to propose README/docs/inline doc updates, applied only after user review. |
 | [`preventing-github-actions-loops`](preventing-github-actions-loops/) | Detects and prevents self-triggering GitHub Actions workflow cycles. |
 
-## Pipeline
-
-| Skill | What it does |
-| --- | --- |
-| [`feature-pipeline`](feature-pipeline/) | Stack-agnostic 5-phase multi-agent pipeline: plan → implement → test → review → fix. |
-
 ## Meta
 
 | Skill | What it does |
 | --- | --- |
 | [`writing-skills`](writing-skills/) | TDD applied to process documents — how to author, edit, and validate a skill. |
-| [`using-my-poor-ai`](using-my-poor-ai/) | Request classification and pipeline contracts. `router.md` beside it is the compact block the SessionStart hook injects. |
+| [`using-my-poor-ai`](using-my-poor-ai/) | Request classification and pipeline contracts. `router.md` beside it is the compact block the SessionStart hook injects. Both state the routing rules, so change them together. |
 
 ## Commands
 
-Invoked as `/my-poor-ai:{name}`. `/my-poor-ai:commands` is the catalog entry point.
+Invoked as `/my-poor-ai:{name}`.
 
 | Skill | What it does | Model-invocable |
 | --- | --- | --- |
-| [`my-poor-ai`](my-poor-ai/) | Entry point that routes any request into the right pipeline (DEBUG / SIMPLE / FULL) — usable without setup. | Yes |
-| [`commands`](commands/) | Lists what is available; the catalog itself. | Yes |
+| [`my-poor-ai`](my-poor-ai/) | Entry point that routes any request into the right pipeline (DEBUG / SIMPLE / FULL). | Yes |
 | [`roles`](roles/) | Role-preset catalog — routes a role name (architect / builder / debugger / reviewer) to its skill bundle. | Yes |
-| [`code-review`](code-review/) | Reviews the architecture and performance axes, folds in native `/security-review`, and can scaffold a `REVIEW.md`. | Yes |
-| [`setup`](setup/) | Registers the `SessionStart` hook in `~/.claude/settings.json`. | **No** — writes outside the project |
+| [`code-review`](code-review/) | Reviews the architecture and performance axes, folds in native `/security-review` and `/code-review`, and can scaffold a `REVIEW.md`. | Yes |
 | [`codex-setup`](codex-setup/) | Registers this plugin's agents in `~/.codex/config.toml`. | **No** — writes outside the project |

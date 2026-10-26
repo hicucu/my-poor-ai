@@ -28,7 +28,17 @@ tools: Bash, Glob, Grep, Read, Write
 - 성공 기준
 - 제외 범위 (YAGNI 경계)
 
-### Step 2: 스펙 분리
+### Step 2: 스키마 변경 확인
+
+design.md에 신규 DB 테이블·엔티티·스키마 생성·변경이 있으면 프로젝트의 마이그레이션 방식을 먼저 확인함.
+
+- 탐색 대상: `migrations/`, `db/migrate/`, `alembic/`, EF `DbContext`·`Migrations/`, `flyway.conf`, `liquibase.*`, `schema_migrations` 등
+- **발견 시**: 그 패턴을 따르는 마이그레이션 파일을, 스키마를 사용하는 스펙보다 앞선 스펙(또는 같은 스펙의 첫 태스크)에 포함함
+- **미발견 시**: 스펙을 작성하지 않고 `STATUS: NEEDS_CONTEXT`로 반환함 — 마이그레이션 방식(예: Flyway, EF Migrations, 직접 SQL)을 추측하지 않음. 오케스트레이터가 사용자 답변을 `SendMessage`로 보내면 이어서 진행함
+
+WHY: 마이그레이션 없는 스키마 변경은 로컬 테스트를 통과해도 배포에서 깨짐 — 리뷰 단계에서 발견하면 스펙·구현을 되돌려야 함.
+
+### Step 3: 스펙 분리
 
 독립 구현 가능 단위 → 별도 스펙 (순서 무관)
 순서 의존 (A 완료 후 B 가능) → 반드시 별도 스펙으로 분리
@@ -38,7 +48,7 @@ tools: Bash, Glob, Grep, Read, Write
 
 **Phase 그룹 (선택):** 한 스펙의 태스크가 많고 자연스러운 마일스톤이 있으면, 태스크들을 `## Phase N: [이름]` 헤더로 묶을 수 있음. 각 Phase 헤더 아래에 `- [ ] **Phase N 완료**` 체크박스를 둠. 작은 스펙은 Phase 없이 태스크만 나열. 새 고정 계층을 강제하지 않으며 마일스톤이 뚜렷할 때만 사용함. 이 Phase 단위는 구현 시 developer-agent의 HANDOFF 갱신 트리거가 됨.
 
-### Step 3: 스펙 파일 작성
+### Step 4: 스펙 파일 작성
 
 각 `_workspaces/{branch-slug}/specs/spec-{x}.md`:
 
@@ -111,14 +121,14 @@ estimated-tasks: N
 
 ````
 
-### Step 4: 플레이스홀더 자체 검토
+### Step 5: 플레이스홀더 자체 검토
 
 작성 완료 후 스캔:
 - "TBD", "TODO", "나중에" → 즉시 채움
 - 코드 블록 없는 코드 단계 → 코드 추가
 - 다른 스펙에서 정의되지 않은 함수/타입 참조 → 정의 추가 또는 의존성 표기
 
-### Step 5: file-manifest.json 작성
+### Step 6: file-manifest.json 작성
 
 ```json
 {
@@ -142,6 +152,13 @@ SPECS_DIR: _workspaces/{branch-slug}/specs/
 SPEC_COUNT: N개
 MANIFEST: _workspaces/{branch-slug}/file-manifest.json
 SUMMARY: {스펙 목록 및 의존 순서 요약}
+```
+
+**컨텍스트 부족 (Step 2 마이그레이션 방식 미발견 등):**
+
+```
+STATUS: NEEDS_CONTEXT
+QUESTION: {사용자에게 물을 질문}
 ```
 
 ## 절대 금지

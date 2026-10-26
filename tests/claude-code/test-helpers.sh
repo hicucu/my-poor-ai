@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Helper functions for Claude Code skill tests
 
+HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HELPERS_DIR/../lib/portable-timeout.sh"
+PLUGIN_DIR="${PLUGIN_DIR:-$(cd "$HELPERS_DIR/../.." && pwd)}"
+
 # Run Claude Code with a prompt and capture output
 # Usage: run_claude "prompt text" [timeout_seconds] [allowed_tools]
 run_claude() {
@@ -10,13 +14,13 @@ run_claude() {
     local output_file=$(mktemp)
 
     # Build command
-    local cmd="claude -p \"$prompt\""
+    local cmd="claude -p \"$prompt\" --plugin-dir \"$PLUGIN_DIR\""
     if [ -n "$allowed_tools" ]; then
         cmd="$cmd --allowed-tools=$allowed_tools"
     fi
 
     # Run Claude in headless mode with timeout
-    if timeout "$timeout" bash -c "$cmd" > "$output_file" 2>&1; then
+    if run_with_timeout "$timeout" bash -c "$cmd" > "$output_file" 2>&1; then
         cat "$output_file"
         rm -f "$output_file"
         return 0
@@ -192,6 +196,7 @@ EOF
 }
 
 # Export functions for use in tests
+export -f run_with_timeout
 export -f run_claude
 export -f assert_contains
 export -f assert_not_contains

@@ -2,15 +2,20 @@
 
 Discipline skill이 압박 상황에서도 준수되는지 검증하는 시나리오 모음.
 
-## 테스트 방법
+> **반복 실행은 `evals/`로 이관됨.** 프롬프트형 시나리오는 `evals/pressure-*` 케이스(`claude plugin eval . --tag pressure`)가 with·without arm으로 RED/GREEN을 함께 기록함 — 매핑은 `evals/README.md`. 이 디렉토리의 문서는 시나리오 원문·기대 동작·측정 기록의 정본으로 남기며, 픽스처가 필요해 이관하지 않은 시나리오(verification C·D, removal-evidence R1, plan-review-gate, worktree-native-preference)는 아래 수동 방법으로 실행함.
+
+## 테스트 방법 (수동)
 
 각 시나리오를 Claude Code에서 실행:
 
 ```bash
 # skill 없이 (baseline — 실패해야 정상)
-claude --no-skills < {scenario}.md
+# 플러그인 자체를 끄고 실행함 — 스킬만 끄면 SessionStart 훅의 라우터가 그대로 주입되어 baseline이 오염됨
+claude plugin disable my-poor-ai@hicucu
+claude < {scenario}.md
+claude plugin enable my-poor-ai@hicucu
 
-# skill 있이 (my-poor-ai 플러그인 설치 후 — 준수해야 정상)
+# skill 있이 (my-poor-ai 플러그인 활성화 상태 — 준수해야 정상)
 claude < {scenario}.md
 ```
 
