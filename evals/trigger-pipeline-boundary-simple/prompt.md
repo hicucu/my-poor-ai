@@ -1,5 +1,5 @@
 ---
-description: "Trigger: tests/pipeline-triggering/prompts/boundary-simple.txt → Skill test-driven-development (단순 경로)"
+description: "Trigger: tests/pipeline-triggering/prompts/boundary-simple.txt → 사소한 수정: 대상 파일 확인, FULL 미진입 (TDD 호출 불요)"
 tags: [trigger, trigger-fixture]
 max_turns: 5
 timeout_seconds: 600

@@ -213,6 +213,8 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-28 | 위 description 변경 후 `--case 'trigger-negative-*'`(9/9) + `--tag diag --runs 1`(with 1.00 / without 0.00) | 회귀 없음. $0.93 + $0.14 |
 
 | 2026-10-28 | `--tag trigger-fixture --scaffold --ablation none --model claude-opus-5-5` (3회) | 9/18 (픽스처 전 0/18). 통과 — `boundary-complex`·`complex-request` 3/3(`project-context` 디스패치), `subagent-driven-development` 3/3. 실패 — `simple-request`·`boundary-simple` 0/3: 대상을 찾은 뒤 TDD 스킬 없이 바로 수정을 시도하고, Edit가 없어 서브에이전트로 우회함. `test-driven-development` 0/3: `using-my-poor-ai` 호출 후 `project-context` 대신 직접 탐색하다 `max_turns`(4) 도달. 세 실패 모두 trace 확인, 픽스처가 아닌 모델 행동임. $6.41 |
+| 2026-10-28 | 사소한 수정 2케이스(`simple-request`·`boundary-simple`) 기대값 변경 — TDD 호출 → 대상 파일 Read + FULL 미진입(`project-context` 0회). `--case 'trigger-pipeline-*simple*' --scaffold` (3회) | 6/6. `input_match`가 있는 `max: 0`은 일치하는 호출만 셈 — `general-purpose` 디스패치는 `project-context` 0회로 집계됨. $1.42 |
+| 2026-10-28 | `trigger-skill-test-driven-development`를 `max_turns: 10`으로 임시 실행 (2회, 커밋 안 함) | 0/2. 직접 탐색은 `project-context` 생략이 아니라 SIMPLE 판정 과정 — 1회는 `test-driven-development` 직행, 1회는 "함수 하나·파일 하나의 작은 작업"으로 판단. 라우터의 "신규 기능은 즉시 FULL"과 SIMPLE 기준(파일 1-2개·설계 불필요)이 이 요청에서 충돌함. $1.11 |
 
 - `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 
