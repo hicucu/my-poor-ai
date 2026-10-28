@@ -12,7 +12,7 @@
 
 | 태그 | 케이스 | 원본 | 채점기 | ablation |
 | --- | --- | --- | --- | --- |
-| `trigger` | 20 | `tests/pipeline-triggering` 5, `tests/skill-triggering` 6, `tests/explicit-skill-requests` 9 | `tool_used` 20 | `none` |
+| `trigger` | 23 | `tests/pipeline-triggering` 5, `tests/skill-triggering` 6, `tests/explicit-skill-requests` 9, 과잉 발동 측정 신규 3(`trigger-negative`) | `tool_used` 23 | `none` |
 | `diag` | 1 | 라우터 블록 주입 여부 진단 | `regex` 1 | 기본값(`with-without`) |
 | `knowledge` | 9 | `tests/claude-code/test-subagent-driven-development.sh` 테스트 9개 | `llm` 15 | `none` |
 | `pressure` | 33 | `tests/pressure-scenarios/*.md` 29, `skills/systematic-debugging/test-*.md` 4 | `llm` 65(그중 `focus: trace` 9), `tool_used` 7 | 기본값(`with-without`) |
@@ -75,7 +75,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 ## 채점기 동작
 
 - `tool_used`의 `input_match`는 정규식이며, 도구 입력의 JSON 직렬화 문자열에 매칭됨. 기존 러너의 grep 패턴 `"skill":"([^"]*:)?<스킬명>"`을 그대로 사용하므로 bare 이름과 `my-poor-ai:` 접두 이름이 모두 매칭됨. 에이전트는 `"subagent_type":"([^"]*:)?<에이전트명>"`으로 매칭함
-- "호출하면 안 됨" 검사는 `min: 0`, `max: 0`, `arm: both` 조합을 씀 (`pressure-which-way-should-i-go-e`, `-c3`)
+- "호출하면 안 됨" 검사는 `min: 0`, `max: 0`, `arm: both` 조합을 씀 (`pressure-which-way-should-i-go-e`, `-c3`). `trigger-negative-*`는 `--ablation none` 전용이라 `arm`을 생략함 — 스킬이 필요 없는 정보 질문(개념·명령어·저장소 사실)에 Skill 호출이 0회인지로 라우팅 게이트의 과잉 발동을 측정함
 - 채점기 본문은 `llm`에서는 판정 기준, `regex`에서는 frontmatter에 `pattern`이 없을 때의 패턴으로 쓰임. `tool_used` 본문은 러너가 무시하므로 출처 메모로만 씀
 - `llm` 채점기는 judge를 3회 호출해 과반 PASS로 판정함. 기본 입력은 마지막 assistant 텍스트(`focus: last_message`)임
 - `focus: trace`는 trace가 24개 메시지를 넘으면 앞 12개와 뒤 12개만 judge에 전달하고 중간은 생략함. 검증 run에서 4턴 run이 37개(서브에이전트 없음)·79개(서브에이전트 포함) 메시지를 냈고, 후자에서는 실제 `project-context` 호출이 생략 구간에 들어감. 따라서 trace 채점기는 첫 호출이나 최종 답변으로 판정할 수 있는 기준에만 사용하고, 특정 도구 호출의 존재·부재는 `tool_used`로 판정함
@@ -206,5 +206,10 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-19 | `--tag trigger --ablation none --runs 1 --model haiku` | 13/20 통과, $0.12. 실패 7건 trace 확인 — 3건은 라우터와 다른 기대값(교정 후 `trigger-skill-writing-plans`·`-dispatching-parallel-agents` 통과, `-test-driven-development`는 빈 샌드박스 탐색 후 중단으로 여전히 실패), 4건은 「원본 대비 차이」의 빈 샌드박스 한계 |
 | 2026-10-19 | `--case pressure-pipeline-dispatch-case2 --runs 1 --model haiku` (기본 ablation) | with 1.00 / without 0.00 — `tool_used: Agent` 채점기가 두 arm에서 점수에 들어감 |
 | 2026-10-19 | `--case pressure-tdd-a`, `--case pressure-brainstorming-a` (기본 ablation, haiku) | 두 arm 동일 점수. trace 확인 결과 채점기는 정확함 — tdd-a는 with arm에서도 TDD 스킬을 불러오지 않고 C를 고름, brainstorming-a는 B를 골랐으나 단순 경로 기준을 명시 점검하지 않음. haiku 측정이므로 주 사용 모델로 재측정 필요 |
+| 2026-10-28 | `--case 'trigger-negative-*' --ablation none --model claude-opus-5-5` | 9/9 통과 — 3케이스 모두 `Skill called 0x (expected 0..0)`, 1턴 응답. 현행 라우팅 게이트("1%라도")에서 정보 질문 과잉 발동 미재현. $0.93 |
+| 2026-10-28 | `--case 'trigger-pipeline-*' --ablation none --model claude-opus-5-5`, `using-my-poor-ai` description 변경 전·후 | 전 3/15, 후 3/15 (같은 분포 — `debug-request`만 3/3). 실패 12건은 빈 샌드박스 탐색 후 중단(`simple-request` trace 확인). `complex-request`도 같은 증상으로 실패함 — 「빈 샌드박스의 한계」 목록에 없던 케이스. 전 $2.40, 후 $2.34 |
+| 2026-10-28 | 위 description 변경 후 `--case 'trigger-negative-*'`(9/9) + `--tag diag --runs 1`(with 1.00 / without 0.00) | 회귀 없음. $0.93 + $0.14 |
+
+- `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 
 trigger·knowledge 전부와 위 압박 3건 외의 압박 케이스는 frontmatter 키·채점기 키를 바이너리 스키마의 허용 목록과 대조하는 정적 검사만 거침.

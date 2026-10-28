@@ -11,7 +11,7 @@ my-poor-ai의 스킬·에이전트·파이프라인이 의도대로 동작하는
 | 분류 | 위치 | 설명 | 비용·시간 |
 | --- | --- | --- | --- |
 | **결정론적 검증** | `scripts/` | 검증기 3종 (CI `validate.yml`과 동일). `claude` CLI 불필요 | 빠름, 무료 |
-| **eval 스위트** | `evals/` | 트리거·지식·압박 시나리오 63케이스. with·without arm으로 RED/GREEN 기록 | 토큰 소모 (haiku 1회 기준 trigger 20케이스 약 $0.12) |
+| **eval 스위트** | `evals/` | 트리거·지식·압박 시나리오 66케이스. with·without arm으로 RED/GREEN 기록 | 토큰 소모 (haiku 1회 기준 trigger 20케이스 약 $0.12) |
 | **셸 LLM 러너** | `tests/claude-code/`, `tests/explicit-skill-requests/`, `tests/subagent-driven-dev/` | 픽스처 프로젝트·다중 턴 대화가 필요한 검증 | 분~수십 분 |
 | **시나리오 문서** | `tests/pressure-scenarios/`, `tests/agent-behavior/` | 시나리오 원문·기대 동작·측정 기록. 일부는 수동 실행 | LLM 호출 발생 |
 

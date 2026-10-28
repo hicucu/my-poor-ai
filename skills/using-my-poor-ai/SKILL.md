@@ -1,6 +1,6 @@
 ---
 name: using-my-poor-ai
-description: Use at the start of every conversation - establishes how to find and use skills, and requires a Skill tool call before every response including clarifying questions
+description: Use at the start of every conversation, and when deciding which skill or pipeline path (DEBUG, SIMPLE, FULL) a request needs or resuming a pipeline ("이어서", "계속")
 ---
 
 <SUBAGENT-STOP>
