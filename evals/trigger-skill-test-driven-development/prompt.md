@@ -1,6 +1,6 @@
 ---
 description: "Trigger: tests/skill-triggering/prompts/test-driven-development.txt → Agent project-context (the router sends any new feature to FULL)"
-tags: [trigger]
+tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600
 allowed_tools: [Skill, Agent, Read, Glob, Grep]

@@ -61,8 +61,11 @@ jobs:
           # trigger·knowledge는 tool_used: Skill 채점기가 점수에 들어가야 하므로 ablation을 끔
           ablation=with-without
           case "$TAG" in trigger|knowledge) ablation=none ;; esac
+          # trigger 일부 케이스는 이 저장소의 evals/_fixtures 스크립트로 대상 파일을 만들어 둠
+          scaffold=--no-scaffold
+          [ "$TAG" = trigger ] && scaffold=--scaffold
           mkdir -p evals/results
-          claude plugin eval . --tag "$TAG" --ablation "$ablation" --runs "$RUNS" \
+          claude plugin eval . --tag "$TAG" --ablation "$ablation" --runs "$RUNS" "$scaffold" \
             --model "$MODEL" --trust-plugin --no-publish --max-cost-usd "$MAX_COST" \
             --threshold "$THRESHOLD" --json evals/results/ci-result.json < /dev/null
       - name: Upload results

@@ -37,7 +37,7 @@
 
 ```bash
 # trigger — tool_used: Skill이 점수에 들어가도록 ablation 끔
-claude plugin eval . --tag trigger --ablation none --trust-plugin --no-publish --model <model> --max-cost-usd <n>
+claude plugin eval . --tag trigger --ablation none --scaffold --trust-plugin --no-publish --model <model> --max-cost-usd <n>
 
 # knowledge — 플러그인 있는 arm만 측정
 claude plugin eval . --tag knowledge --ablation none --trust-plugin --no-publish --model <model> --judge-model <judge> --max-cost-usd <n>
@@ -66,7 +66,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 
 ## 샌드박스 전제 (2.1.303 실측)
 
-- cwd는 빈 git 저장소임 (브랜치 `main`, 커밋 없음, 프로젝트 파일 없음)
+- cwd는 빈 git 저장소임 (브랜치 `main`, 커밋 없음, 프로젝트 파일 없음). `--scaffold` 실행 시 `trigger-fixture` 케이스만 픽스처가 채워짐
 - 플러그인 SessionStart 훅이 실행되어 라우터 블록(`# my-poor-ai 라우터`)이 주입됨. 사용자 CLAUDE.md·사용자 설정·다른 플러그인은 없음
 - 자식 세션의 도구 목록 자체가 `allowed_tools`로 제한됨 (그 외에는 TaskStop·ToolSearch만 추가됨). 목록 밖 도구는 호출 시 "No such tool available"로 거부됨
 - 권한 모드는 `dontAsk`이며 cwd 밖 경로 접근은 거부됨
@@ -86,7 +86,9 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 - **trigger 순서 조건**: `tests/pipeline-triggering/README.md`의 "첫 번째 호출" 조건은 검사하지 않음 — `tool_used`는 호출 존재만 확인함. 원본 러너도 순서를 판정하지 않았고, "스킬 호출 전 다른 도구 사용" 검사는 원본에서 경고였으므로 옮기지 않음
 - **trigger max_turns**: skill-triggering·explicit은 4(원본 3), pipeline은 5(원본은 대화형이라 제한 없음)
 - **라우터 기준으로 바꾼 기대값 3건**: 원본 skill-triggering은 현행 라우터(`skills/using-my-poor-ai/router.md`)보다 먼저 만들어져 라우터와 다른 스킬을 기대했음. 2026-10-19 haiku 실행에서 모델은 라우터대로 행동함 — 다단계 기능 명세(`trigger-skill-writing-plans`)는 FULL로 `project-context`를, "new feature"(`trigger-skill-test-driven-development`)는 라우터의 "신규 기능은 즉시 FULL"에 따라 `project-context`를, 테스트 실패 4건(`trigger-skill-dispatching-parallel-agents`)은 DEBUG로 `systematic-debugging`을 기대값으로 바꿈. 케이스 디렉토리명은 원본 프롬프트를 가리키도록 유지함
-- **빈 샌드박스의 한계 (알려진 실패)**: 샌드박스 cwd에 프로젝트 파일이 없어, 특정 코드를 고치라는 요청(`trigger-pipeline-simple-request`의 `config.js`, `trigger-pipeline-boundary-simple`의 버튼, `trigger-pipeline-boundary-complex`의 회원가입 폼)과 특정 플랜 파일을 실행하라는 요청(`trigger-skill-subagent-driven-development`)은 모델이 대상을 찾다가 "파일이 없다"고 보고하며 멈춤 — 스킬 호출 전에 탐색을 마치는 정상 동작이라 실패로 집계됨. `context.scaffold_script`로 대상 파일을 만들어 두는 픽스처가 필요함 (미구현)
+- **픽스처 (`trigger-fixture` 태그 6케이스)**: 빈 샌드박스에서는 특정 코드·플랜 파일을 가리키는 요청에 모델이 대상을 찾다가 "파일이 없다"고 보고하며 멈춰, 스킬 호출 전에 실패로 집계됐음. `trigger-pipeline-simple-request`·`-boundary-simple`·`-boundary-complex`·`-complex-request`, `trigger-skill-subagent-driven-development`·`-test-driven-development`는 `evals/_fixtures/node-webapp.sh`가 만드는 Node 웹앱(설정 `timeout: 3000`, "제출" 버튼이 있는 회원가입 폼, 게시글 모델, 플랜 `docs/my-poor-ai/plans/2024-01-15-auth-system.md`, 커밋 1개)에서 실행됨. 실행 시 `--scaffold` 필요 — 없으면 빈 샌드박스로 돌아가 예전 실패가 재현됨
+  - 연결 방식: 케이스 디렉토리의 `case.yaml`(`schema_version`·`name`·`context.scaffold_script`만 보유)이 `prompt.md`·`graders/`와 병합됨. `scaffold_script`는 케이스 디렉토리 밖 경로(`..`·절대 경로)를 거부하므로 각 케이스의 `scaffold.sh`가 공용 스크립트를 `exec`함. `prompt.md` frontmatter는 `context` 키를 받지 않음 (2.1.312 실측)
+  - 스크립트는 샌드박스 cwd에서 bash로 실행됨(120초 제한). 공용 스크립트를 바꾸면 6케이스가 함께 바뀜
 - **explicit-skill-requests 픽스처**: `run-test.sh`가 만들던 더미 플랜 `docs/my-poor-ai/plans/auth-system.md`가 샌드박스에 없음. 채점은 스킬 호출만 보므로 판정 기준은 같으나 모델 행동(플랜 탐색 여부)은 달라질 수 있음
 - **explicit-skill-requests 미배선 프롬프트 5개**: `action-oriented`·`after-planning-flow`·`claude-suggested-it`·`i-know-what-sdd-means`·`skip-formalities`는 `run-all.sh`에서 호출되지 않던 프롬프트임. 스위트 계약(`run-test.sh` — 사용자가 지명한 스킬의 호출 여부)에 따라 프롬프트가 지명한 `subagent-driven-development`를 기대 스킬로 둠. `after-planning-flow`·`claude-suggested-it`는 이전 턴을 프롬프트 안에 글로 흉내 낸 단일 턴 프롬프트이므로 그대로 이관함
 - **pipeline-dispatch**: 요청문의 바깥 따옴표만 제거함. 기대 동작이 "어느 경로의 첫 단계가 호출되는가"이므로 `llm`이 아닌 `tool_used`로 판정함 (위 trace 생략 문제)
@@ -123,7 +125,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | `tests/explicit-skill-requests/run-haiku-test.sh` | 5 | 위와 같은 5턴 + haiku 고정 + 사용자 CLAUDE.md 복사 — 샌드박스는 사용자 CLAUDE.md를 배제함 |
 | `tests/explicit-skill-requests/run-claude-describes-sdd.sh` | 2 | Claude가 SDD를 먼저 설명한 뒤 요청 (haiku 고정) |
 
-> case.yaml 스키마에 재개 세션용 `context.history_file`, 픽스처용 `context.scaffold_script`(실행 시 `--scaffold` 옵트인) 필드가 있음을 2.1.303 바이너리에서 확인함. 형식·동작은 실측하지 않았음 — 확인 필요. 위 두 목록을 옮길 때 검토 대상임
+> case.yaml 스키마에 재개 세션용 `context.history_file` 필드가 있음을 2.1.303 바이너리에서 확인함. 형식·동작은 실측하지 않았음 — 확인 필요. 픽스처용 `context.scaffold_script`는 「원본 대비 차이」의 픽스처 항목에서 실측함. 위 두 목록을 옮길 때 검토 대상임
 
 ### 제외
 
@@ -209,6 +211,8 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-28 | `--case 'trigger-negative-*' --ablation none --model claude-opus-5-5` | 9/9 통과 — 3케이스 모두 `Skill called 0x (expected 0..0)`, 1턴 응답. 현행 라우팅 게이트("1%라도")에서 정보 질문 과잉 발동 미재현. $0.93 |
 | 2026-10-28 | `--case 'trigger-pipeline-*' --ablation none --model claude-opus-5-5`, `using-my-poor-ai` description 변경 전·후 | 전 3/15, 후 3/15 (같은 분포 — `debug-request`만 3/3). 실패 12건은 빈 샌드박스 탐색 후 중단(`simple-request` trace 확인). `complex-request`도 같은 증상으로 실패함 — 「빈 샌드박스의 한계」 목록에 없던 케이스. 전 $2.40, 후 $2.34 |
 | 2026-10-28 | 위 description 변경 후 `--case 'trigger-negative-*'`(9/9) + `--tag diag --runs 1`(with 1.00 / without 0.00) | 회귀 없음. $0.93 + $0.14 |
+
+| 2026-10-28 | `--tag trigger-fixture --scaffold --ablation none --model claude-opus-5-5` (3회) | 9/18 (픽스처 전 0/18). 통과 — `boundary-complex`·`complex-request` 3/3(`project-context` 디스패치), `subagent-driven-development` 3/3. 실패 — `simple-request`·`boundary-simple` 0/3: 대상을 찾은 뒤 TDD 스킬 없이 바로 수정을 시도하고, Edit가 없어 서브에이전트로 우회함. `test-driven-development` 0/3: `using-my-poor-ai` 호출 후 `project-context` 대신 직접 탐색하다 `max_turns`(4) 도달. 세 실패 모두 trace 확인, 픽스처가 아닌 모델 행동임. $6.41 |
 
 - `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 

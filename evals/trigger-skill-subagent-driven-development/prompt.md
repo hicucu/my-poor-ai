@@ -1,6 +1,6 @@
 ---
 description: "Trigger: tests/skill-triggering/prompts/subagent-driven-development.txt → Skill subagent-driven-development (naive prompt, skill not named)"
-tags: [trigger]
+tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600
 allowed_tools: [Skill, Agent, Read, Glob, Grep]

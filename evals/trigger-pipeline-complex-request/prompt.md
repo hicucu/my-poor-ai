@@ -1,6 +1,6 @@
 ---
 description: "Trigger: tests/pipeline-triggering/prompts/complex-request.txt → Agent project-context (복잡 경로)"
-tags: [trigger]
+tags: [trigger, trigger-fixture]
 max_turns: 5
 timeout_seconds: 600
 allowed_tools: [Skill, Agent, Read, Glob, Grep]
