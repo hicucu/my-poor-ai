@@ -21,7 +21,7 @@
 
 | 그룹 | `allowed_tools` | `max_turns` | `timeout_seconds` |
 | --- | --- | --- | --- |
-| trigger | `[Skill, Agent, Read, Glob, Grep]` | 4 (pipeline 5) | 600 |
+| trigger | `[Skill, Agent, Read, Glob, Grep]` (`trigger-fixture` 6케이스는 `Edit`·`Write` 추가) | 4 (pipeline 5) | 600 |
 | diag | `[]` | 1 | 120 |
 | knowledge | `[Skill, Read, Glob, Grep]` | 4 | 300 |
 | pressure — 선택·서술형 26개 | `[Skill, Read, Glob, Grep]` | 10 | 600 |
@@ -37,7 +37,7 @@
 
 ```bash
 # trigger — tool_used: Skill이 점수에 들어가도록 ablation 끔
-claude plugin eval . --tag trigger --ablation none --scaffold --trust-plugin --no-publish --model <model> --max-cost-usd <n>
+claude plugin eval . --tag trigger --ablation none --scaffold --allow-tools Edit Write --trust-plugin --no-publish --model <model> --max-cost-usd <n>
 
 # knowledge — 플러그인 있는 arm만 측정
 claude plugin eval . --tag knowledge --ablation none --trust-plugin --no-publish --model <model> --judge-model <judge> --max-cost-usd <n>
@@ -56,7 +56,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 - `--trust-plugin`은 첫 실행 신뢰 확인을 생략함 — 직접 관리하는 이 저장소에만 사용
 - `--max-cost-usd`는 상한 도달 시 남은 run을 중단하고 exit 2로 끝남
 - `--threshold` 기본값 1.0 — 한 케이스라도 점수가 1.0 미만이면 exit 1. 측정 목적 실행에서는 종료 코드보다 리포트의 점수·Δ를 판정 근거로 씀
-- `--allow-tools`는 필요 없음 — 어떤 케이스도 Bash·Write·Edit·WebFetch·WebSearch를 쓰지 않음
+- `--allow-tools Edit Write`는 trigger 실행에만 필요함 — `trigger-fixture` 6케이스가 샌드박스 cwd의 픽스처를 고칠 수 있게 함. 수정 도구가 없으면 모델이 서브에이전트를 2~3회 디스패치해 우회를 시도하며 턴을 소모했음(2026-10-28 trace). Bash·WebFetch·WebSearch를 쓰는 케이스는 없음
 - `--case`는 이름 glob을 받음 (예: `--case 'trigger-pipeline-*'`)
 
 ## 결과 위치
@@ -215,6 +215,8 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-28 | `--tag trigger-fixture --scaffold --ablation none --model claude-opus-5-5` (3회) | 9/18 (픽스처 전 0/18). 통과 — `boundary-complex`·`complex-request` 3/3(`project-context` 디스패치), `subagent-driven-development` 3/3. 실패 — `simple-request`·`boundary-simple` 0/3: 대상을 찾은 뒤 TDD 스킬 없이 바로 수정을 시도하고, Edit가 없어 서브에이전트로 우회함. `test-driven-development` 0/3: `using-my-poor-ai` 호출 후 `project-context` 대신 직접 탐색하다 `max_turns`(4) 도달. 세 실패 모두 trace 확인, 픽스처가 아닌 모델 행동임. $6.41 |
 | 2026-10-28 | 사소한 수정 2케이스(`simple-request`·`boundary-simple`) 기대값 변경 — TDD 호출 → 대상 파일 Read + FULL 미진입(`project-context` 0회). `--case 'trigger-pipeline-*simple*' --scaffold` (3회) | 6/6. `input_match`가 있는 `max: 0`은 일치하는 호출만 셈 — `general-purpose` 디스패치는 `project-context` 0회로 집계됨. $1.42 |
 | 2026-10-28 | `trigger-skill-test-driven-development`를 `max_turns: 10`으로 임시 실행 (2회, 커밋 안 함) | 0/2. 직접 탐색은 `project-context` 생략이 아니라 SIMPLE 판정 과정 — 1회는 `test-driven-development` 직행, 1회는 "함수 하나·파일 하나의 작은 작업"으로 판단. 라우터의 "신규 기능은 즉시 FULL"과 SIMPLE 기준(파일 1-2개·설계 불필요)이 이 요청에서 충돌함. $1.11 |
+| 2026-10-29 | 라우터 「사소한 수정 예외」 반영 + 픽스처 6케이스 `Edit`·`Write` 허용 후 `--tag trigger --scaffold --allow-tools Edit Write` (3회, 상한 $12) | 상한 도달로 부분 결과(`trigger-skill-writing-plans` 미실행, `-test-driven-development` 2회). 19/22케이스 전원 통과 — explicit 9, negative 3, pipeline 5(사소한 수정 2케이스는 `Edit` 채점기), `subagent-driven-development`·`systematic-debugging`. 실패: `test-driven-development` 0/2(SIMPLE 판정, 위 기록), `dispatching-parallel-agents`·`requesting-code-review` 0/3(빈 샌드박스 — 대상 테스트 파일·커밋 범위 없음, 픽스처 미적용). 픽스처 케이스가 실제 수정까지 수행해 run당 비용 증가. $13.51 |
+| 2026-10-29 | `--case 'pressure-pipeline-dispatch-*'` (기본 ablation, 3회) | with: case3 3/3, 나머지 0/3 — case2·4(FULL 기대)는 빈 샌드박스, case1·5는 TDD를 기대하던 채점기라 「사소한 수정 예외」와 충돌 → 같은 커밋에서 FULL 미진입 채점기로 교체(교체 후 미측정). without 전원 0/3. $3.13 |
 
 - `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 

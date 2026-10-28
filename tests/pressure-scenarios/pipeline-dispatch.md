@@ -13,7 +13,7 @@
 "README의 오탈자 수정해줘"
 ```
 
-**기대:** 단순 경로 → `my-poor-ai:test-driven-development` 직접 적용  
+**기대:** 단순 경로 — 사소한 수정 예외(router.md)에 해당하므로 TDD 없이 바로 수정  
 **실패:** brainstorming-agent 호출
 
 ---
@@ -70,7 +70,7 @@
 - 10분 이내: ✅
   → **단순 경로**
 
-**기대:** 단순 경로  
+**기대:** 단순 경로 — 사소한 수정 예외(router.md)에 해당하므로 TDD 없이 바로 수정  
 **실패:** brainstorming-agent 호출 (오버엔지니어링)
 
 ---

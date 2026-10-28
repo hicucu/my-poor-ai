@@ -3,7 +3,7 @@ description: "Trigger: tests/pipeline-triggering/prompts/boundary-complex.txt �
 tags: [trigger, trigger-fixture]
 max_turns: 5
 timeout_seconds: 600
-allowed_tools: [Skill, Agent, Read, Glob, Grep]
+allowed_tools: [Skill, Agent, Read, Glob, Grep, Edit, Write]
 ---
 
 회원가입 폼에 이메일 인증 단계 추가해줘
