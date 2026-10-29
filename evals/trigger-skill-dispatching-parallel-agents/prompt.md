@@ -1,9 +1,9 @@
 ---
-description: "Trigger: tests/skill-triggering/prompts/dispatching-parallel-agents.txt → Skill systematic-debugging (failing tests are DEBUG first)"
-tags: [trigger]
+description: "Trigger: tests/skill-triggering/prompts/dispatching-parallel-agents.txt → Skill systematic-debugging 또는 dispatching-parallel-agents"
+tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600
-allowed_tools: [Skill, Agent, Read, Glob, Grep]
+allowed_tools: [Skill, Agent, Read, Glob, Grep, Edit, Write]
 ---
 
 I have 4 independent test failures happening in different modules:

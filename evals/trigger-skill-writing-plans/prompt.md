@@ -1,9 +1,9 @@
 ---
 description: "Trigger: tests/skill-triggering/prompts/writing-plans.txt → Agent project-context (multi-step feature is FULL; planning-agent writes the specs)"
-tags: [trigger]
+tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600
-allowed_tools: [Skill, Agent, Read, Glob, Grep]
+allowed_tools: [Skill, Agent, Read, Glob, Grep, Edit, Write]
 ---
 
 Here's the spec for our new authentication system:

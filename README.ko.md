@@ -122,7 +122,7 @@ my-poor-ai는 자신의 규율을 스스로에게도 적용함:
 
 - **push마다 CI 검증** — `validate-agents.mjs`가 90+ 마크다운 파일의 frontmatter 계약(name/model/도구 화이트리스트), 참조 해소, 코드펜스 균형, 스킬 색인 등록을 검사; `generate-codex-agents.mjs --check`가 에이전트 정의 16개와 Codex 미러 간 드리프트를 차단
 - **행동 테스트** — 스킬은 실제 에이전트 대상 RED–GREEN–PRESSURE 실행으로 검증됨; 워크트리 격리 스킬은 **50/50 실행 무실패** 기록 (GREEN 20 + PRESSURE 20 + 전체 스킬 텍스트 10)
-- **적대적 압박 시나리오를 eval로 실행** — `evals/`에 `claude plugin eval` 케이스 63개(트리거·스킬 지식·압박)가 있음. 압박 케이스는 플러그인 있음·없음을 함께 실행해, 규율 스킬이 시간 압박·매몰 비용·권위 압박(에이전트가 지름길을 합리화하는 바로 그 조건)에서 버티는지 RED 기준과 GREEN 결과를 한 번에 기록함. GitHub Actions에서는 수동 `evals` 워크플로로 실행함
+- **적대적 압박 시나리오를 eval로 실행** — `evals/`에 `claude plugin eval` 케이스 66개(트리거·스킬 지식·압박)가 있음. 압박 케이스는 플러그인 있음·없음을 함께 실행해, 규율 스킬이 시간 압박·매몰 비용·권위 압박(에이전트가 지름길을 합리화하는 바로 그 조건)에서 버티는지 RED 기준과 GREEN 결과를 한 번에 기록함. GitHub Actions에서는 수동 `evals` 워크플로로 실행함
 
 ## 저장소 구조
 

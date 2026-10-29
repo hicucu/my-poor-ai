@@ -61,8 +61,15 @@ jobs:
           # trigger·knowledge는 tool_used: Skill 채점기가 점수에 들어가야 하므로 ablation을 끔
           ablation=with-without
           case "$TAG" in trigger|knowledge) ablation=none ;; esac
+          # trigger·pressure 일부 케이스는 이 저장소의 evals/_fixtures 스크립트로 대상 파일을 만들어 둠.
+          # trigger는 샌드박스 cwd의 픽스처를 고칠 수 있게 Edit·Write를 허용함 (Bash는 허용 안 함)
+          extra=(--no-scaffold)
+          case "$TAG" in
+            trigger) extra=(--scaffold --allow-tools Edit Write) ;;
+            pressure) extra=(--scaffold) ;;
+          esac
           mkdir -p evals/results
-          claude plugin eval . --tag "$TAG" --ablation "$ablation" --runs "$RUNS" \
+          claude plugin eval . --tag "$TAG" --ablation "$ablation" --runs "$RUNS" "${extra[@]}" \
             --model "$MODEL" --trust-plugin --no-publish --max-cost-usd "$MAX_COST" \
             --threshold "$THRESHOLD" --json evals/results/ci-result.json < /dev/null
       - name: Upload results
