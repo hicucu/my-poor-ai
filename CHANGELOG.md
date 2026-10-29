@@ -1,5 +1,30 @@
 # Changelog
 
+## 7.1.0
+
+Acts on a prompt audit of the plugin and gives the trigger evals something to work on. The one behavior change is a trivial-edit exception in the router; everything else is project instructions, a trigger description, and eval infrastructure. Each change was measured before it went in, on Opus 5.5 with three runs per case; see Tests.
+
+Two audit candidates were measured and left alone. The "1%라도" gate and `EXTREMELY-IMPORTANT` block stay: three new negative cases (a concept question, a git how-to, a repository fact) invoked no skill in 9 of 9 runs, so there is no over-triggering to fix. Narrowing "신규 기능" to multi-file features is held back; see Known issues.
+
+### Changed
+
+- **Trivial edits skip TDD.** `router.md` and `using-my-poor-ai` now say that an edit whose result is obvious and that changes no behavior — wording, typos, a config value — is made directly and checked, without the SIMPLE path's TDD step. An edit that changes behavior follows the SIMPLE path even when it is one line. Before this, the two trivial-edit trigger cases expected a TDD call the model never made; the model edited the file directly, which is the outcome the user asked for
+- **`using-my-poor-ai`'s description states trigger conditions only.** It had summarized the pipeline, which `writing-skills` says lets the model follow the description instead of reading the skill. It now reads: use at the start of every conversation, when deciding which skill or path (DEBUG, SIMPLE, FULL) a request needs, or when resuming a pipeline. Pipeline trigger cases scored 3/15 before and after, negatives 9/9, and the router diagnostic kept its Δ of 1.0
+- **Project `CLAUDE.md` matches the global instructions.** The plan-and-approve rule applies to skill and agent edits and multi-file changes, with clear single-path changes going ahead directly; the DRY threshold is three occurrences; the pressure-style header and the `# 흡수` comments are gone, and the pre-work list is four items
+
+### Tests
+
+- **Scaffold fixtures for trigger and pressure cases.** `evals/_fixtures/node-webapp.sh` builds a small Node board app (auth and post routes, models, a signup view, a config file, one test, a saved plan) and commits it. Eleven cases run it through a per-case `scaffold.sh` and `case.yaml` (`context.scaffold_script` must sit inside the case directory), some adding failing tests, tagged commits, or payment and user-list modules. Cases that asked to change code in an empty sandbox had stopped after searching; with the fixture the trigger fixture cases went from 0/18 to 9/18 before the router change
+- Fixture trigger cases allow `Edit` and `Write`, and `.github/workflows/evals.yml` passes `--scaffold --allow-tools Edit Write` for the trigger tag and `--scaffold` for pressure. Bash stays disallowed
+- Trivial-edit cases grade that the target file was edited and that no FULL-path agent ran, instead of requiring the TDD skill. `pressure-pipeline-dispatch-case1` and `case5` grade the same way, and `tests/pressure-scenarios/pipeline-dispatch.md` states the new expectation
+- `dispatching-parallel-agents` also accepts `systematic-debugging` (four failing test suites are a debugging request as much as a parallel one), and `requesting-code-review` also accepts the bundled `code-review`
+- `evals/` now holds 66 cases and 113 graders (23 trigger, 9 knowledge, 33 pressure, 1 router diagnostic). `evals/README.md` documents the fixtures and two runner behaviors: only the last `--case` flag applies, and character-class globs such as `[1245]` match nothing
+- Results after these changes: every trigger case except `test-driven-development` and `requesting-code-review` scored 3/3. `dispatching-parallel-agents` went from 0/3 to 3/3 and `requesting-code-review` from 0/3 to 2/3 (one run invoked no skill). `pressure-pipeline-dispatch-case2` scored 3/3 with the plugin and 0/3 without; `case1` and `case5` scored 3/3 in both arms, so they no longer measure the plugin's effect. Measurement cost about 36 USD in total
+
+### Known issues
+
+- `trigger-skill-test-driven-development` fails and `pressure-pipeline-dispatch-case4` ("사용자 목록 페이지에 검색 필터 추가해줘") scores 1/3: Opus 5.5 classifies a small new feature as SIMPLE, while the router sends any "신규 기능" to FULL. Changing that rule needs its own before/after run
+
 ## 7.0.0
 
 Brings the plugin in line with Claude Code 2.1.303 and the Claude 5 models, and folds the FULL path's three overlapping definitions into one. Most of this release corrects references that no longer resolve — a tool Claude 5 models do not get by default, a subagent parameter that does not exist, a placeholder only the model could interpret, a file read in a dozen places but written in only one — and removes the pipeline behind most of them. Skills 24 → 21, agents 19 → 16. Each mechanism was checked in a live session before the edits went in; see Tests.

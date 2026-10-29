@@ -46,6 +46,8 @@
 | **SIMPLE** | GOAL.md 작성 | `my-poor-ai:test-driven-development` → `my-poor-ai:verification-before-completion` |
 | **FULL** | `project-context` (Phase 0, 24h 캐시) | `brainstorming-agent` → 사용자 승인 → `planning-agent` → `developer-agent` → `review-agent` → `finishing-a-development-branch` |
 
+**사소한 수정 예외**: 결과가 자명하고 동작이 바뀌지 않는 수정(문구·오타·설정값 교체)은 TDD 없이 바로 고치고 결과를 확인함. 동작이 바뀌는 수정은 한 줄이어도 SIMPLE 절차를 따름.
+
 > FULL의 Phase 0은 `project-context`임 — `brainstorming-agent`는 Phase 1임. 상세 계약은 `using-my-poor-ai` 호출.
 
 에이전트는 `my-poor-ai:` 접두사로 네임스페이스됨 (`subagent_type="my-poor-ai:brainstorming-agent"`). 접두사가 해소되지 않는 환경에서만 bare name 사용.

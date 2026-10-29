@@ -1,6 +1,6 @@
 ---
 name: using-my-poor-ai
-description: Use at the start of every conversation - establishes how to find and use skills, and requires a Skill tool call before every response including clarifying questions
+description: Use at the start of every conversation, and when deciding which skill or pipeline path (DEBUG, SIMPLE, FULL) a request needs or resuming a pipeline ("이어서", "계속")
 ---
 
 <SUBAGENT-STOP>
@@ -114,6 +114,8 @@ GOAL.md 포맷:
 1. **GOAL.md 작성** — 목표·성공 기준을 `_workspaces/{branch-slug}/GOAL.md`에 기록 (결과가 자명하고 별도 검증이 불필요한 작업만 생략, 소프트 게이트)
 2. `my-poor-ai:test-driven-development` — RED-GREEN-REFACTOR 사이클로 직접 구현
 3. `my-poor-ai:verification-before-completion` — 완료 전 실제 동작 검증 (GOAL.md 성공 기준 대조 포함)
+
+**사소한 수정 예외**: 결과가 자명하고 동작이 바뀌지 않는 수정(문구·오타·설정값 교체)은 TDD 없이 바로 고치고 결과를 확인함. 동작이 바뀌는 수정은 한 줄이어도 단순 경로 절차를 따름.
 
 **복잡 경로 (subagent 파이프라인):**
 

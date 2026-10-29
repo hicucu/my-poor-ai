@@ -122,7 +122,7 @@ my-poor-ai applies its own discipline to itself:
 
 - **CI-validated on every push** — `validate-agents.mjs` checks frontmatter contracts (name/model/tool whitelists), reference resolution, code-fence balance, and the skill index across 90+ markdown files; `generate-codex-agents.mjs --check` blocks drift between the 16 agent definitions and their generated Codex mirrors
 - **Behaviorally tested** — skills are validated with RED–GREEN–PRESSURE runs against live agents; the worktree-isolation skill's guidance held at **50/50 runs with zero failures** (20 GREEN + 20 PRESSURE + 10 full-skill-text)
-- **Adversarial pressure scenarios, run as evals** — `evals/` holds 63 `claude plugin eval` cases (triggering, skill knowledge, pressure). Pressure cases run with and without the plugin, so each run records the RED baseline beside the GREEN result for discipline skills under time pressure, sunk cost, and authority pressure — the exact conditions where agents rationalize shortcuts. A manual `evals` workflow runs them in GitHub Actions
+- **Adversarial pressure scenarios, run as evals** — `evals/` holds 66 `claude plugin eval` cases (triggering, skill knowledge, pressure). Pressure cases run with and without the plugin, so each run records the RED baseline beside the GREEN result for discipline skills under time pressure, sunk cost, and authority pressure — the exact conditions where agents rationalize shortcuts. A manual `evals` workflow runs them in GitHub Actions
 
 ## Repository Structure
 
