@@ -1,5 +1,5 @@
 ---
-description: "Trigger: tests/skill-triggering/prompts/dispatching-parallel-agents.txt → Skill systematic-debugging (failing tests are DEBUG first)"
+description: "Trigger: tests/skill-triggering/prompts/dispatching-parallel-agents.txt → Skill systematic-debugging 또는 dispatching-parallel-agents"
 tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600

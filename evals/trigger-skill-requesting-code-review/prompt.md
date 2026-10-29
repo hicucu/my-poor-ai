@@ -1,5 +1,5 @@
 ---
-description: "Trigger: tests/skill-triggering/prompts/requesting-code-review.txt → Skill requesting-code-review (naive prompt, skill not named)"
+description: "Trigger: tests/skill-triggering/prompts/requesting-code-review.txt → Skill requesting-code-review 또는 code-review (naive prompt, skill not named)"
 tags: [trigger, trigger-fixture]
 max_turns: 4
 timeout_seconds: 600

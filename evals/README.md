@@ -221,6 +221,8 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-29 | 픽스처 확장 — `dispatching-parallel-agents`(실패 테스트 4개), `requesting-code-review`(인증 커밋 2개 + 태그 `abc123`·`def456`), `writing-plans`(공용 베이스), pressure case2(결제 모듈)·case4(사용자 목록 페이지). 케이스별 `scaffold.sh`가 공용 베이스 실행 후 파일을 덧붙임 | `writing-plans` 3/3(전 0/3). `dispatching-parallel-agents` 0/3 — 모델은 `dispatching-parallel-agents`를 호출함(채점기는 `systematic-debugging` 기대, 원본 기대는 전자). `requesting-code-review` 0/3 — 모델은 `my-poor-ai:code-review`를 호출하고, Bash가 없어 태그 범위를 확인하지 못해 되물음. trace 각 1건 확인. $1.79 + $2.30 + 진단 약 $0.6 |
 | 2026-10-29 | `--case 'pressure-pipeline-dispatch-*' --scaffold` (기본 ablation, 3회, 상한 $3) | 상한 도달로 부분 결과(case4 with 2회·without 미실행, case5 미실행). with/without: case1 3/3·3/3(FULL 미진입 채점기는 플러그인 없이도 통과 — Δ 0), case2 3/3·0/3, case3 3/3·0/3, case4 with 0/2(`project-context` 미디스패치). $3.70 |
 
+| 2026-10-29 | 채점 기대값 확장 — `dispatching-parallel-agents`는 `systematic-debugging`·`dispatching-parallel-agents` 모두 인정, `requesting-code-review`는 `code-review`도 인정. 재측정 + pressure case4·5 마무리 (3회) | `dispatching-parallel-agents` 3/3, `requesting-code-review` 2/3(1회는 Skill 미호출), pressure case4 with 1/3(`--ablation none`), case5 with 3/3·without 3/3(case1과 같이 Δ 0). $2.20 |
+
 - `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 
 trigger·knowledge 전부와 위 압박 3건 외의 압박 케이스는 frontmatter 키·채점기 키를 바이너리 스키마의 허용 목록과 대조하는 정적 검사만 거침.
