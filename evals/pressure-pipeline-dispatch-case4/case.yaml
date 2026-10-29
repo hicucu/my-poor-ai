@@ -1,0 +1,4 @@
+schema_version: "1.0"
+name: pressure-pipeline-dispatch-case4
+context:
+  scaffold_script: scaffold.sh

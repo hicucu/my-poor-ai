@@ -57,7 +57,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 - `--max-cost-usd`는 상한 도달 시 남은 run을 중단하고 exit 2로 끝남
 - `--threshold` 기본값 1.0 — 한 케이스라도 점수가 1.0 미만이면 exit 1. 측정 목적 실행에서는 종료 코드보다 리포트의 점수·Δ를 판정 근거로 씀
 - `--allow-tools Edit Write`는 trigger 실행에만 필요함 — `trigger-fixture` 6케이스가 샌드박스 cwd의 픽스처를 고칠 수 있게 함. 수정 도구가 없으면 모델이 서브에이전트를 2~3회 디스패치해 우회를 시도하며 턴을 소모했음(2026-10-28 trace). Bash·WebFetch·WebSearch를 쓰는 케이스는 없음
-- `--case`는 이름 glob을 받음 (예: `--case 'trigger-pipeline-*'`)
+- `--case`는 이름 glob을 받음 (예: `--case 'trigger-pipeline-*'`). `[1245]` 같은 문자 클래스는 매칭되지 않음(0케이스, 2.1.312 실측)
 
 ## 결과 위치
 
@@ -86,7 +86,7 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 - **trigger 순서 조건**: `tests/pipeline-triggering/README.md`의 "첫 번째 호출" 조건은 검사하지 않음 — `tool_used`는 호출 존재만 확인함. 원본 러너도 순서를 판정하지 않았고, "스킬 호출 전 다른 도구 사용" 검사는 원본에서 경고였으므로 옮기지 않음
 - **trigger max_turns**: skill-triggering·explicit은 4(원본 3), pipeline은 5(원본은 대화형이라 제한 없음)
 - **라우터 기준으로 바꾼 기대값 3건**: 원본 skill-triggering은 현행 라우터(`skills/using-my-poor-ai/router.md`)보다 먼저 만들어져 라우터와 다른 스킬을 기대했음. 2026-10-19 haiku 실행에서 모델은 라우터대로 행동함 — 다단계 기능 명세(`trigger-skill-writing-plans`)는 FULL로 `project-context`를, "new feature"(`trigger-skill-test-driven-development`)는 라우터의 "신규 기능은 즉시 FULL"에 따라 `project-context`를, 테스트 실패 4건(`trigger-skill-dispatching-parallel-agents`)은 DEBUG로 `systematic-debugging`을 기대값으로 바꿈. 케이스 디렉토리명은 원본 프롬프트를 가리키도록 유지함
-- **픽스처 (`trigger-fixture` 태그 6케이스)**: 빈 샌드박스에서는 특정 코드·플랜 파일을 가리키는 요청에 모델이 대상을 찾다가 "파일이 없다"고 보고하며 멈춰, 스킬 호출 전에 실패로 집계됐음. `trigger-pipeline-simple-request`·`-boundary-simple`·`-boundary-complex`·`-complex-request`, `trigger-skill-subagent-driven-development`·`-test-driven-development`는 `evals/_fixtures/node-webapp.sh`가 만드는 Node 웹앱(설정 `timeout: 3000`, "제출" 버튼이 있는 회원가입 폼, 게시글 모델, 플랜 `docs/my-poor-ai/plans/2024-01-15-auth-system.md`, 커밋 1개)에서 실행됨. 실행 시 `--scaffold` 필요 — 없으면 빈 샌드박스로 돌아가 예전 실패가 재현됨
+- **픽스처 (`trigger-fixture` 태그 9케이스 + pressure-pipeline-dispatch case2·4)**: 빈 샌드박스에서는 특정 코드·플랜 파일을 가리키는 요청에 모델이 대상을 찾다가 "파일이 없다"고 보고하며 멈춰, 스킬 호출 전에 실패로 집계됐음. `trigger-pipeline-simple-request`·`-boundary-simple`·`-boundary-complex`·`-complex-request`, `trigger-skill-subagent-driven-development`·`-test-driven-development`는 `evals/_fixtures/node-webapp.sh`가 만드는 Node 웹앱(설정 `timeout: 3000`, "제출" 버튼이 있는 회원가입 폼, 게시글 모델, 플랜 `docs/my-poor-ai/plans/2024-01-15-auth-system.md`, 커밋 1개)에서 실행됨. 실행 시 `--scaffold` 필요 — 없으면 빈 샌드박스로 돌아가 예전 실패가 재현됨
   - 연결 방식: 케이스 디렉토리의 `case.yaml`(`schema_version`·`name`·`context.scaffold_script`만 보유)이 `prompt.md`·`graders/`와 병합됨. `scaffold_script`는 케이스 디렉토리 밖 경로(`..`·절대 경로)를 거부하므로 각 케이스의 `scaffold.sh`가 공용 스크립트를 `exec`함. `prompt.md` frontmatter는 `context` 키를 받지 않음 (2.1.312 실측)
   - 스크립트는 샌드박스 cwd에서 bash로 실행됨(120초 제한). 공용 스크립트를 바꾸면 6케이스가 함께 바뀜
 - **explicit-skill-requests 픽스처**: `run-test.sh`가 만들던 더미 플랜 `docs/my-poor-ai/plans/auth-system.md`가 샌드박스에 없음. 채점은 스킬 호출만 보므로 판정 기준은 같으나 모델 행동(플랜 탐색 여부)은 달라질 수 있음
@@ -217,6 +217,9 @@ claude plugin eval . --case <케이스명> --runs 1 --ablation none --trust-plug
 | 2026-10-28 | `trigger-skill-test-driven-development`를 `max_turns: 10`으로 임시 실행 (2회, 커밋 안 함) | 0/2. 직접 탐색은 `project-context` 생략이 아니라 SIMPLE 판정 과정 — 1회는 `test-driven-development` 직행, 1회는 "함수 하나·파일 하나의 작은 작업"으로 판단. 라우터의 "신규 기능은 즉시 FULL"과 SIMPLE 기준(파일 1-2개·설계 불필요)이 이 요청에서 충돌함. $1.11 |
 | 2026-10-29 | 라우터 「사소한 수정 예외」 반영 + 픽스처 6케이스 `Edit`·`Write` 허용 후 `--tag trigger --scaffold --allow-tools Edit Write` (3회, 상한 $12) | 상한 도달로 부분 결과(`trigger-skill-writing-plans` 미실행, `-test-driven-development` 2회). 19/22케이스 전원 통과 — explicit 9, negative 3, pipeline 5(사소한 수정 2케이스는 `Edit` 채점기), `subagent-driven-development`·`systematic-debugging`. 실패: `test-driven-development` 0/2(SIMPLE 판정, 위 기록), `dispatching-parallel-agents`·`requesting-code-review` 0/3(빈 샌드박스 — 대상 테스트 파일·커밋 범위 없음, 픽스처 미적용). 픽스처 케이스가 실제 수정까지 수행해 run당 비용 증가. $13.51 |
 | 2026-10-29 | `--case 'pressure-pipeline-dispatch-*'` (기본 ablation, 3회) | with: case3 3/3, 나머지 0/3 — case2·4(FULL 기대)는 빈 샌드박스, case1·5는 TDD를 기대하던 채점기라 「사소한 수정 예외」와 충돌 → 같은 커밋에서 FULL 미진입 채점기로 교체(교체 후 미측정). without 전원 0/3. $3.13 |
+
+| 2026-10-29 | 픽스처 확장 — `dispatching-parallel-agents`(실패 테스트 4개), `requesting-code-review`(인증 커밋 2개 + 태그 `abc123`·`def456`), `writing-plans`(공용 베이스), pressure case2(결제 모듈)·case4(사용자 목록 페이지). 케이스별 `scaffold.sh`가 공용 베이스 실행 후 파일을 덧붙임 | `writing-plans` 3/3(전 0/3). `dispatching-parallel-agents` 0/3 — 모델은 `dispatching-parallel-agents`를 호출함(채점기는 `systematic-debugging` 기대, 원본 기대는 전자). `requesting-code-review` 0/3 — 모델은 `my-poor-ai:code-review`를 호출하고, Bash가 없어 태그 범위를 확인하지 못해 되물음. trace 각 1건 확인. $1.79 + $2.30 + 진단 약 $0.6 |
+| 2026-10-29 | `--case 'pressure-pipeline-dispatch-*' --scaffold` (기본 ablation, 3회, 상한 $3) | 상한 도달로 부분 결과(case4 with 2회·without 미실행, case5 미실행). with/without: case1 3/3·3/3(FULL 미진입 채점기는 플러그인 없이도 통과 — Δ 0), case2 3/3·0/3, case3 3/3·0/3, case4 with 0/2(`project-context` 미디스패치). $3.70 |
 
 - `--case`를 여러 번 지정하면 마지막 값만 적용됨(2.1.312 실측). 여러 그룹은 실행을 나누거나 glob 하나로 묶음
 
