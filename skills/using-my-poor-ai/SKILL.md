@@ -161,6 +161,8 @@ Phase별 실행 상세:
 
 > 위 에이전트들은 플러그인 설치 시 `my-poor-ai:` 접두사로 네임스페이스된다 — Agent 도구 호출 시 `subagent_type="my-poor-ai:brainstorming-agent"` 형식을 기본으로 쓰고, 접두사가 해소되지 않는 환경에서만 bare name을 쓴다.
 
+**실행 모드 (Phase 3·4)**: Phase 3 진입 직전 1회 판정함. 팀 기능 활성(`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) + 대화형 세션이면 **서브에이전트 / 에이전트팀 중 무엇을 쓸지 사용자에게 질문**하고, 아니면 묻지 않고 서브에이전트 모드(위 표)로 진행함. 결과는 `pipeline-state.md`의 `mode:`에 기록하여 재개 시 재사용함. 팀 모드에서는 `review-agent`(서브에이전트 — 팀을 만들 수 없음) 대신 **메인 세션이 팀 리드로서 Phase 4 리뷰를 직접 조율함.** 팀 모드 절차·제약은 `references/agent-teams.md`가 정본임.
+
 **NEEDS_CONTEXT 중계**: 에이전트가 `STATUS: NEEDS_CONTEXT`로 반환하면(planning-agent의 마이그레이션 방식 미확인, developer-agent의 스펙 모호 등) 질문을 사용자에게 전달하고, 답변을 `SendMessage`로 **같은 에이전트**에 보내 재개함 — 새로 스폰하면 그 에이전트가 이미 파악한 맥락을 버림. 재개 수단이 없는 환경이면 원래 입력에 답변을 더해 다시 호출함.
 
 ### 스킬 체인 (대화형 설계·에이전트 미등록 환경)
@@ -182,6 +184,8 @@ Claude Code에서는 위 에이전트 체인이 복잡 경로의 정본임. 다�
 
 ```markdown
 ## Pipeline State: {branch-slug}
+
+mode: subagent   # 또는 team — Phase 3 진입 직전 기록
 
 - [x] Phase 0: project-context
 - [x] Phase 1: brainstorming (design.md 승인 완료)

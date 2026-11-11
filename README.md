@@ -59,6 +59,7 @@ On every user request, before acting, answering, or asking clarifying questions,
 - Bugs, test failures, unexpected behavior: use `my-poor-ai:systematic-debugging`, then `my-poor-ai:verification-before-completion`.
 - Small, well-defined code changes: use `my-poor-ai:test-driven-development`, then `my-poor-ai:verification-before-completion`.
 - New features, multi-file changes, design decisions, external dependencies, or ambiguous requirements: follow `my-poor-ai:brainstorming` → `my-poor-ai:writing-plans` → `my-poor-ai:subagent-driven-development` → `my-poor-ai:requesting-code-review` → `my-poor-ai:finishing-a-development-branch`.
+  - When Claude Code Agent Teams is enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) in an interactive session, ask the user to choose subagent mode or agent team mode before implementation; otherwise use subagent mode without asking.
 - New project with no decided tech stack or approach: use `my-poor-ai:which-way-should-i-go` first.
 
 ## Working rules
