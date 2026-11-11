@@ -132,6 +132,8 @@ Step 5 (파일별 병렬 — 단일 응답 동시 호출)
 
 리뷰·수정은 리뷰 그룹 에이전트가 맡으며, 부리는 계약은 `_shared/review-orchestration.md`가 정본임 (불변식 10).
 
+**실행 모드**: Agent Teams 기능(`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)이 켜진 대화형 세션에서는 Phase 3 직전에 서브에이전트 / 에이전트팀 모드를 사용자가 선택함. 팀 모드에서는 위 에이전트를 팀원 역할 정의로 재사용하고, review-agent 대신 main agent가 팀 리드로서 리뷰 계약을 직접 수행함. 정본은 `skills/using-my-poor-ai/references/agent-teams.md`.
+
 ### 산출물 경로 정책
 
 | 용도               | 경로                                                               |

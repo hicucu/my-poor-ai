@@ -59,6 +59,7 @@ Codex에는 SessionStart 훅이 없으므로, 전역 지침 파일 `~/.codex/AGE
 - 버그, 테스트 실패, 예상과 다른 동작: `my-poor-ai:systematic-debugging` 후 `my-poor-ai:verification-before-completion`을 사용한다.
 - 작고 명확한 코드 변경: `my-poor-ai:test-driven-development` 후 `my-poor-ai:verification-before-completion`을 사용한다.
 - 새 기능, 다중 파일 변경, 설계 판단, 외부 의존성 또는 모호한 요구사항: `my-poor-ai:brainstorming` → `my-poor-ai:writing-plans` → `my-poor-ai:subagent-driven-development` → `my-poor-ai:requesting-code-review` → `my-poor-ai:finishing-a-development-branch` 순서를 따른다.
+  - Claude Code Agent Teams(`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)가 켜진 대화형 세션이면 구현 전에 서브에이전트 / 에이전트팀 모드를 사용자에게 묻고, 아니면 묻지 않고 서브에이전트 모드를 쓴다.
 - 새 프로젝트이며 기술 스택·접근법이 정해지지 않은 경우: `my-poor-ai:which-way-should-i-go`를 먼저 사용한다.
 
 ## 작업 규칙
