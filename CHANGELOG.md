@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.2.0
+
+Adds Claude Code Agent Teams as a second execution mode next to subagents. The user picks the mode only when teams are enabled in an interactive session; every other session behaves as in 7.1.0.
 
 ### Added
 
