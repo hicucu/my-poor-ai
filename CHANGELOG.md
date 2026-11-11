@@ -1,5 +1,22 @@
 # Changelog
 
+## 7.2.0
+
+Adds Claude Code Agent Teams as a second execution mode next to subagents. The user picks the mode only when teams are enabled in an interactive session; every other session behaves as in 7.1.0.
+
+### Added
+
+- **Agent team mode alongside subagent mode.** The FULL path (Phases 3–4) and `subagent-driven-development` can now run on Claude Code Agent Teams. Mode is decided once, before Phase 3 or the first SDD task: when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and the session is interactive, the user is asked to choose; otherwise subagent mode is used without asking. The choice is recorded as `mode:` in `pipeline-state.md` and reused on resume. In team mode the main session leads the team and orchestrates the Phase 4 review itself, because `review-agent` is a subagent and cannot create a team; reviewers cross-check each other's findings for one round. In SDD team mode the spec and quality reviewers persist across tasks and send issues straight to the implementer, while the lead keeps the spec-before-quality gate and the one-implementer rule. Details live in `skills/using-my-poor-ai/references/agent-teams.md` and `skills/subagent-driven-development/agent-teams-mode.md`
+
+### Tests
+
+- Two knowledge cases: `knowledge-team-mode-selection` (asks for the mode when teams are enabled; the lead orchestrates review in team mode) scored 0/1 before the change and 3/3 after; `knowledge-team-mode-disabled` (no question when teams are off) scored 3/3 before and after. Haiku model, Sonnet judge
+- The knowledge suite otherwise matched the unchanged baseline: `knowledge-sdd-plan-reading` 2/3 and `knowledge-sdd-spec-reviewer-mindset` 1/3 (max turns) score the same on the previous commit
+
+### Known issues
+
+- Evals run non-interactively, where teammates are never spawned, so they check the decision rules only. Actual team spawning, messaging and shutdown have not been exercised in a live interactive session
+
 ## 7.1.0
 
 Acts on a prompt audit of the plugin and gives the trigger evals something to work on. The one behavior change is a trivial-edit exception in the router; everything else is project instructions, a trigger description, and eval infrastructure. Each change was measured before it went in, on Opus 5.5 with three runs per case; see Tests.

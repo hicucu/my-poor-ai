@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- |
 | `trigger` | 23 | `tests/pipeline-triggering` 5, `tests/skill-triggering` 6, `tests/explicit-skill-requests` 9, 과잉 발동 측정 신규 3(`trigger-negative`) | `tool_used` 23 | `none` |
 | `diag` | 1 | 라우터 블록 주입 여부 진단 | `regex` 1 | 기본값(`with-without`) |
-| `knowledge` | 9 | `tests/claude-code/test-subagent-driven-development.sh` 테스트 9개 | `llm` 15 | `none` |
+| `knowledge` | 11 | `tests/claude-code/test-subagent-driven-development.sh` 테스트 9개, 실행 모드(서브에이전트/에이전트팀) 신규 2 | `llm` 18 | `none` |
 | `pressure` | 33 | `tests/pressure-scenarios/*.md` 29, `skills/systematic-debugging/test-*.md` 4 | `llm` 65(그중 `focus: trace` 9), `tool_used` 7 | 기본값(`with-without`) |
 
 케이스별 설정:
